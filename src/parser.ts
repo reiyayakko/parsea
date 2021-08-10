@@ -1,11 +1,11 @@
 import { isArrayLike } from "emnorst";
 import { ParseState, Success, succInit, Target } from "./state";
 
-type ParseRunner<R1, R2> = (this: void, state: Success<R1>) => ParseState<R2>;
+type ParseRunner<T, U> = (this: void, state: Success<T>) => ParseState<U>;
 
-export class Parser<R> {
-    constructor(readonly run: ParseRunner<unknown, R>) {}
-    parse(this: Parser<R>, target: Target): ParseState<R> {
+export class Parser<T> {
+    constructor(readonly run: ParseRunner<unknown, T>) {}
+    parse(this: Parser<T>, target: Target): ParseState<T> {
         if(!isArrayLike(target)) {
             throw new TypeError("target is not ArrayLike.");
         }

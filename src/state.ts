@@ -2,15 +2,15 @@ export type Target<T = unknown> =
     | (T extends string ? string : string extends T ? string : never)
     | ArrayLike<T>;
 
-export type ParseState<R> = Success<R> | Failure;
+export type ParseState<T> = Success<T> | Failure;
 
 // INFO: Success State
 
-export interface Success<R> {
+export interface Success<T> {
     readonly succ: true;
     readonly target: Target;
     readonly pos: number;
-    readonly value: R;
+    readonly value: T;
 }
 
 export const succInit = (target: Target): Success<null> => ({
@@ -20,11 +20,11 @@ export const succInit = (target: Target): Success<null> => ({
     value: null,
 });
 
-export const succUpdate = <R>(
+export const succUpdate = <T>(
     succ: Success<unknown>,
-    value: R,
+    value: T,
     consumeLength: number,
-): Success<R> => ({
+): Success<T> => ({
     succ: true,
     target: succ.target,
     pos: succ.pos + consumeLength,
