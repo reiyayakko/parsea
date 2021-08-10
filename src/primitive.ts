@@ -32,9 +32,9 @@ export const anyEl = new Parser(
             : failFromSucc(state),
 );
 
-export const satisfy = <R>(
-    f: ((el: unknown) => boolean) | ((el: unknown) => el is R),
-): Parser<R> =>
+export const satisfy = <T>(
+    f: ((el: unknown) => boolean) | ((el: unknown) => el is T),
+): Parser<T> =>
     new Parser(state => {
         let el: unknown;
         return state.pos < state.target.length && f(el = state.target[state.pos])
