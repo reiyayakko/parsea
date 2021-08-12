@@ -1,5 +1,10 @@
 {
+    "include": ["**/*", ".*"],
+    "typeAcquisition": {
+        "exclude": ["dist", "tests"]
+    },
     "compilerOptions": {
+        "resolveJsonModule": true,
         "moduleResolution": "node",
         "esModuleInterop": true,
         "module": "ES2015",
@@ -7,5 +12,5 @@
         "strict": true,
         "importsNotUsedAsValues": "error",
         "declaration": true,
-    }
+    },
 }
