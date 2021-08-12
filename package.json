@@ -5,6 +5,9 @@
   "main": "dist/parsea.cjs.js",
   "module": "dist/parsea.esm.js",
   "types": "dist/parsea.esm.d.ts",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "watch": "rollup -c --environment BUILD:development -w",
     "build": "rollup -c --environment BUILD:production",
