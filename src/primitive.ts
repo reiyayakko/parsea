@@ -1,5 +1,5 @@
 import { Parser } from "./parser";
-import { failFromSucc, succUpdate } from "./state";
+import { failFromSucc, succUpdate, Target } from "./state";
 
 /**
  * Delays variable references until the parser runs.
@@ -42,4 +42,19 @@ export const satisfy = <T>(
         return state.pos < state.target.length && f(targetEl = state.target[state.pos])
             ? succUpdate(state, targetEl, 1)
             : failFromSucc(state);
+    });
+
+export const literal = <T extends Target>(chunk: T): Parser<T> =>
+    new Parser<T>(state => {
+        if(state.pos + chunk.length >= state.target.length) {
+            return failFromSucc(state);
+        }
+        for(let i = 0; i < chunk.length; i++) {
+            const targetEl = state.target[state.pos + i];
+            const chunkEl = chunk[i];
+            if(!Object.is(targetEl, chunkEl)) {
+                return failFromSucc(state);
+            }
+        }
+        return succUpdate(state, chunk, chunk.length);
     });
