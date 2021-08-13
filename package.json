@@ -15,17 +15,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/reiyayakko/parsea.git"
+    "url": "git+https://github.com/rizzzse/parsea.git"
   },
   "keywords": [
     "parsing"
   ],
-  "author": "reiyayakko <reiyayakko@gmail.com> (https://github.com/reiyayakko)",
+  "author": "rizzzse <rizzzse@gmail.com> (https://github.com/rizzzse)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/reiyayakko/parsea/issues"
+    "url": "https://github.com/rizzzse/parsea/issues"
   },
-  "homepage": "https://github.com/reiyayakko/parsea#readme",
+  "homepage": "https://github.com/rizzzse/parsea#readme",
   "dependencies": {
     "emnorst": "0.0.3"
   },
