@@ -1,5 +1,6 @@
-import { isArrayLike } from "emnorst";
+import { isArrayLike, MAX_BIT_NUMBER as MAX_INT32 } from "emnorst";
 import { margeFail, ParseState, Success, succInit, succUpdate, Target } from "./state";
+import { clamp } from "./util";
 
 type ParseRunner<T, U> = (this: void, state: Success<T>) => ParseState<U>;
 
@@ -47,6 +48,24 @@ export class Parser<T> {
             const newStateB = parser.run(state);
             if(newStateB.succ) return newStateB;
             return margeFail(newStateA, newStateB);
+        });
+    }
+    many(this: Parser<T>, options?: { min?: number; max?: number }): Parser<T[]> {
+        const clampedMin = clamp(options?.min || 0, 0, MAX_INT32) | 0;
+        const clampedMax = clamp(options?.max || MAX_INT32, clampedMin, MAX_INT32) | 0;
+
+        return new Parser(state => {
+            const accum: T[] = [];
+            for(let i = 0; i < clampedMax; i++) {
+                const newState = this.run(state);
+                if(!newState.succ) {
+                    if(i < clampedMin) return newState;
+                    break;
+                }
+                accum.push(newState.value);
+                state = newState;
+            }
+            return succUpdate(state, accum, 0);
         });
     }
 }
