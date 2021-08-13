@@ -32,12 +32,14 @@ export const anyEl = new Parser(
             : failFromSucc(state),
 );
 
+export const el = <T>(value: T): Parser<T> => satisfy(targetEl => Object.is(targetEl, value));
+
 export const satisfy = <T>(
     f: ((el: unknown) => boolean) | ((el: unknown) => el is T),
 ): Parser<T> =>
     new Parser(state => {
-        let el: unknown;
-        return state.pos < state.target.length && f(el = state.target[state.pos])
-            ? succUpdate(state, el, 1)
+        let targetEl: unknown;
+        return state.pos < state.target.length && f(targetEl = state.target[state.pos])
+            ? succUpdate(state, targetEl, 1)
             : failFromSucc(state);
     });
