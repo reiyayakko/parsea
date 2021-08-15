@@ -20,6 +20,13 @@ export const lazy = <T>(getParser: () => Parser<T>): Parser<T> => {
 export const pure = <T>(value: T): Parser<T> => new Parser(state => succUpdate(state, value, 0));
 
 /**
+ * end of input
+ */
+export const eoi = new Parser(state =>
+    state.pos < state.target.length ? failFromSucc(state) : state
+);
+
+/**
  * Matches any element.
  *
  * @example any.parse([someValue]).value === someValue;
