@@ -1,6 +1,6 @@
 {
   "name": "parsea",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "perser combinator",
   "main": "dist/parsea.cjs.js",
   "module": "dist/parsea.esm.js",
