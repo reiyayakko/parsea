@@ -14,12 +14,13 @@ export const lazy = <T>(getParser: () => Parser<T>): Parser<T> => {
     });
 };
 
-export const seq = <T>(parsers: Parser<T>[]): Parser<T[]> =>
+export const seq = <T>(parsers: Parser<T>[], options?: { droppable?: boolean }): Parser<T[]> =>
     new Parser(state => {
         const accum: T[] = [];
         for(let i = 0; i < parsers.length; i++) {
             const newState = parsers[i].run(state);
             if(!newState.succ) {
+                if(options?.droppable) break;
                 return newState;
             }
             accum.push(newState.value);
