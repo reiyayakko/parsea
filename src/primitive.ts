@@ -40,7 +40,7 @@ export const satisfy = <T>(
 
 export const literal = <T extends Target>(chunk: T): Parser<T> =>
     new Parser<T>(state => {
-        if(state.pos + chunk.length >= state.target.length) {
+        if(state.pos + chunk.length > state.target.length) {
             return failFromSucc(state);
         }
         for(let i = 0; i < chunk.length; i++) {
