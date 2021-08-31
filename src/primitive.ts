@@ -47,7 +47,7 @@ export const literal = <T extends Target>(chunk: T): Parser<T> =>
             const targetEl = state.target[state.pos + i];
             const chunkEl = chunk[i];
             if(!Object.is(targetEl, chunkEl)) {
-                return failFromSucc(state);
+                return failFromSucc(succUpdate(state, null, i));
             }
         }
         return succUpdate(state, chunk, chunk.length);
