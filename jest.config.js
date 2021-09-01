@@ -16,6 +16,7 @@ const config = {
             diagnostics: { warnOnly: true },
         },
     },
+    setupFilesAfterEnv: ["./tests/setup.ts"],
 };
 
 module.exports = config;
