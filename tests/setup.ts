@@ -30,13 +30,17 @@ const parseResultToEqual: jest.CustomMatcher = function(
 
     const parseResult = receivedParser.parse(result.target);
     const pass = this.equals(parseResult, result);
-    return {
-        pass,
-        message: () => 
-            this.utils.matcherHint(matcherName, void 0, void 0, options)
-                + "\n\n"
-                + (this.utils.diff(parseResult, result) || ""),
+    const message = () => {
+        const hint = this.utils.matcherHint(matcherName, void 0, void 0, options) + "\n\n";
+        return hint + this.utils.printDiffOrStringify(
+            parseResult,
+            result,
+            "Expected",
+            "Received",
+            this.expand !== false,
+        );
     };
+    return { pass, message };
 };
 
 expect.extend({ parseResultToEqual });
