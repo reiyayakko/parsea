@@ -2,7 +2,7 @@ import { Parser } from "./parser";
 import { failFromSucc, succUpdate } from "./state";
 
 export const regexGroup = (re: RegExp): Parser<RegExpExecArray> => {
-    const fixedRegex = new RegExp("^" + re.source, re.flags);
+    const fixedRegex = new RegExp("^" + re.source, re.flags.replace("g", ""));
 
     return new Parser(state => {
         if(typeof state.target !== "string") {
