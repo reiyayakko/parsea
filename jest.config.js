@@ -10,13 +10,8 @@ const config = {
     collectCoverage: true,
     coverageDirectory: "coverage",
     coverageProvider: "v8",
-    preset: "ts-jest",
-    globals: {
-        "ts-jest": {
-            diagnostics: { warnOnly: true },
-        },
-    },
     setupFilesAfterEnv: ["./tests/setup.ts"],
+    transform: { "\\.ts$": "esbuild-jest" },
 };
 
 module.exports = config;
