@@ -1,16 +1,16 @@
 import { Parser } from "./parser";
-import { failFromSucc, succUpdate } from "./state";
+import { failFrom, succUpdate } from "./state";
 
 export const regexGroup = (re: RegExp): Parser<RegExpExecArray> => {
     const fixedRegex = new RegExp("^" + re.source, re.flags.replace("g", ""));
 
     return new Parser(state => {
         if(typeof state.target !== "string") {
-            return failFromSucc(state);
+            return failFrom(state.target, state.pos);
         }
         const matchResult = fixedRegex.exec(state.target.substr(state.pos));
         return matchResult === null
-            ? failFromSucc(state)
+            ? failFrom(state.target, state.pos)
             : succUpdate(state, matchResult, matchResult[0].length);
     });
 };

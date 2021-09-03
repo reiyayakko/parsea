@@ -39,11 +39,7 @@ export interface Failure {
     readonly pos: number;
 }
 
-export const failFromSucc = (succ: Success<unknown>): Failure => ({
-    succ: false,
-    target: succ.target,
-    pos: succ.pos,
-});
+export const failFrom = (target: Target, pos: number): Failure => ({ succ: false, target, pos });
 
 export const margeFail = (failA: Failure, failB: Failure): Failure => {
     if(failA.target !== failB.target) {
