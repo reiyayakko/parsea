@@ -1,5 +1,5 @@
 import { Parser } from "../src/parser";
-import { ParseState, succUpdate, succInit, Target, failFrom } from "../src/state";
+import { ParseState, succUpdate, succInit, Source, failFrom } from "../src/state";
 
 type InferFromParser<T> = T extends Parser<infer U> ? U : never;
 
@@ -7,8 +7,8 @@ declare global {
     namespace jest {
         interface Matchers<R, T> {
             parseToEqual(result: ParseState<InferFromParser<T>>): R;
-            parseToSucc(target: Target, pos: number, value: InferFromParser<T>): R;
-            parseToFail(target: Target, pos: number): R;
+            parseToSucc(source: Source, pos: number, value: InferFromParser<T>): R;
+            parseToFail(source: Source, pos: number): R;
         }
     }
 }
@@ -34,7 +34,7 @@ const parseToEqual = function(
         );
     }
 
-    const parseResult = receivedParser.parse(result.target);
+    const parseResult = receivedParser.parse(result.src);
     const pass = this.equals(parseResult, result);
     const message = () => {
         const hint = this.utils.matcherHint(matcherName, void 0, void 0, options) + "\n\n";
@@ -55,26 +55,26 @@ expect.extend({
     },
     parseToSucc(
         receivedParser: unknown,
-        target: Target,
+        source: Source,
         pos: number,
         value: unknown,
     ) {
         return parseToEqual.call(
             this,
             receivedParser,
-            succUpdate(succInit(target), value, pos),
+            succUpdate(succInit(source), value, pos),
             "parseToSucc",
         );
     },
     parseToFail(
         receivedParser: unknown,
-        target: Target,
+        source: Source,
         pos: number,
     ) {
         return parseToEqual.call(
             this,
             receivedParser,
-            failFrom(target, pos),
+            failFrom(source, pos),
             "parseToFail",
         );
     },

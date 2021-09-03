@@ -5,12 +5,12 @@ export const regexGroup = (re: RegExp): Parser<RegExpExecArray> => {
     const fixedRegex = new RegExp("^" + re.source, re.flags.replace("g", ""));
 
     return new Parser(state => {
-        if(typeof state.target !== "string") {
-            return failFrom(state.target, state.pos);
+        if(typeof state.src !== "string") {
+            return failFrom(state.src, state.pos);
         }
-        const matchResult = fixedRegex.exec(state.target.substr(state.pos));
+        const matchResult = fixedRegex.exec(state.src.substr(state.pos));
         return matchResult === null
-            ? failFrom(state.target, state.pos)
+            ? failFrom(state.src, state.pos)
             : succUpdate(state, matchResult, matchResult[0].length);
     });
 };
