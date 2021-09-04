@@ -1,5 +1,5 @@
 import { Parser } from "../src/parser";
-import { ParseState, succUpdate, succInit, Source, failFrom } from "../src/state";
+import { Config, ParseState, succUpdate, succInit, Source, failFrom } from "../src/state";
 
 type InferFromParser<T> = T extends Parser<infer U> ? U : never;
 
@@ -58,11 +58,12 @@ expect.extend({
         source: Source,
         pos: number,
         value: unknown,
+        config: Config = {},
     ) {
         return parseToEqual.call(
             this,
             receivedParser,
-            succUpdate(succInit(source), value, pos),
+            succUpdate(succInit(source, config), value, pos),
             "parseToSucc",
         );
     },

@@ -1,16 +1,16 @@
 import { isArrayLike, MAX_BIT_NUMBER as MAX_INT32 } from "emnorst";
-import { margeFail, ParseState, Success, succInit, succUpdate, Source } from "./state";
+import { Config, margeFail, ParseState, Success, succInit, succUpdate, Source } from "./state";
 import { clamp } from "./util";
 
 type ParseRunner<T, U> = (this: void, state: Success<T>) => ParseState<U>;
 
 export class Parser<T> {
     constructor(readonly run: ParseRunner<unknown, T>) {}
-    parse(this: Parser<T>, source: Source): ParseState<T> {
+    parse(this: Parser<T>, source: Source, config: Config = {}): ParseState<T> {
         if(!isArrayLike(source)) {
             throw new TypeError("source is not ArrayLike.");
         }
-        const initState = succInit(source);
+        const initState = succInit(source, config);
         const finalState = this.run(initState);
         return finalState;
     }

@@ -2,18 +2,24 @@ export type Source<T = unknown> =
     | (T extends string ? string : string extends T ? string : never)
     | ArrayLike<T>;
 
+export interface Config {
+    readonly [key: string]: unknown;
+}
+
 export type ParseState<T> = Success<T> | Failure;
 
 // INFO: Success State
 
 export interface Success<T> {
     readonly succ: true;
+    readonly config: Config;
     readonly src: Source;
     readonly pos: number;
     readonly val: T;
 }
 
-export const succInit = (src: Source): Success<null> => ({ succ: true, src, pos: 0, val: null });
+export const succInit = (src: Source, config: Config): Success<null> =>
+    ({ succ: true, config, src, pos: 0, val: null });
 
 export const succUpdate = <T>(
     succ: Success<unknown>,
@@ -21,6 +27,7 @@ export const succUpdate = <T>(
     consumeLength: number,
 ): Success<T> => ({
     succ: true,
+    config: succ.config,
     src: succ.src,
     pos: succ.pos + consumeLength,
     val: value,
