@@ -3,10 +3,10 @@ import { regexGroup } from "../src/string";
 
 describe("string parsers", () => {
     describe("regexGroup", () => {
-        test("targetがstring型ではない場合失敗", () => {
+        test("sourceがstring型ではない場合失敗", () => {
             expect(regexGroup(/./)).parseToFail(["しかし、なにもおこらなかった！"], 0);
         });
-        test("lastIndexのリセット", () => {
+        test("lastIndexがリセットされる", () => {
             const parser = regexGroup(/regexp?/g);
             const result = ["regex!", 5, expect.objectContaining(["regex"])] as const;
             expect(parser).parseToSucc(...result);
