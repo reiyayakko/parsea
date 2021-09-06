@@ -1,6 +1,10 @@
-export type Target<T = unknown> =
+export type Source<T = unknown> =
     | (T extends string ? string : string extends T ? string : never)
     | ArrayLike<T>;
+
+export interface Config {
+    readonly [key: string]: unknown;
+}
 
 export type ParseState<T> = Success<T> | Failure;
 
@@ -8,17 +12,14 @@ export type ParseState<T> = Success<T> | Failure;
 
 export interface Success<T> {
     readonly succ: true;
-    readonly target: Target;
+    readonly config: Config;
+    readonly src: Source;
     readonly pos: number;
-    readonly value: T;
+    readonly val: T;
 }
 
-export const succInit = (target: Target): Success<null> => ({
-    succ: true,
-    target,
-    pos: 0,
-    value: null,
-});
+export const succInit = (src: Source, config: Config): Success<null> =>
+    ({ succ: true, config, src, pos: 0, val: null });
 
 export const succUpdate = <T>(
     succ: Success<unknown>,
@@ -26,35 +27,32 @@ export const succUpdate = <T>(
     consumeLength: number,
 ): Success<T> => ({
     succ: true,
-    target: succ.target,
+    config: succ.config,
+    src: succ.src,
     pos: succ.pos + consumeLength,
-    value,
+    val: value,
 });
 
 // INFO: Failure State
 
 export interface Failure {
     readonly succ: false;
-    readonly target: Target;
+    readonly src: Source;
     readonly pos: number;
 }
 
-export const failFromSucc = (succ: Success<unknown>): Failure => ({
-    succ: false,
-    target: succ.target,
-    pos: succ.pos,
-});
+export const failFrom = (src: Source, pos: number): Failure => ({ succ: false, src, pos });
 
 export const margeFail = (failA: Failure, failB: Failure): Failure => {
-    if(failA.target !== failB.target) {
-        throw new Error("`Failure` with different targets cannot be merged.");
+    if(failA.src !== failB.src) {
+        throw new Error("`Failure` with different sources cannot be merged.");
     }
 
     if(failA.pos < failB.pos) return failA;
     if(failA.pos > failB.pos) return failB;
     return {
         succ: false,
-        target: failA.target,
+        src: failA.src,
         pos: failA.pos,
     };
 };

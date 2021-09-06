@@ -1,5 +1,5 @@
 import { Parser } from "./parser";
-import { failFromSucc, margeFail, succUpdate } from "./state";
+import { failFrom, margeFail, succUpdate } from "./state";
 
 /**
  * Delays variable references until the parser runs.
@@ -23,7 +23,7 @@ export const seq = <T>(parsers: Parser<T>[], options?: { droppable?: boolean }):
                 if(options?.droppable) break;
                 return newState;
             }
-            accum.push(newState.value);
+            accum.push(newState.val);
             state = newState;
         }
         return succUpdate(state, accum, 0);
@@ -31,7 +31,7 @@ export const seq = <T>(parsers: Parser<T>[], options?: { droppable?: boolean }):
 
 export const choice = <T>(parsers: Parser<T>[]): Parser<T> =>
     new Parser(state => {
-        let fail = failFromSucc(state);
+        let fail = failFrom(state.src, state.pos);
         for(let i = 0; i < parsers.length; i++) {
             const newState = parsers[i].run(state);
             if(newState.succ) {
