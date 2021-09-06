@@ -1,18 +1,24 @@
-import { ParseState, Parser } from "../src";
+import { Parser } from "../src/parser";
+import { Config, ParseState, succUpdate, succInit, Source, failFrom } from "../src/state";
+
+type InferFromParser<T> = T extends Parser<infer U> ? U : never;
 
 declare global {
     namespace jest {
         interface Matchers<R, T> {
-            parseResultToEqual(result: ParseState<T extends Parser<infer U> ? U : never>): R;
+            parseToEqual(result: ParseState<InferFromParser<T>>): R;
+            parseToSucc(source: Source, pos: number, value: InferFromParser<T>): R;
+            parseToFail(source: Source, pos: number): R;
         }
     }
 }
 
-const parseResultToEqual: jest.CustomMatcher = function(
+const parseToEqual = function(
+    this: jest.MatcherContext,
     receivedParser: unknown,
     result: ParseState<unknown>,
-) {
-    const matcherName = "parseResultToEqual";
+    matcherName: string,
+): jest.CustomMatcherResult {
     const options: jest.MatcherHintOptions = {
         isNot: this.isNot,
         promise: this.promise,
@@ -28,7 +34,7 @@ const parseResultToEqual: jest.CustomMatcher = function(
         );
     }
 
-    const parseResult = receivedParser.parse(result.target);
+    const parseResult = receivedParser.parse(result.src);
     const pass = this.equals(parseResult, result);
     const message = () => {
         const hint = this.utils.matcherHint(matcherName, void 0, void 0, options) + "\n\n";
@@ -43,4 +49,34 @@ const parseResultToEqual: jest.CustomMatcher = function(
     return { pass, message };
 };
 
-expect.extend({ parseResultToEqual });
+expect.extend({
+    parseToEqual(receivedParser: unknown, result: ParseState<unknown>) {
+        return parseToEqual.call(this, receivedParser, result, "parseToEqual");
+    },
+    parseToSucc(
+        receivedParser: unknown,
+        source: Source,
+        pos: number,
+        value: unknown,
+        config: Config = {},
+    ) {
+        return parseToEqual.call(
+            this,
+            receivedParser,
+            succUpdate(succInit(source, config), value, pos),
+            "parseToSucc",
+        );
+    },
+    parseToFail(
+        receivedParser: unknown,
+        source: Source,
+        pos: number,
+    ) {
+        return parseToEqual.call(
+            this,
+            receivedParser,
+            failFrom(source, pos),
+            "parseToFail",
+        );
+    },
+});
