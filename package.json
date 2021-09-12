@@ -1,7 +1,7 @@
 {
   "name": "parsea",
   "version": "0.3.0",
-  "description": "perser combinator",
+  "description": "parser combinator library for parsing ArrayLike.",
   "main": "dist/parsea.cjs.js",
   "module": "dist/parsea.esm.js",
   "types": "dist/parsea.esm.d.ts",
@@ -27,15 +27,15 @@
   },
   "homepage": "https://github.com/rizzzse/parsea#readme",
   "dependencies": {
-    "emnorst": "0.0.3"
+    "emnorst": "0.2.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.24",
+    "@types/jest": "^27.0.1",
     "@wessberg/rollup-plugin-ts": "^1.3.14",
-    "esbuild": "^0.12.24",
+    "esbuild": "^0.12.26",
     "esbuild-jest": "^0.5.0",
-    "jest": "^27.0.6",
-    "rollup": "^2.56.0",
-    "typescript": "^4.3.5"
+    "jest": "^27.1.1",
+    "rollup": "^2.56.3",
+    "typescript": "^4.4.3"
   }
 }

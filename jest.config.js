@@ -11,7 +11,9 @@ const config = {
     coverageDirectory: "coverage",
     coverageProvider: "v8",
     setupFilesAfterEnv: ["./tests/setup.ts"],
-    transform: { "\\.ts$": "esbuild-jest" },
+    transform: {
+        "\\.ts$": ["esbuild-jest", { sourcemap: true }],
+    },
 };
 
 module.exports = config;

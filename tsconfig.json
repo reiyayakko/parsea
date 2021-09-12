@@ -1,8 +1,5 @@
 {
     "include": ["**/*", ".*"],
-    "typeAcquisition": {
-        "exclude": ["dist", "tests"]
-    },
     "compilerOptions": {
         "resolveJsonModule": true,
         "moduleResolution": "node",

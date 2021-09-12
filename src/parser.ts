@@ -1,6 +1,5 @@
-import { isArrayLike, MAX_BIT_NUMBER as MAX_INT32 } from "emnorst";
+import { isArrayLike, clamp, MAX_INT32 } from "emnorst";
 import { Config, margeFail, ParseState, Success, succInit, succUpdate, Source } from "./state";
-import { clamp } from "./util";
 
 type ParseRunner<T, U> = (this: void, state: Success<T>) => ParseState<U>;
 
