@@ -25,7 +25,7 @@ export class Parser<T> {
             return newState.succ ? f(newState.val).run(newState) : newState;
         });
     }
-    right<U>(this: Parser<T>, parser: Parser<U>): Parser<U> {
+    right<U>(this: Parser<unknown>, parser: Parser<U>): Parser<U> {
         return new Parser(state => {
             const newState = this.run(state);
             return newState.succ ? parser.run(newState) : newState;
