@@ -6,6 +6,8 @@ import { failFrom, succUpdate, Source } from "./state";
  */
 export const pure = <T>(value: T): Parser<T> => new Parser(state => succUpdate(state, value, 0));
 
+export const fail = (): Parser<never> => new Parser(state => failFrom(state.src, state.pos));
+
 /**
  * end of input
  */
