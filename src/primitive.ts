@@ -1,5 +1,5 @@
 import { Parser } from "./parser";
-import { failFrom, succUpdate, Source } from "./state";
+import { failFrom, succUpdate, Source, Config } from "./state";
 
 /**
  * Always succeed with the value of the argument.
@@ -31,11 +31,11 @@ export const anyEl = new Parser(
 export const el = <T>(value: T): Parser<T> => satisfy(srcEl => Object.is(srcEl, value));
 
 export const satisfy = <T>(
-    f: ((el: unknown) => boolean) | ((el: unknown) => el is T),
+    f: ((el: unknown, config: Config) => boolean) | ((el: unknown, config: Config) => el is T),
 ): Parser<T> =>
     new Parser(state => {
         let srcEl: unknown;
-        return state.pos < state.src.length && f(srcEl = state.src[state.pos])
+        return state.pos < state.src.length && f(srcEl = state.src[state.pos], state.config)
             ? succUpdate(state, srcEl, 1)
             : failFrom(state.src, state.pos);
     });
