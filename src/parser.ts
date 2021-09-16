@@ -13,19 +13,21 @@ export class Parser<T> {
         const finalState = this.run(initState);
         return finalState;
     }
-    map<U>(this: Parser<T>, f: (t: T) => U): Parser<U> {
+    map<U>(this: Parser<T>, f: (val: T, config: Config) => U): Parser<U> {
         return new Parser(state => {
             const newState = this.run(state);
-            return newState.succ ? succUpdate(newState, f(newState.val), 0) : newState;
+            return newState.succ
+                ? succUpdate(newState, f(newState.val, newState.config), 0)
+                : newState;
         });
     }
-    flatMap<U>(this: Parser<T>, f: (r: T) => Parser<U>): Parser<U> {
+    flatMap<U>(this: Parser<T>, f: (val: T, config: Config) => Parser<U>): Parser<U> {
         return new Parser(state => {
             const newState = this.run(state);
-            return newState.succ ? f(newState.val).run(newState) : newState;
+            return newState.succ ? f(newState.val, newState.config).run(newState) : newState;
         });
     }
-    right<U>(this: Parser<T>, parser: Parser<U>): Parser<U> {
+    right<U>(this: Parser<unknown>, parser: Parser<U>): Parser<U> {
         return new Parser(state => {
             const newState = this.run(state);
             return newState.succ ? parser.run(newState) : newState;
