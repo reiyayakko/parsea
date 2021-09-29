@@ -22,7 +22,7 @@ const or = <T, U>(left: Parser<T>, right: Parser<U>) =>
     qo(perform => {
         try {
             return perform(left);
-        } catch(err) {
+        } catch (err) {
             return perform(right);
         }
     });

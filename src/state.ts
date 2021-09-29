@@ -18,8 +18,13 @@ export interface Success<T> {
     readonly val: T;
 }
 
-export const succInit = (src: Source, config: Config): Success<null> =>
-    ({ succ: true, config, src, pos: 0, val: null });
+export const succInit = (src: Source, config: Config): Success<null> => ({
+    succ: true,
+    config,
+    src,
+    pos: 0,
+    val: null,
+});
 
 export const succUpdate = <T>(
     succ: Success<unknown>,
@@ -41,15 +46,19 @@ export interface Failure {
     readonly pos: number;
 }
 
-export const failFrom = (src: Source, pos: number): Failure => ({ succ: false, src, pos });
+export const failFrom = (src: Source, pos: number): Failure => ({
+    succ: false,
+    src,
+    pos,
+});
 
 export const margeFail = (failA: Failure, failB: Failure): Failure => {
-    if(failA.src !== failB.src) {
+    if (failA.src !== failB.src) {
         throw new Error("`Failure` with different sources cannot be merged.");
     }
 
-    if(failA.pos < failB.pos) return failA;
-    if(failA.pos > failB.pos) return failB;
+    if (failA.pos < failB.pos) return failA;
+    if (failA.pos > failB.pos) return failB;
     return {
         succ: false,
         src: failA.src,

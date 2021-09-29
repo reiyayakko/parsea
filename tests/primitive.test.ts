@@ -52,8 +52,12 @@ describe("primitive parsers", () => {
         test("Object.isで判定", () => {
             // succ
             const str = "3分間待ってやる";
-            expect(literal(str)).parseToSucc([...str + "..."], str.length, str);
-            expect(literal(["バ", "ル", "ス"])).parseToSucc("バルス", 3, ["バ", "ル", "ス"]);
+            expect(literal(str)).parseToSucc([...(str + "...")], str.length, str);
+            expect(literal(["バ", "ル", "ス"])).parseToSucc("バルス", 3, [
+                "バ",
+                "ル",
+                "ス",
+            ]);
             const emoji = "👨‍👩‍👧‍👦";
             expect(literal(emoji)).parseToSucc(emoji + "!", emoji.length, emoji);
 

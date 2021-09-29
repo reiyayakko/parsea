@@ -52,7 +52,7 @@ describe("string parsers", () => {
         test("sourceがstring型ではない場合失敗", () => {
             expect(anyChar).parseToFail(["しかし、なにもおこらなかった！"], 0);
         });
-        test.each(["a", "あ", "👍", "👪", "👨‍👩‍👧‍👦"])("\"%s\"は1文字", char => {
+        test.each(["a", "あ", "👍", "👪", "👨‍👩‍👧‍👦"])('"%s"は1文字', char => {
             expect(anyChar).parseToSucc(char, char.length, char);
         });
     });

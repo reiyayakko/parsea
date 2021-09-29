@@ -1,12 +1,20 @@
 import { isArrayLike, clamp, MAX_INT32 } from "emnorst";
-import { Config, margeFail, ParseState, Success, succInit, succUpdate, Source } from "./state";
+import {
+    Config,
+    margeFail,
+    ParseState,
+    Success,
+    succInit,
+    succUpdate,
+    Source,
+} from "./state";
 
 type ParseRunner<T, U> = (this: void, state: Success<T>) => ParseState<U>;
 
 export class Parser<T> {
     constructor(readonly run: ParseRunner<unknown, T>) {}
     parse(this: Parser<T>, source: Source, config: Config = {}): ParseState<T> {
-        if(!isArrayLike(source)) {
+        if (!isArrayLike(source)) {
             throw new TypeError("source is not ArrayLike.");
         }
         const initState = succInit(source, config);
@@ -24,7 +32,9 @@ export class Parser<T> {
     flatMap<U>(this: Parser<T>, f: (val: T, config: Config) => Parser<U>): Parser<U> {
         return new Parser(state => {
             const newState = this.run(state);
-            return newState.succ ? f(newState.val, newState.config).run(newState) : newState;
+            return newState.succ
+                ? f(newState.val, newState.config).run(newState)
+                : newState;
         });
     }
     right<U>(this: Parser<unknown>, parser: Parser<U>): Parser<U> {
@@ -36,18 +46,18 @@ export class Parser<T> {
     left(this: Parser<T>, parser: Parser<unknown>): Parser<T> {
         return new Parser(state => {
             const newStateA = this.run(state);
-            if(!newStateA.succ) return newStateA;
+            if (!newStateA.succ) return newStateA;
             const newStateB = parser.run(newStateA);
-            if(!newStateB.succ) return newStateB;
+            if (!newStateB.succ) return newStateB;
             return succUpdate(newStateB, newStateA.val, 0);
         });
     }
     or<U>(this: Parser<T>, parser: Parser<U>): Parser<T | U> {
         return new Parser<T | U>(state => {
             const newStateA = this.run(state);
-            if(newStateA.succ) return newStateA;
+            if (newStateA.succ) return newStateA;
             const newStateB = parser.run(state);
-            if(newStateB.succ) return newStateB;
+            if (newStateB.succ) return newStateB;
             return margeFail(newStateA, newStateB);
         });
     }
@@ -57,10 +67,10 @@ export class Parser<T> {
 
         return new Parser(state => {
             const accum: T[] = [];
-            for(let i = 0; i < clampedMax; i++) {
+            for (let i = 0; i < clampedMax; i++) {
                 const newState = this.run(state);
-                if(!newState.succ) {
-                    if(i < clampedMin) return newState;
+                if (!newState.succ) {
+                    if (i < clampedMin) return newState;
                     break;
                 }
                 accum.push(newState.val);

@@ -25,15 +25,18 @@ const between = <T>(
 const ws = regex(/[ \n\r\t]*/);
 
 const jsonValue: Parser<JsonValue> = lazy(() =>
-    between(choice<JsonValue>([
-        object,
-        array,
-        string,
-        number,
-        literal("true").map(() => true),
-        literal("false").map(() => false),
-        literal("null").map(() => null),
-    ]), ws),
+    between(
+        choice<JsonValue>([
+            object,
+            array,
+            string,
+            number,
+            literal("true").map(() => true),
+            literal("false").map(() => false),
+            literal("null").map(() => null),
+        ]),
+        ws,
+    ),
 );
 
 const escapeTable = {
@@ -44,18 +47,20 @@ const escapeTable = {
     t: "\t",
 };
 
-const string = between(regex(/(?:\\(?:["\\/bfnrt]|u[0-9A-Fa-f]{4})|[^"\\])*/), el("\""))
-    .map(escapedString =>
-        escapedString.replace(/\\(u[0-9A-Fa-f]{4}|.)/g, (_, escape: string) => {
-            if(escape[0] === "u") {
-                return String.fromCharCode(parseInt(escape.slice(1), 16));
-            }
-            if(escape in escapeTable) {
-                return escapeTable[escape as keyof typeof escapeTable];
-            }
-            return escape;
-        }),
-    );
+const string = between(
+    regex(/(?:\\(?:["\\/bfnrt]|u[0-9A-Fa-f]{4})|[^"\\])*/),
+    el('"'),
+).map(escapedString =>
+    escapedString.replace(/\\(u[0-9A-Fa-f]{4}|.)/g, (_, escape: string) => {
+        if (escape[0] === "u") {
+            return String.fromCharCode(parseInt(escape.slice(1), 16));
+        }
+        if (escape in escapeTable) {
+            return escapeTable[escape as keyof typeof escapeTable];
+        }
+        return escape;
+    }),
+);
 
 const number = regex(/-?(0|[1-9]\d*)(.\d+)?([Ee][-+]?\d+)?/).map(Number);
 
@@ -65,7 +70,8 @@ const array = between(sepBy(jsonValue, el(",")).or(empty), el("["), el("]"));
 
 const keyValue = seq([ws.right(string), ws.right(el(":")).right(jsonValue)]);
 
-const object = between(sepBy(keyValue, el(",")).or(empty), el("{"), el("}"))
-    .map<Record<string, JsonValue>>(Object.fromEntries);
+const object = between(sepBy(keyValue, el(",")).or(empty), el("{"), el("}")).map<
+    Record<string, JsonValue>
+>(Object.fromEntries);
 
 export const jsonParser = jsonValue.left(EOI);
