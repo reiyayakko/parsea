@@ -11,7 +11,7 @@ export const fail = (): Parser<never> => new Parser(state => failFrom(state.src,
 /**
  * end of input
  */
-export const eoi = new Parser(state =>
+export const EOI = new Parser(state =>
     state.pos < state.src.length ? failFrom(state.src, state.pos) : state
 );
 
@@ -21,7 +21,7 @@ export const eoi = new Parser(state =>
  * @example any.parse([someValue]).value === someValue;
  * @example any.parse([]); // parse fail
  */
-export const anyEl = new Parser(
+export const ANY_EL = new Parser(
     state =>
         state.pos < state.src.length
             ? succUpdate(state, state.src[state.pos], 1)

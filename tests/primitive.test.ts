@@ -1,22 +1,22 @@
-import { anyEl, el, eoi, literal, pure, satisfy } from "../src/primitive";
+import { ANY_EL, EOI, el, literal, pure, satisfy } from "../src/primitive";
 
 describe("primitive parsers", () => {
     test("pure", () => {
         const sym = Symbol("ID");
         expect(pure(sym)).parseToSucc([], 0, sym);
     });
-    test("eoi", () => {
-        expect(eoi).parseToSucc([], 0, null);
-        expect(anyEl.left(eoi)).parseToSucc(["el"], 1, "el");
-        expect(eoi).parseToFail(["el"], 0);
+    test("EOI", () => {
+        expect(EOI).parseToSucc([], 0, null);
+        expect(ANY_EL.left(EOI)).parseToSucc(["el"], 1, "el");
+        expect(EOI).parseToFail(["el"], 0);
     });
-    describe("anyEl", () => {
+    describe("ANY_EL", () => {
         test("長さ不足で失敗する", () => {
-            expect(anyEl).parseToFail([], 0);
+            expect(ANY_EL).parseToFail([], 0);
         });
         test("任意の要素で成功する", () => {
-            expect(anyEl).parseToSucc([1, 2, 3], 1, 1);
-            expect(anyEl).parseToSucc(["el"], 1, "el");
+            expect(ANY_EL).parseToSucc([1, 2, 3], 1, 1);
+            expect(ANY_EL).parseToSucc(["el"], 1, "el");
         });
     });
     describe("el", () => {

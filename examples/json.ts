@@ -1,5 +1,5 @@
 import type { JsonValue } from "emnorst";
-import { choice, el, eoi, lazy, literal, Parser, qo, regex, seq } from "../src";
+import { EOI, choice, el, lazy, literal, Parser, qo, regex, seq } from "../src";
 
 const sepBy = <T>(parser: Parser<T>, sep: Parser<unknown>) =>
     qo(perform => {
@@ -68,4 +68,4 @@ const keyValue = seq([ws.right(string), ws.right(el(":")).right(jsonValue)]);
 const object = between(sepBy(keyValue, el(",")).or(empty), el("{"), el("}"))
     .map<Record<string, JsonValue>>(Object.fromEntries);
 
-export const jsonParser = jsonValue.left(eoi);
+export const jsonParser = jsonValue.left(EOI);
