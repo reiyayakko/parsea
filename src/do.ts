@@ -11,15 +11,15 @@ export const qo = <T>(runner: (perform: Perform, config: Config) => T): Parser<T
         try {
             const value = runner(parser => {
                 const newState = parser.run(state);
-                if(!newState.succ) {
+                if (!newState.succ) {
                     fail = newState;
                     throw parseFailErrorRef;
                 }
                 return (state = newState).val;
             }, state.config);
             return succUpdate(state, value, 0);
-        } catch(err) {
-            if(err === parseFailErrorRef && fail!) {
+        } catch (err) {
+            if (err === parseFailErrorRef && fail!) {
                 return fail;
             }
             throw err;

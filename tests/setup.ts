@@ -13,7 +13,7 @@ declare global {
     }
 }
 
-const parseToEqual = function(
+const parseToEqual = function (
     this: jest.MatcherContext,
     receivedParser: unknown,
     result: ParseState<unknown>,
@@ -24,12 +24,16 @@ const parseToEqual = function(
         promise: this.promise,
     };
 
-    if(!(receivedParser instanceof Parser)) {
+    if (!(receivedParser instanceof Parser)) {
         throw new Error(
             this.utils.matcherErrorMessage(
                 this.utils.matcherHint(matcherName, void 0, void 0, options),
                 `${this.utils.RECEIVED_COLOR("received")} value must be a Parser`,
-                this.utils.printWithType("Received", receivedParser, this.utils.printReceived),
+                this.utils.printWithType(
+                    "Received",
+                    receivedParser,
+                    this.utils.printReceived,
+                ),
             ),
         );
     }
@@ -37,13 +41,17 @@ const parseToEqual = function(
     const parseResult = receivedParser.parse(result.src);
     const pass = this.equals(parseResult, result);
     const message = () => {
-        const hint = this.utils.matcherHint(matcherName, void 0, void 0, options) + "\n\n";
-        return hint + this.utils.printDiffOrStringify(
-            parseResult,
-            result,
-            "Expected",
-            "Received",
-            this.expand !== false,
+        const hint =
+            this.utils.matcherHint(matcherName, void 0, void 0, options) + "\n\n";
+        return (
+            hint +
+            this.utils.printDiffOrStringify(
+                parseResult,
+                result,
+                "Expected",
+                "Received",
+                this.expand !== false,
+            )
         );
     };
     return { pass, message };
@@ -67,11 +75,7 @@ expect.extend({
             "parseToSucc",
         );
     },
-    parseToFail(
-        receivedParser: unknown,
-        source: Source,
-        pos: number,
-    ) {
+    parseToFail(receivedParser: unknown, source: Source, pos: number) {
         return parseToEqual.call(
             this,
             receivedParser,

@@ -9,7 +9,7 @@ export const regexGroup = (re: RegExp): Parser<RegExpGroupArray> => {
     const fixedRegex = new RegExp("^" + re.source, re.flags.replace("g", ""));
 
     return new Parser(state => {
-        if(typeof state.src !== "string") {
+        if (typeof state.src !== "string") {
             return failFrom(state.src, state.pos);
         }
         const matchResult = fixedRegex.exec(state.src.substr(state.pos));
@@ -26,5 +26,5 @@ export const regex: {
     regexGroup(re).map(matchResult =>
         typeof groupId === "number"
             ? matchResult[groupId]
-            : matchResult.groups?.[groupId]
+            : matchResult.groups?.[groupId],
     ) as Parser<string>;

@@ -16,7 +16,11 @@ describe("Parser", () => {
             expect(parser).parseToSucc([1], 1, [1]);
         });
         test("min <= max", () => {
-            expect(el(1).many({ min: 3, max: 1 })).parseToSucc([1, 1, 1, 1], 3, [1, 1, 1]);
+            expect(el(1).many({ min: 3, max: 1 })).parseToSucc(
+                [1, 1, 1, 1],
+                3,
+                [1, 1, 1],
+            );
         });
     });
 });

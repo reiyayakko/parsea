@@ -9,9 +9,15 @@ describe("combinator", () => {
             expect(parser).parseToSucc([], 0, 11);
         });
         test("いずれかが成功すれば成功", () => {
-            const browsers = ["Google Chrome", "Firefox", "Safari", "Opera", "Microsoft Edge"];
+            const browsers = [
+                "Google Chrome",
+                "Firefox",
+                "Safari",
+                "Opera",
+                "Microsoft Edge",
+            ];
             const parser = choice(browsers.map(el));
-            for(const browser of browsers) {
+            for (const browser of browsers) {
                 expect(parser).parseToSucc([browser], 1, browser);
             }
             expect(parser).parseToFail(["Internet Explorer"], 0);
