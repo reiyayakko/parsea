@@ -61,22 +61,33 @@ export class Parser<T> {
             return margeFail(newStateA, newStateB);
         });
     }
-    many(this: Parser<T>, options?: { min?: number; max?: number }): Parser<T[]> {
+    manyAccum<U>(
+        this: Parser<T>,
+        f: (accum: U, cur: T, config: Config) => U,
+        init: (config: Config) => U,
+        options?: { min?: number; max?: number },
+    ): Parser<U> {
         const clampedMin = clamp(options?.min || 0, 0, MAX_INT32) | 0;
         const clampedMax = clamp(options?.max || MAX_INT32, clampedMin, MAX_INT32) | 0;
 
         return new Parser(state => {
-            const accum: T[] = [];
+            let accum: U = init(state.config);
             for (let i = 0; i < clampedMax; i++) {
                 const newState = this.run(state);
                 if (!newState.succ) {
                     if (i < clampedMin) return newState;
                     break;
                 }
-                accum.push(newState.val);
-                state = newState;
+                accum = f(accum, (state = newState).val, state.config);
             }
             return succUpdate(state, accum, 0);
         });
+    }
+    many(this: Parser<T>, options?: { min?: number; max?: number }): Parser<T[]> {
+        const pushed = <T>(arr: T[], val: T) => {
+            arr.push(val);
+            return arr;
+        };
+        return this.manyAccum<T[]>(pushed, () => [], options);
     }
 }
