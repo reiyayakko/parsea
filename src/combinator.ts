@@ -14,6 +14,15 @@ export const lazy = <T>(getParser: () => Parser<T>): Parser<T> => {
     });
 };
 
+export const notFollowedBy = (parser: Parser<unknown>): Parser<unknown> =>
+    new Parser(state => {
+        const newState = parser.run(state);
+        if (newState.succ) {
+            return failFrom(newState.src, newState.pos);
+        }
+        return state;
+    });
+
 export const seq = <T>(
     parsers: Parser<T>[],
     options?: { droppable?: boolean },
