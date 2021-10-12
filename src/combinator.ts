@@ -25,10 +25,16 @@ export const notFollowedBy = (parser: Parser<unknown>): Parser<unknown> =>
 
 type Seq<T extends readonly Parser<unknown>[]> = [...{ [K in keyof T]: Parsed<T[K]> }];
 
-export const seq = <T extends readonly Parser<unknown>[]>(
-    parsers: readonly [...T],
-    options?: { droppable?: boolean },
-): Parser<Seq<T>> =>
+export const seq: {
+    <T extends readonly Parser<unknown>[]>(
+        parsers: readonly [...T],
+        options?: { droppable?: false },
+    ): Parser<Seq<T>>;
+    <T extends readonly Parser<unknown>[]>(
+        parsers: readonly [...T],
+        options?: { droppable?: boolean },
+    ): Parser<Partial<Seq<T>>>;
+} = (parsers, options) =>
     new Parser(state => {
         const accum: unknown[] = [];
         for (let i = 0; i < parsers.length; i++) {
@@ -40,7 +46,7 @@ export const seq = <T extends readonly Parser<unknown>[]>(
             accum.push(newState.val);
             state = newState;
         }
-        return succUpdate(state, accum as Seq<T>, 0);
+        return succUpdate(state, accum, 0);
     });
 
 export const choice = <T>(parsers: readonly Parser<T>[]): Parser<T> =>
