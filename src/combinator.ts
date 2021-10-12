@@ -24,7 +24,7 @@ export const notFollowedBy = (parser: Parser<unknown>): Parser<unknown> =>
     });
 
 export const seq = <T>(
-    parsers: Parser<T>[],
+    parsers: readonly Parser<T>[],
     options?: { droppable?: boolean },
 ): Parser<T[]> =>
     new Parser(state => {
@@ -41,7 +41,7 @@ export const seq = <T>(
         return succUpdate(state, accum, 0);
     });
 
-export const choice = <T>(parsers: Parser<T>[]): Parser<T> =>
+export const choice = <T>(parsers: readonly Parser<T>[]): Parser<T> =>
     new Parser(state => {
         let fail = failFrom(state.src, state.pos);
         for (let i = 0; i < parsers.length; i++) {
