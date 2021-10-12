@@ -1,13 +1,11 @@
-import { Parser } from "../src/parser";
+import { Parser, Parsed } from "../src/parser";
 import { Config, ParseState, succUpdate, succInit, Source, failFrom } from "../src/state";
-
-type InferFromParser<T> = T extends Parser<infer U> ? U : never;
 
 declare global {
     namespace jest {
         interface Matchers<R, T> {
-            parseToEqual(result: ParseState<InferFromParser<T>>): R;
-            parseToSucc(source: Source, pos: number, value: InferFromParser<T>): R;
+            parseToEqual(result: ParseState<Parsed<T>>): R;
+            parseToSucc(source: Source, pos: number, value: Parsed<T>): R;
             parseToFail(source: Source, pos: number): R;
         }
     }

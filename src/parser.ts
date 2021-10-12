@@ -9,6 +9,8 @@ import {
     Source,
 } from "./state";
 
+export type Parsed<T> = T extends Parser<infer U> ? U : never;
+
 type ParseRunner<T, U> = (this: void, state: Success<T>) => ParseState<U>;
 
 export class Parser<T> {
