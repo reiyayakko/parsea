@@ -1,4 +1,4 @@
-import { Parser } from "./parser";
+import { Parser, Parsed } from "./parser";
 import { failFrom, margeFail, succUpdate } from "./state";
 
 /**
@@ -23,12 +23,14 @@ export const notFollowedBy = (parser: Parser<unknown>): Parser<unknown> =>
         return state;
     });
 
-export const seq = <T>(
-    parsers: readonly Parser<T>[],
+type Seq<T extends readonly Parser<unknown>[]> = [...{ [K in keyof T]: Parsed<T[K]> }];
+
+export const seq = <T extends readonly Parser<unknown>[]>(
+    parsers: readonly [...T],
     options?: { droppable?: boolean },
-): Parser<T[]> =>
+): Parser<Seq<T>> =>
     new Parser(state => {
-        const accum: T[] = [];
+        const accum: unknown[] = [];
         for (let i = 0; i < parsers.length; i++) {
             const newState = parsers[i].run(state);
             if (!newState.succ) {
@@ -38,7 +40,7 @@ export const seq = <T>(
             accum.push(newState.val);
             state = newState;
         }
-        return succUpdate(state, accum, 0);
+        return succUpdate(state, accum as Seq<T>, 0);
     });
 
 export const choice = <T>(parsers: readonly Parser<T>[]): Parser<T> =>
