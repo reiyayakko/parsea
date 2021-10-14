@@ -6,19 +6,19 @@ import { failFrom, margeFail, succUpdate } from "./state";
  */
 export const lazy = <T>(getParser: () => Parser<T>): Parser<T> => {
     let cache: Parser<T>;
-    return new Parser(state => {
+    return new Parser((state, context) => {
         if (cache == null) {
             cache = getParser();
         }
-        return cache.run(state);
+        return cache.run(state, context);
     });
 };
 
 export const notFollowedBy = (parser: Parser<unknown>): Parser<unknown> =>
-    new Parser(state => {
-        const newState = parser.run(state);
+    new Parser((state, context) => {
+        const newState = parser.run(state, context);
         if (newState.succ) {
-            return failFrom(newState.src, newState.pos);
+            return failFrom(context, newState.pos);
         }
         return state;
     });
@@ -35,10 +35,10 @@ export const seq: {
         options?: { droppable?: boolean },
     ): Parser<Partial<Seq<T>>>;
 } = (parsers, options) =>
-    new Parser(state => {
+    new Parser((state, context) => {
         const accum: unknown[] = [];
         for (let i = 0; i < parsers.length; i++) {
-            const newState = parsers[i].run(state);
+            const newState = parsers[i].run(state, context);
             if (!newState.succ) {
                 if (options?.droppable) break;
                 return newState;
@@ -50,10 +50,10 @@ export const seq: {
     });
 
 export const choice = <T>(parsers: readonly Parser<T>[]): Parser<T> =>
-    new Parser(state => {
-        let fail = failFrom(state.src, state.pos);
+    new Parser((state, context) => {
+        let fail = failFrom(context, state.pos);
         for (let i = 0; i < parsers.length; i++) {
-            const newState = parsers[i].run(state);
+            const newState = parsers[i].run(state, context);
             if (newState.succ) {
                 return newState;
             }

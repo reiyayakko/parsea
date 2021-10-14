@@ -8,13 +8,13 @@ export interface RegExpGroupArray extends Array<string> {
 export const regexGroup = (re: RegExp): Parser<RegExpGroupArray> => {
     const fixedRegex = new RegExp("^" + re.source, re.flags.replace("g", ""));
 
-    return new Parser(state => {
-        if (typeof state.src !== "string") {
-            return failFrom(state.src, state.pos);
+    return new Parser((state, context) => {
+        if (typeof context.src !== "string") {
+            return failFrom(context, state.pos);
         }
-        const matchResult = fixedRegex.exec(state.src.substr(state.pos));
+        const matchResult = fixedRegex.exec(context.src.substr(state.pos));
         return matchResult === null
-            ? failFrom(state.src, state.pos)
+            ? failFrom(context, state.pos)
             : succUpdate(state, matchResult, matchResult[0].length);
     });
 };

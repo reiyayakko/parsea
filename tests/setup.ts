@@ -1,5 +1,14 @@
 import { Parser, Parsed } from "../src/parser";
-import { Config, ParseState, succUpdate, succInit, Source, failFrom } from "../src/state";
+import {
+    Config,
+    ParseState,
+    succUpdate,
+    succInit,
+    Source,
+    failFrom,
+    initContext,
+    Context,
+} from "../src/state";
 
 declare global {
     namespace jest {
@@ -15,6 +24,7 @@ const parseToEqual = function (
     this: jest.MatcherContext,
     receivedParser: unknown,
     result: ParseState<unknown>,
+    context: Context,
     matcherName: string,
 ): jest.CustomMatcherResult {
     const options: jest.MatcherHintOptions = {
@@ -36,7 +46,7 @@ const parseToEqual = function (
         );
     }
 
-    const parseResult = receivedParser.parse(result.src);
+    const parseResult = receivedParser.parse(context.src, context.config);
     const pass = this.equals(parseResult, result);
     const message = () => {
         const hint =
@@ -56,9 +66,6 @@ const parseToEqual = function (
 };
 
 expect.extend({
-    parseToEqual(receivedParser: unknown, result: ParseState<unknown>) {
-        return parseToEqual.call(this, receivedParser, result, "parseToEqual");
-    },
     parseToSucc(
         receivedParser: unknown,
         source: Source,
@@ -69,15 +76,23 @@ expect.extend({
         return parseToEqual.call(
             this,
             receivedParser,
-            succUpdate(succInit(source, config), value, pos),
+            succUpdate(succInit, value, pos),
+            initContext(source, config),
             "parseToSucc",
         );
     },
-    parseToFail(receivedParser: unknown, source: Source, pos: number) {
+    parseToFail(
+        receivedParser: unknown,
+        source: Source,
+        pos: number,
+        config: Config = {},
+    ) {
+        const context = initContext(source, config);
         return parseToEqual.call(
             this,
             receivedParser,
-            failFrom(source, pos),
+            failFrom(context, pos),
+            context,
             "parseToFail",
         );
     },
