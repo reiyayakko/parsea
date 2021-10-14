@@ -1,5 +1,7 @@
 import { Parser, qo } from "../src";
 
+// For simplicity, the behavior may differ in a few cases.
+
 const pure = <T>(val: T) => qo(() => val);
 
 const map = <T, U>(parser: Parser<T>, f: (v: T) => U) =>
@@ -25,4 +27,23 @@ const or = <T, U>(left: Parser<T>, right: Parser<U>) =>
         } catch (err) {
             return perform(right);
         }
+    });
+
+const seq = <T>(
+    parsers: readonly Parser<T>[],
+    options?: { droppable?: boolean },
+): Parser<T[]> =>
+    qo(perform => {
+        const accum: T[] = [];
+        try {
+            for (const parser of parsers) {
+                const val = perform(parser);
+                accum.push(val);
+            }
+        } catch (err) {
+            if (!options?.droppable) {
+                throw err;
+            }
+        }
+        return accum;
     });
