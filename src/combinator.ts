@@ -1,5 +1,5 @@
 import { Parser, Parsed } from "./parser";
-import { failFrom, margeFail, succUpdate } from "./state";
+import { failFrom, margeFail, updateSucc } from "./state";
 
 /**
  * Delays variable references until the parser runs.
@@ -46,7 +46,7 @@ export const seq: {
             accum.push(newState.val);
             state = newState;
         }
-        return succUpdate(state, accum, 0);
+        return updateSucc(state, accum, 0);
     });
 
 export const choice = <T>(parsers: readonly Parser<T>[]): Parser<T> =>

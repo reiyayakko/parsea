@@ -16,7 +16,7 @@ export const succInit: Success<null> = {
     val: null,
 };
 
-export const succUpdate = <T>(
+export const updateSucc = <T>(
     succ: Success<unknown>,
     value: T,
     consumeLength: number,

@@ -1,12 +1,12 @@
 import type { Config, Source } from "./context";
 import { Parser } from "./parser";
-import { failFrom, succUpdate } from "./state";
+import { failFrom, updateSucc } from "./state";
 
 /**
  * Always succeed with the value of the argument.
  */
 export const pure = <T>(value: T): Parser<T> =>
-    new Parser(state => succUpdate(state, value, 0));
+    new Parser(state => updateSucc(state, value, 0));
 
 export const fail = (): Parser<never> =>
     new Parser((state, context) => failFrom(context, state.pos));
@@ -26,7 +26,7 @@ export const EOI = new Parser((state, context) =>
  */
 export const ANY_EL = new Parser((state, context) =>
     state.pos < context.src.length
-        ? succUpdate(state, context.src[state.pos], 1)
+        ? updateSucc(state, context.src[state.pos], 1)
         : failFrom(context, state.pos),
 );
 
@@ -41,7 +41,7 @@ export const satisfy = <T>(
         let srcEl: unknown;
         return state.pos < context.src.length &&
             f((srcEl = context.src[state.pos]), context.config)
-            ? succUpdate(state, srcEl, 1)
+            ? updateSucc(state, srcEl, 1)
             : failFrom(context, state.pos);
     });
 
@@ -57,5 +57,5 @@ export const literal = <T extends Source>(chunk: T): Parser<T> =>
                 return failFrom(context, state.pos + i);
             }
         }
-        return succUpdate(state, chunk, chunk.length);
+        return updateSucc(state, chunk, chunk.length);
     });

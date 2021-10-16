@@ -1,6 +1,6 @@
 import type { Config } from "./context";
 import { Parser } from "./parser";
-import { Failure, succUpdate } from "./state";
+import { Failure, updateSucc } from "./state";
 
 const parseFailErrorRef = {};
 
@@ -18,7 +18,7 @@ export const qo = <T>(runner: (perform: Perform, config: Config) => T): Parser<T
                 }
                 return (state = newState).val;
             }, context.config);
-            return succUpdate(state, value, 0);
+            return updateSucc(state, value, 0);
         } catch (err) {
             if (err === parseFailErrorRef && fail!) {
                 return fail;

@@ -1,5 +1,5 @@
 import { Parser } from "./parser";
-import { failFrom, succUpdate } from "./state";
+import { failFrom, updateSucc } from "./state";
 
 export interface RegExpGroupArray extends Array<string> {
     groups?: RegExpExecArray["groups"];
@@ -15,7 +15,7 @@ export const regexGroup = (re: RegExp): Parser<RegExpGroupArray> => {
         const matchResult = fixedRegex.exec(context.src.substr(state.pos));
         return matchResult === null
             ? failFrom(context, state.pos)
-            : succUpdate(state, matchResult, matchResult[0].length);
+            : updateSucc(state, matchResult, matchResult[0].length);
     });
 };
 

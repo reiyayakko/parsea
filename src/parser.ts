@@ -1,6 +1,6 @@
 import { isArrayLike, clamp, MAX_INT32 } from "emnorst";
 import type { Config, Context, Source } from "./context";
-import { margeFail, ParseState, Success, succInit, succUpdate } from "./state";
+import { margeFail, ParseState, Success, succInit, updateSucc } from "./state";
 
 export type Parsed<T> = T extends Parser<infer U> ? U : never;
 
@@ -24,7 +24,7 @@ export class Parser<T> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
             return newState.succ
-                ? succUpdate(newState, f(newState.val, context.config), 0)
+                ? updateSucc(newState, f(newState.val, context.config), 0)
                 : newState;
         });
     }
@@ -48,7 +48,7 @@ export class Parser<T> {
             if (!newStateA.succ) return newStateA;
             const newStateB = parser.run(newStateA, context);
             if (!newStateB.succ) return newStateB;
-            return succUpdate(newStateB, newStateA.val, 0);
+            return updateSucc(newStateB, newStateA.val, 0);
         });
     }
     or<U>(this: Parser<T>, parser: Parser<U>): Parser<T | U> {
@@ -79,7 +79,7 @@ export class Parser<T> {
                 }
                 accum = f(accum, (state = newState).val, context.config);
             }
-            return succUpdate(state, accum, 0);
+            return updateSucc(state, accum, 0);
         });
     }
     many(this: Parser<T>, options?: { min?: number; max?: number }): Parser<T[]> {
