@@ -1,14 +1,14 @@
-import { Parser, qo } from "../src";
+import { Config, Parser, qo } from "../src";
 
 // For simplicity, the behavior may differ in a few cases.
 
 const pure = <T>(val: T) => qo(() => val);
 
-const map = <T, U>(parser: Parser<T>, f: (v: T) => U) =>
-    qo(perform => f(perform(parser)));
+const map = <T, U>(parser: Parser<T>, f: (v: T, config: Config) => U) =>
+    qo((perform, config) => f(perform(parser), config));
 
-const flatMap = <T, U>(parser: Parser<T>, f: (v: T) => Parser<U>) =>
-    qo(perform => perform(f(perform(parser))));
+const flatMap = <T, U>(parser: Parser<T>, f: (v: T, config: Config) => Parser<U>) =>
+    qo((perform, config) => perform(f(perform(parser), config)));
 
 const right = <T>(left: Parser<unknown>, right: Parser<T>) =>
     qo(perform => (perform(left), perform(right)));
