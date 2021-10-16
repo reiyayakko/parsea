@@ -1,20 +1,21 @@
+import type { Config, Source } from "./context";
 import { Parser } from "./parser";
-import { failFrom, succUpdate, Source, Config } from "./state";
+import { failFrom, updateSucc } from "./state";
 
 /**
  * Always succeed with the value of the argument.
  */
 export const pure = <T>(value: T): Parser<T> =>
-    new Parser(state => succUpdate(state, value, 0));
+    new Parser(state => updateSucc(state, value, 0));
 
 export const fail = (): Parser<never> =>
-    new Parser(state => failFrom(state.src, state.pos));
+    new Parser((state, context) => failFrom(context, state.pos));
 
 /**
  * end of input
  */
-export const EOI = new Parser(state =>
-    state.pos < state.src.length ? failFrom(state.src, state.pos) : state,
+export const EOI = new Parser((state, context) =>
+    state.pos < context.src.length ? failFrom(context, state.pos) : state,
 );
 
 /**
@@ -23,10 +24,10 @@ export const EOI = new Parser(state =>
  * @example any.parse([someValue]).value === someValue;
  * @example any.parse([]); // parse fail
  */
-export const ANY_EL = new Parser(state =>
-    state.pos < state.src.length
-        ? succUpdate(state, state.src[state.pos], 1)
-        : failFrom(state.src, state.pos),
+export const ANY_EL = new Parser((state, context) =>
+    state.pos < context.src.length
+        ? updateSucc(state, context.src[state.pos], 1)
+        : failFrom(context, state.pos),
 );
 
 export const el = <T>(value: T): Parser<T> => satisfy(srcEl => Object.is(srcEl, value));
@@ -36,25 +37,25 @@ export const satisfy = <T>(
         | ((el: unknown, config: Config) => boolean)
         | ((el: unknown, config: Config) => el is T),
 ): Parser<T> =>
-    new Parser(state => {
+    new Parser((state, context) => {
         let srcEl: unknown;
-        return state.pos < state.src.length &&
-            f((srcEl = state.src[state.pos]), state.config)
-            ? succUpdate(state, srcEl, 1)
-            : failFrom(state.src, state.pos);
+        return state.pos < context.src.length &&
+            f((srcEl = context.src[state.pos]), context.config)
+            ? updateSucc(state, srcEl, 1)
+            : failFrom(context, state.pos);
     });
 
 export const literal = <T extends Source>(chunk: T): Parser<T> =>
-    new Parser<T>(state => {
-        if (state.pos + chunk.length > state.src.length) {
-            return failFrom(state.src, state.pos);
+    new Parser((state, context) => {
+        if (state.pos + chunk.length > context.src.length) {
+            return failFrom(context, state.pos);
         }
         for (let i = 0; i < chunk.length; i++) {
-            const srcEl = state.src[state.pos + i];
+            const srcEl = context.src[state.pos + i];
             const chunkEl = chunk[i];
             if (!Object.is(srcEl, chunkEl)) {
-                return failFrom(state.src, state.pos + i);
+                return failFrom(context, state.pos + i);
             }
         }
-        return succUpdate(state, chunk, chunk.length);
+        return updateSucc(state, chunk, chunk.length);
     });
