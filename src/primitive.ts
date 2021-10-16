@@ -1,5 +1,6 @@
+import type { Config, Source } from "./context";
 import { Parser } from "./parser";
-import { failFrom, succUpdate, Source, Config } from "./state";
+import { failFrom, succUpdate } from "./state";
 
 /**
  * Always succeed with the value of the argument.

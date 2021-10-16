@@ -1,16 +1,6 @@
 import { isArrayLike, clamp, MAX_INT32 } from "emnorst";
-import {
-    Config,
-    Context,
-    initContext,
-    margeFail,
-    failFrom,
-    ParseState,
-    Success,
-    succInit,
-    succUpdate,
-    Source,
-} from "./state";
+import type { Config, Context, Source } from "./context";
+import { margeFail, ParseState, Success, succInit, succUpdate } from "./state";
 
 export type Parsed<T> = T extends Parser<infer U> ? U : never;
 
@@ -22,11 +12,11 @@ type ParseRunner<T, U> = (
 
 export class Parser<T> {
     constructor(readonly run: ParseRunner<unknown, T>) {}
-    parse(this: Parser<T>, source: Source, config: Config = {}): ParseState<T> {
-        if (!isArrayLike(source)) {
+    parse(this: Parser<T>, src: Source, config: Config = {}): ParseState<T> {
+        if (!isArrayLike(src)) {
             throw new TypeError("source is not ArrayLike.");
         }
-        const context = initContext(source, config);
+        const context: Context = { src, config };
         const finalState = this.run(succInit, context);
         return finalState;
     }

@@ -1,14 +1,6 @@
+import type { Config, Context, Source } from "../src/context";
 import { Parser, Parsed } from "../src/parser";
-import {
-    Config,
-    ParseState,
-    succUpdate,
-    succInit,
-    Source,
-    failFrom,
-    initContext,
-    Context,
-} from "../src/state";
+import { ParseState, succUpdate, succInit, failFrom } from "../src/state";
 
 declare global {
     namespace jest {
@@ -68,7 +60,7 @@ const parseToEqual = function (
 expect.extend({
     parseToSucc(
         receivedParser: unknown,
-        source: Source,
+        src: Source,
         pos: number,
         value: unknown,
         config: Config = {},
@@ -77,17 +69,12 @@ expect.extend({
             this,
             receivedParser,
             succUpdate(succInit, value, pos),
-            initContext(source, config),
+            { src, config },
             "parseToSucc",
         );
     },
-    parseToFail(
-        receivedParser: unknown,
-        source: Source,
-        pos: number,
-        config: Config = {},
-    ) {
-        const context = initContext(source, config);
+    parseToFail(receivedParser: unknown, src: Source, pos: number, config: Config = {}) {
+        const context = { src, config };
         return parseToEqual.call(
             this,
             receivedParser,

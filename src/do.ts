@@ -1,5 +1,6 @@
+import type { Config } from "./context";
 import { Parser } from "./parser";
-import { Failure, succUpdate, Config } from "./state";
+import { Failure, succUpdate } from "./state";
 
 const parseFailErrorRef = {};
 
