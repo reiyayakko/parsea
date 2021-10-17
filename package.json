@@ -1,6 +1,6 @@
 {
   "name": "parsea",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "parser combinator library for parsing ArrayLike.",
   "main": "dist/parsea.cjs.js",
   "module": "dist/parsea.esm.js",
