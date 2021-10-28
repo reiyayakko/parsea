@@ -2,26 +2,33 @@ import type { Config } from "./context";
 import { Parser } from "./parser";
 import { Failure, updateSucc } from "./state";
 
-const parseFailErrorRef = {};
+const PARSEA_ERROR = Symbol("Parsea.error");
 
-type Perform = <T>(parser: Parser<T>) => T;
+interface ParseaError {
+    [PARSEA_ERROR]: Failure;
+}
+
+export const isParseaError = (e: unknown): e is ParseaError =>
+    e != null && PARSEA_ERROR in (e as object);
+
+interface Perform {
+    <T>(parser: Parser<T>): T;
+}
 
 export const qo = <T>(runner: (perform: Perform, config: Config) => T): Parser<T> =>
     new Parser((state, context) => {
-        let fail: Failure;
         try {
             const value = runner(parser => {
                 const newState = parser.run(state, context);
                 if (!newState.succ) {
-                    fail = newState;
-                    throw parseFailErrorRef;
+                    throw { [PARSEA_ERROR]: newState };
                 }
                 return (state = newState).val;
             }, context.config);
             return updateSucc(state, value, 0);
         } catch (err) {
-            if (err === parseFailErrorRef && fail!) {
-                return fail;
+            if (isParseaError(err)) {
+                return err[PARSEA_ERROR];
             }
             throw err;
         }
