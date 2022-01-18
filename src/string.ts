@@ -12,7 +12,7 @@ export const regexGroup = (re: RegExp): Parser<RegExpGroupArray> => {
         if (typeof context.src !== "string") {
             return failFrom(context, state.pos);
         }
-        const matchResult = fixedRegex.exec(context.src.substr(state.pos));
+        const matchResult = fixedRegex.exec(context.src.slice(state.pos));
         return matchResult === null
             ? failFrom(context, state.pos)
             : updateSucc(state, matchResult, matchResult[0].length);
