@@ -22,9 +22,9 @@ export const regexGroup = (re: RegExp): Parser<RegExpGroupArray> => {
 export const regex: {
     (re: RegExp, groupId?: never): Parser<string>;
     (re: RegExp, groupId: number | string): Parser<string | undefined>;
-} = (re: RegExp, groupId = 0): Parser<string> =>
+} = (re, groupId = 0) =>
     regexGroup(re).map(matchResult =>
         typeof groupId === "number"
             ? matchResult[groupId]
-            : matchResult.groups?.[groupId],
-    ) as Parser<string>;
+            : matchResult.groups?.[groupId]!,
+    );
