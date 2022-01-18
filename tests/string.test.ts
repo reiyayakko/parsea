@@ -20,6 +20,7 @@ describe("string parsers", () => {
                 expect.objectContaining(["Uint64ClampedArray", "Uin", "64", "Clamped"]),
             );
             expect(parser).parseToFail("Uint128Array", 0);
+            expect(regexGroup(/alpha|beta/)).parseToFail(" beta", 0);
             expect(literal("hello ").right(regexGroup(/\w+/))).parseToSucc(
                 "hello world!",
                 "hello world".length,
