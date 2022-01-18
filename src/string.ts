@@ -6,7 +6,7 @@ export interface RegExpGroupArray extends Array<string> {
 }
 
 export const regexGroup = (re: RegExp): Parser<RegExpGroupArray> => {
-    const fixedRegex = new RegExp("^" + re.source, re.flags.replace("g", ""));
+    const fixedRegex = new RegExp(`^(?:${re.source})`, re.flags.replace("g", ""));
 
     return new Parser((state, context) => {
         if (typeof context.src !== "string") {
