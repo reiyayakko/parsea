@@ -7,6 +7,6 @@ export interface Config {
 }
 
 export interface Context {
-    readonly config: Config;
+    readonly cfg: Config;
     readonly src: Source;
 }

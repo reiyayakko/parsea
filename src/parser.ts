@@ -12,11 +12,11 @@ type ParseRunner<T, U> = (
 
 export class Parser<T> {
     constructor(readonly run: ParseRunner<unknown, T>) {}
-    parse(this: Parser<T>, src: Source, config: Config = {}): ParseState<T> {
+    parse(this: Parser<T>, src: Source, cfg: Config = {}): ParseState<T> {
         if (!isArrayLike(src)) {
             throw new TypeError("source is not ArrayLike.");
         }
-        const context: Context = { src, config };
+        const context: Context = { src, cfg };
         const finalState = this.run(succInit, context);
         return finalState;
     }
@@ -24,7 +24,7 @@ export class Parser<T> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
             return newState.succ
-                ? updateSucc(newState, f(newState.val, context.config), 0)
+                ? updateSucc(newState, f(newState.val, context.cfg), 0)
                 : newState;
         });
     }
@@ -32,7 +32,7 @@ export class Parser<T> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
             return newState.succ
-                ? f(newState.val, context.config).run(newState, context)
+                ? f(newState.val, context.cfg).run(newState, context)
                 : newState;
         });
     }
@@ -70,14 +70,14 @@ export class Parser<T> {
         const clampedMax = clamp(options?.max || MAX_INT32, clampedMin, MAX_INT32) | 0;
 
         return new Parser((state, context) => {
-            let accum: U = init(context.config);
+            let accum: U = init(context.cfg);
             for (let i = 0; i < clampedMax; i++) {
                 const newState = this.run(state, context);
                 if (!newState.succ) {
                     if (i < clampedMin) return newState;
                     break;
                 }
-                accum = f(accum, (state = newState).val, context.config);
+                accum = f(accum, (state = newState).val, context.cfg);
             }
             return updateSucc(state, accum, 0);
         });

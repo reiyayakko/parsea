@@ -38,7 +38,7 @@ const parseToEqual = function (
         );
     }
 
-    const parseResult = receivedParser.parse(context.src, context.config);
+    const parseResult = receivedParser.parse(context.src, context.cfg);
     const pass = this.equals(parseResult, result);
     const message = () => {
         const hint =
@@ -63,18 +63,18 @@ expect.extend({
         src: Source,
         pos: number,
         value: unknown,
-        config: Config = {},
+        cfg: Config = {},
     ) {
         return parseToEqual.call(
             this,
             receivedParser,
             updateSucc(succInit, value, pos),
-            { src, config },
+            { src, cfg },
             "parseToSucc",
         );
     },
-    parseToFail(receivedParser: unknown, src: Source, pos: number, config: Config = {}) {
-        const context = { src, config };
+    parseToFail(receivedParser: unknown, src: Source, pos: number, cfg: Config = {}) {
+        const context = { src, cfg };
         return parseToEqual.call(
             this,
             receivedParser,

@@ -40,7 +40,7 @@ export const satisfy = <T>(
     new Parser((state, context) => {
         let srcEl: unknown;
         return state.pos < context.src.length &&
-            f((srcEl = context.src[state.pos]), context.config)
+            f((srcEl = context.src[state.pos]), context.cfg)
             ? updateSucc(state, srcEl, 1)
             : failFrom(context, state.pos);
     });
