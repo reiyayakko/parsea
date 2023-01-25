@@ -13,7 +13,7 @@
     "watch": "rollup -c --environment BUILD:development -w",
     "build": "rollup -c --environment BUILD:production",
     "test": "jest",
-    "fmt:check": "prettier **/*.ts",
+    "fmt:check": "prettier **/*.ts -c",
     "fmt": "prettier **/*.ts -w"
   },
   "repository": {
