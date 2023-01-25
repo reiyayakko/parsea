@@ -65,3 +65,12 @@ const seq = <T>(
         }
         return accum;
     });
+
+const many = <T>(parser: Parser<T>): Parser<T[]> =>
+    qo(perform => {
+        const xs = [];
+        try {
+            for (;;) xs.push(perform(parser));
+        } catch (err) {}
+        return xs;
+    });
