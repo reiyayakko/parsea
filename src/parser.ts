@@ -51,7 +51,7 @@ export class Parser<T> {
     }
     manyAccum<U>(
         this: Parser<T>,
-        f: (accum: U, cur: T, config: Config) => U,
+        f: (accum: U, cur: T, config: Config) => U | void,
         init: (config: Config) => U,
         options?: { min?: number; max?: number },
     ): Parser<U> {
@@ -66,16 +66,18 @@ export class Parser<T> {
                     if (i < clampedMin) return null;
                     break;
                 }
-                accum = f(accum, (state = newState).val, context.cfg);
+                accum = f(accum, (state = newState).val, context.cfg) ?? accum;
             }
             return updateState(state, accum, 0);
         });
     }
     many(this: Parser<T>, options?: { min?: number; max?: number }): Parser<T[]> {
-        const pushed = <T>(arr: T[], val: T) => {
-            arr.push(val);
-            return arr;
-        };
-        return this.manyAccum<T[]>(pushed, () => [], options);
+        return this.manyAccum<T[]>(
+            (array, value) => {
+                array.push(value);
+            },
+            () => [],
+            options,
+        );
     }
 }
