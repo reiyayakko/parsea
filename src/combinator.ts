@@ -6,12 +6,12 @@ import { updateState } from "./state";
  * Delays variable references until the parser runs.
  */
 export const lazy = <T>(getParser: () => Parser<T>): Parser<T> => {
-    let cache: Parser<T>;
+    let parser: Parser<T>;
     return new Parser((state, context) => {
-        if (cache == null) {
-            cache = getParser();
+        if (parser == null) {
+            parser = getParser();
         }
-        return cache.run(state, context);
+        return parser.run(state, context);
     });
 };
 
@@ -28,12 +28,12 @@ export const notFollowedBy = (parser: Parser<unknown>): Parser<unknown> =>
 type Seq<T extends readonly Parser<unknown>[]> = [...{ [K in keyof T]: Parsed<T[K]> }];
 
 export const seq: {
-    <T extends readonly Parser<unknown>[]>(
-        parsers: readonly [...T],
+    <T extends readonly Parser<unknown>[] | []>(
+        parsers: T,
         options?: { droppable?: false },
     ): Parser<Seq<T>>;
-    <T extends readonly Parser<unknown>[]>(
-        parsers: readonly [...T],
+    <T extends readonly Parser<unknown>[] | []>(
+        parsers: T,
         options?: { droppable?: boolean },
     ): Parser<Partial<Seq<T>>>;
 } = (parsers, options) =>

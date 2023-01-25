@@ -1,6 +1,6 @@
 export interface ParseState<T> {
-    readonly pos: number;
-    readonly val: T;
+    pos: number;
+    val: T;
 }
 
 export const initState: ParseState<null> = {

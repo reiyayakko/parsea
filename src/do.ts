@@ -2,14 +2,12 @@ import type { Config } from "./context";
 import { Parser } from "./parser";
 import { updateState } from "./state";
 
-const PARSEA_ERROR = Symbol("Parsea.error");
+const ParseAErrorSymbol = Symbol("ParseA.error");
 
-interface ParseaError {
-    [PARSEA_ERROR]: null;
-}
+type ParseAError = { [ParseAErrorSymbol]: null };
 
-export const isParseaError = (e: unknown): e is ParseaError =>
-    e != null && PARSEA_ERROR in (e as object);
+export const isParseaError = (e: unknown): e is ParseAError =>
+    e != null && ParseAErrorSymbol in (e as object);
 
 interface Perform {
     <T>(parser: Parser<T>): T;
@@ -21,7 +19,7 @@ export const qo = <T>(runner: (perform: Perform, config: Config) => T): Parser<T
             const value = runner(parser => {
                 const newState = parser.run(state, context);
                 if (newState == null) {
-                    throw { [PARSEA_ERROR]: null };
+                    throw { [ParseAErrorSymbol]: null };
                 }
                 return (state = newState).val;
             }, context.cfg);

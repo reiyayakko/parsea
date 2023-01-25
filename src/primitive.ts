@@ -17,7 +17,7 @@ export const fail = (): Parser<never> =>
 /**
  * end of input
  */
-export const EOI = new Parser((state, context) => {
+export const EOI = /* #__PURE__ */ new Parser((state, context) => {
     if (state.pos < context.src.length) {
         pushError(context, state.pos);
         return null;
@@ -31,7 +31,7 @@ export const EOI = new Parser((state, context) => {
  * @example any.parse([someValue]).value === someValue;
  * @example any.parse([]); // parse fail
  */
-export const ANY_EL = new Parser((state, context) => {
+export const ANY_EL = /* #__PURE__ */ new Parser((state, context) => {
     if (state.pos < context.src.length) {
         return updateState(state, context.src[state.pos], 1);
     }

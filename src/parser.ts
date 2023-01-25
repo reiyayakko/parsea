@@ -20,19 +20,19 @@ export class Parser<T> {
         const finalState = this.run(initState, context);
         return finalState;
     }
-    map<U>(this: Parser<T>, f: (val: T, config: Config) => U): Parser<U> {
+    map<U>(this: Parser<T>, f: (value: T, config: Config) => U): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
             return newState && updateState(newState, f(newState.val, context.cfg), 0);
         });
     }
-    flatMap<U>(this: Parser<T>, f: (val: T, config: Config) => Parser<U>): Parser<U> {
+    flatMap<U>(this: Parser<T>, f: (value: T, config: Config) => Parser<U>): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
             return newState && f(newState.val, context.cfg).run(newState, context);
         });
     }
-    and<U>(this: Parser<unknown>, parser: Parser<U>): Parser<U>;
+    and<U>(this: Parser<unknown>, parser: Parser<U>, skip?: false): Parser<U>;
     and(this: Parser<T>, parser: Parser<unknown>, skip: true): Parser<T>;
     and<U>(this: Parser<T>, parser: Parser<U>, skip: boolean): Parser<T | U>;
     and<U>(this: Parser<T>, parser: Parser<U>, skip = false): Parser<T | U> {
