@@ -8,6 +8,6 @@ test("do", () => {
         const b = perform(satisfy<string>(el => typeof el === "string"));
         return { a, b };
     });
-    expect(parser).parseToSucc([5, "*"], 2, { a: 5, b: "*" });
-    expect(parser).parseToFail([20, 5], 1);
+    expect(parser.parse([5, "*"])).toEqual({ pos: 2, val: { a: 5, b: "*" } });
+    expect(parser.parse([20, 5])).toBeNull();
 });

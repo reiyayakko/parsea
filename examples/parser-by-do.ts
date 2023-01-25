@@ -2,22 +2,34 @@ import { Config, Parser, qo } from "../src";
 
 // For simplicity, the behavior may differ in a few cases.
 
-const pure = <T>(val: T) => qo(() => val);
+const pure = <T>(value: T) => qo(() => value);
 
-const map = <T, U>(parser: Parser<T>, f: (v: T, config: Config) => U) =>
+const map = <T, U>(parser: Parser<T>, f: (value: T, config: Config) => U) =>
     qo((perform, config) => f(perform(parser), config));
 
-const flatMap = <T, U>(parser: Parser<T>, f: (v: T, config: Config) => Parser<U>) =>
+const flatMap = <T, U>(parser: Parser<T>, f: (value: T, config: Config) => Parser<U>) =>
     qo((perform, config) => perform(f(perform(parser), config)));
 
-const right = <T>(left: Parser<unknown>, right: Parser<T>) =>
+const and = <T>(left: Parser<unknown>, right: Parser<T>) =>
     qo(perform => (perform(left), perform(right)));
 
-const left = <T>(left: Parser<T>, right: Parser<unknown>) =>
+const skip = <T>(left: Parser<T>, right: Parser<unknown>) =>
     qo(perform => {
-        const leftVal = perform(left);
+        const leftValue = perform(left);
         perform(right);
-        return leftVal;
+        return leftValue;
+    });
+
+const between = <T>(
+    parser: Parser<T>,
+    pre: Parser<unknown>,
+    post: Parser<unknown> = pre,
+): Parser<T> =>
+    qo(perform => {
+        perform(pre);
+        const value = perform(parser);
+        perform(post);
+        return value;
     });
 
 const or = <T, U>(left: Parser<T>, right: Parser<U>) =>
@@ -29,6 +41,15 @@ const or = <T, U>(left: Parser<T>, right: Parser<U>) =>
         }
     });
 
+const option = <T, U>(parser: Parser<T>, value: U) =>
+    qo(perform => {
+        try {
+            return perform(parser);
+        } catch (err) {
+            return value;
+        }
+    });
+
 const seq = <T>(
     parsers: readonly Parser<T>[],
     options?: { droppable?: boolean },
@@ -37,13 +58,19 @@ const seq = <T>(
         const accum: T[] = [];
         try {
             for (const parser of parsers) {
-                const val = perform(parser);
-                accum.push(val);
+                accum.push(perform(parser));
             }
         } catch (err) {
-            if (!options?.droppable) {
-                throw err;
-            }
+            if (!options?.droppable) throw err;
         }
         return accum;
+    });
+
+const many = <T>(parser: Parser<T>): Parser<T[]> =>
+    qo(perform => {
+        const xs = [];
+        try {
+            for (;;) xs.push(perform(parser));
+        } catch (err) {}
+        return xs;
     });

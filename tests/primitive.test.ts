@@ -3,67 +3,72 @@ import { ANY_EL, EOI, el, literal, pure, satisfy } from "../src/primitive";
 describe("primitive parsers", () => {
     test("pure", () => {
         const sym = Symbol("ID");
-        expect(pure(sym)).parseToSucc([], 0, sym);
+        expect(pure(sym).parse([])).toEqual({ pos: 0, val: sym });
     });
     test("EOI", () => {
-        expect(EOI).parseToSucc([], 0, null);
-        expect(ANY_EL.left(EOI)).parseToSucc(["el"], 1, "el");
-        expect(EOI).parseToFail(["el"], 0);
+        expect(EOI.parse([])).toEqual({ pos: 0, val: null });
+        expect(ANY_EL.and(EOI, true).parse(["el"])).toEqual({ pos: 1, val: "el" });
+        expect(EOI.parse(["el"])).toBeNull();
     });
     describe("ANY_EL", () => {
         test("長さ不足で失敗する", () => {
-            expect(ANY_EL).parseToFail([], 0);
+            expect(ANY_EL.parse([])).toBeNull();
         });
         test("任意の要素で成功する", () => {
-            expect(ANY_EL).parseToSucc([1, 2, 3], 1, 1);
-            expect(ANY_EL).parseToSucc(["el"], 1, "el");
+            expect(ANY_EL.parse([1, 2, 3])).toEqual({ pos: 1, val: 1 });
+            expect(ANY_EL.parse(["el"])).toEqual({ pos: 1, val: "el" });
         });
     });
     describe("el", () => {
         test("長さ不足で失敗する", () => {
-            expect(el("")).parseToFail("", 0);
+            expect(el("").parse("")).toBeNull();
         });
         test("Object.isで判定", () => {
-            expect(el(1)).parseToSucc([1, 2, 3], 1, 1);
-            expect(el(2)).parseToFail([1, 2, 3], 0);
-            expect(el(NaN)).parseToSucc([NaN], 1, NaN);
-            expect(el(-0)).parseToFail([0], 0);
+            expect(el(1).parse([1, 2, 3])).toEqual({ pos: 1, val: 1 });
+            expect(el(2).parse([1, 2, 3])).toBeNull();
+            expect(el(NaN).parse([NaN])).toEqual({ pos: 1, val: NaN });
+            expect(el(-0).parse([0])).toBeNull();
         });
     });
     describe("satisfy", () => {
         test("長さ不足で失敗する", () => {
             const mock = jest.fn<boolean, []>().mockReturnValue(true);
-            expect(satisfy(mock)).parseToFail([], 0);
+            expect(satisfy(mock).parse([])).toBeNull();
             expect(mock).toHaveBeenCalledTimes(0);
         });
         test("条件に合う要素で成功", () => {
             const evenParser = satisfy(el => (el as number) % 2 === 0);
-            expect(evenParser).parseToSucc([8], 1, 8);
-            expect(evenParser).parseToFail([7], 0);
+            expect(evenParser.parse([8])).toEqual({ pos: 1, val: 8 });
+            expect(evenParser.parse([7])).toBeNull();
         });
     });
     describe("literal", () => {
         test("長さ不足で失敗する", () => {
-            expect(literal([2, 3, 5, 7, 11])).parseToFail([2, 3, 5], 0);
+            expect(literal([2, 3, 5, 7, 11]).parse([2, 3, 5])).toBeNull();
         });
         test("空", () => {
-            expect(literal([])).parseToSucc([], 0, []);
+            expect(literal([]).parse([])).toEqual({ pos: 0, val: [] });
         });
         test("Object.isで判定", () => {
             // succ
             const str = "3分間待ってやる";
-            expect(literal(str)).parseToSucc([...(str + "...")], str.length, str);
-            expect(literal(["バ", "ル", "ス"])).parseToSucc("バルス", 3, [
-                "バ",
-                "ル",
-                "ス",
-            ]);
+            expect(literal(str).parse([...(str + "...")])).toEqual({
+                pos: str.length,
+                val: str,
+            });
+            expect(literal(["バ", "ル", "ス"]).parse("バルス")).toEqual({
+                pos: 3,
+                val: ["バ", "ル", "ス"],
+            });
             const emoji = "👨‍👩‍👧‍👦";
-            expect(literal(emoji)).parseToSucc(emoji + "!", emoji.length, emoji);
+            expect(literal(emoji).parse(emoji + "!")).toEqual({
+                pos: emoji.length,
+                val: emoji,
+            });
 
             // fail
-            expect(literal("ふんいき")).parseToFail("ふいんき", 1);
-            expect(literal(["hoge", NaN, -0])).parseToFail(["hoge", NaN, 0], 2);
+            expect(literal("ふんいき").parse("ふいんき")).toBeNull();
+            expect(literal(["hoge", NaN, -0]).parse(["hoge", NaN, 0])).toBeNull();
         });
     });
 });
