@@ -20,6 +20,12 @@ export class Parser<T> {
         const finalState = this.run(initState, context);
         return finalState;
     }
+    return<U>(this: Parser<unknown>, value: U): Parser<U> {
+        return new Parser((state, context) => {
+            const newState = this.run(state, context);
+            return newState && updateState(newState, value, 0);
+        });
+    }
     map<U>(this: Parser<T>, f: (value: T, config: Config) => U): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);

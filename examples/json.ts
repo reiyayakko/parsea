@@ -18,9 +18,9 @@ const jsonValue: Parser<JsonValue> = lazy(() =>
         array,
         string,
         number,
-        literal("true").map(() => true),
-        literal("false").map(() => false),
-        literal("null").map(() => null),
+        literal("true").return(true),
+        literal("false").return(false),
+        literal("null").return(null),
     ]).between(ws),
 );
 
