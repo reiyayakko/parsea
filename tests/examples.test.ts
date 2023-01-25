@@ -1,32 +1,27 @@
 import { jsonParser } from "../examples/json";
 
 describe("JSON", () => {
-    test("ignore whitespace.", () => {
-        expect(jsonParser).parseToSucc(" null ", 6, null);
-        expect(jsonParser).parseToSucc(" [ ] ", 5, []);
-        expect(jsonParser).parseToSucc(" [ null , 0 ] ", 14, [null, 0]);
-        expect(jsonParser).parseToSucc(` { } `, 5, {});
-        expect(jsonParser).parseToSucc(` { "1" : null , "2" : 0 } `, 26, {
-            1: null,
-            2: 0,
+    const jsonNumbers = ["0", "3.141592", "4.2195e1", "0.00E+00", "0e-0"];
+    test.each([
+        // ignore whitespace
+        " null ",
+        " [ ] ",
+        " [ null , 0 ] ",
+        ` {  } `,
+        ` { "1" : null , "2" : 0 } `,
+        ...jsonNumbers,
+        ...jsonNumbers.map(jsonNumber => "-" + jsonNumber),
+    ])("%o", json => {
+        expect(jsonParser.parse(json)).toEqual({
+            pos: json.length,
+            val: JSON.parse(json),
         });
     });
-    test.each(["0", "3.141592", "4.2195e1", "0.00E+00", "0e-0"])(
-        "parse numbers.",
-        json => {
-            expect(jsonParser).parseToSucc(json, json.length, JSON.parse(json));
-            expect(jsonParser).parseToSucc(
-                "-" + json,
-                json.length + 1,
-                -JSON.parse(json),
-            );
-        },
-    );
     test("number parsing to fail..", () => {
-        expect(jsonParser).parseToFail("00", 1);
-        expect(jsonParser).parseToFail("- 0", 0);
-        expect(jsonParser).parseToFail("0.", 1);
-        expect(jsonParser).parseToFail(".0", 0);
+        expect(jsonParser.parse("00")).toBeNull();
+        expect(jsonParser.parse("- 0")).toBeNull();
+        expect(jsonParser.parse("0.")).toBeNull();
+        expect(jsonParser.parse(".0")).toBeNull();
     });
     test.each([
         ['"'],
@@ -37,10 +32,9 @@ describe("JSON", () => {
         ["n", "\n"],
         ["r", "\r"],
         ["t", "\t"],
+        ["u1234", "\u1234"],
     ])("escape %s", (escapeChar, char = escapeChar) => {
-        expect(jsonParser).parseToSucc(`"\\${escapeChar}"`, 4, char);
-    });
-    test("escape unicode", () => {
-        expect(jsonParser).parseToSucc(`"\\u1234"`, 8, "\u1234");
+        const json = `"\\${escapeChar}"`;
+        expect(jsonParser.parse(json)).toEqual({ pos: json.length, val: char });
     });
 });
