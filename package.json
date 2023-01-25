@@ -2,6 +2,7 @@
   "name": "parsea",
   "version": "0.6.0",
   "description": "parser combinator library for parsing ArrayLike.",
+  "type": "module",
   "main": "dist/parsea.cjs.js",
   "module": "dist/parsea.esm.js",
   "types": "dist/parsea.esm.d.ts",
@@ -34,7 +35,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
-    "@wessberg/rollup-plugin-ts": "^2.0.4",
+    "rollup-plugin-ts": "^3.2.0",
     "esbuild": "^0.17.4",
     "esbuild-jest": "^0.5.0",
     "jest": "^29.4.0",

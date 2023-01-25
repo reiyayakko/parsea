@@ -1,6 +1,6 @@
 // @ts-check
 
-import ts from "@wessberg/rollup-plugin-ts";
+import ts from "rollup-plugin-ts";
 
 const DEV = process.env.BUILD === "development";
 
