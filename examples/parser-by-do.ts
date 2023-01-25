@@ -41,6 +41,15 @@ const or = <T, U>(left: Parser<T>, right: Parser<U>) =>
         }
     });
 
+const option = <T, U>(parser: Parser<T>, value: U) =>
+    qo(perform => {
+        try {
+            return perform(parser);
+        } catch (err) {
+            return value;
+        }
+    });
+
 const seq = <T>(
     parsers: readonly Parser<T>[],
     options?: { droppable?: boolean },

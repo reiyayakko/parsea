@@ -63,6 +63,13 @@ export class Parser<T> {
             return this.run(state, context) ?? parser.run(state, context);
         });
     }
+    option(this: Parser<T>): Parser<T | null>;
+    option<U>(this: Parser<T>, value: U): Parser<T | U>;
+    option<U = null>(this: Parser<T>, value: U = null as unknown as U): Parser<T | U> {
+        return new Parser<T | U>((state, context) => {
+            return this.run(state, context) ?? updateState(state, value, 0);
+        });
+    }
     manyAccum<U>(
         this: Parser<T>,
         f: (accum: U, cur: T, config: Config) => U | void,
