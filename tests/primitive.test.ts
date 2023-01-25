@@ -7,7 +7,7 @@ describe("primitive parsers", () => {
     });
     test("EOI", () => {
         expect(EOI).parseToSucc([], 0, null);
-        expect(ANY_EL.left(EOI)).parseToSucc(["el"], 1, "el");
+        expect(ANY_EL.and(EOI, true)).parseToSucc(["el"], 1, "el");
         expect(EOI).parseToFail(["el"], 0);
     });
     describe("ANY_EL", () => {

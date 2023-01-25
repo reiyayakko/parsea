@@ -4,7 +4,7 @@ import { EOI, choice, el, lazy, literal, Parser, qo, regex, seq } from "../src";
 const sepBy = <T>(parser: Parser<T>, sep: Parser<unknown>) =>
     qo(perform => {
         const head = perform(parser);
-        const rest = perform(sep.right(parser).many());
+        const rest = perform(sep.and(parser).many());
         return [head, ...rest];
     });
 
@@ -68,10 +68,10 @@ const empty = ws.map<[]>(() => []);
 
 const array = between(sepBy(jsonValue, el(",")).or(empty), el("["), el("]"));
 
-const keyValue = seq([ws.right(string), ws.right(el(":")).right(jsonValue)]);
+const keyValue = seq([ws.and(string), ws.and(el(":")).and(jsonValue)]);
 
 const object = between(sepBy(keyValue, el(",")).or(empty), el("{"), el("}")).map<
     Record<string, JsonValue>
 >(Object.fromEntries);
 
-export const jsonParser = jsonValue.left(EOI);
+export const jsonParser = jsonValue.and(EOI, true);

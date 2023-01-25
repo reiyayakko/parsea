@@ -36,19 +36,16 @@ export class Parser<T> {
                 : newState;
         });
     }
-    right<U>(this: Parser<unknown>, parser: Parser<U>): Parser<U> {
-        return new Parser((state, context) => {
-            const newState = this.run(state, context);
-            return newState.succ ? parser.run(newState, context) : newState;
-        });
-    }
-    left(this: Parser<T>, parser: Parser<unknown>): Parser<T> {
-        return new Parser((state, context) => {
+    and<U>(this: Parser<unknown>, parser: Parser<U>): Parser<U>;
+    and(this: Parser<T>, parser: Parser<unknown>, skip: true): Parser<T>;
+    and<U>(this: Parser<T>, parser: Parser<U>, skip: boolean): Parser<T | U>;
+    and<U>(this: Parser<T>, parser: Parser<U>, skip = false): Parser<T | U> {
+        return new Parser<T | U>((state, context) => {
             const newStateA = this.run(state, context);
             if (!newStateA.succ) return newStateA;
             const newStateB = parser.run(newStateA, context);
             if (!newStateB.succ) return newStateB;
-            return updateSucc(newStateB, newStateA.val, 0);
+            return skip ? updateSucc(newStateB, newStateA.val, 0) : newStateB;
         });
     }
     or<U>(this: Parser<T>, parser: Parser<U>): Parser<T | U> {
