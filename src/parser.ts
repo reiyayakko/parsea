@@ -1,39 +1,35 @@
 import { isArrayLike, clamp, MAX_INT32 } from "emnorst";
 import type { Config, Context, Source } from "./context";
-import { margeFail, ParseState, Success, succInit, updateSucc } from "./state";
+import { ParseState, initState, updateState } from "./state";
 
 export type Parsed<T> = T extends Parser<infer U> ? U : never;
 
 type ParseRunner<T, U> = (
     this: void,
-    state: Success<T>,
+    state: ParseState<T>,
     context: Context,
-) => ParseState<U>;
+) => ParseState<U> | null;
 
 export class Parser<T> {
     constructor(readonly run: ParseRunner<unknown, T>) {}
-    parse(this: Parser<T>, src: Source, cfg: Config = {}): ParseState<T> {
+    parse(this: Parser<T>, src: Source, cfg: Config = {}): ParseState<T> | null {
         if (!isArrayLike(src)) {
             throw new TypeError("source is not ArrayLike.");
         }
-        const context: Context = { src, cfg };
-        const finalState = this.run(succInit, context);
+        const context: Context = { src, cfg, errs: [] };
+        const finalState = this.run(initState, context);
         return finalState;
     }
     map<U>(this: Parser<T>, f: (val: T, config: Config) => U): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
-            return newState.succ
-                ? updateSucc(newState, f(newState.val, context.cfg), 0)
-                : newState;
+            return newState && updateState(newState, f(newState.val, context.cfg), 0);
         });
     }
     flatMap<U>(this: Parser<T>, f: (val: T, config: Config) => Parser<U>): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
-            return newState.succ
-                ? f(newState.val, context.cfg).run(newState, context)
-                : newState;
+            return newState && f(newState.val, context.cfg).run(newState, context);
         });
     }
     and<U>(this: Parser<unknown>, parser: Parser<U>): Parser<U>;
@@ -42,19 +38,15 @@ export class Parser<T> {
     and<U>(this: Parser<T>, parser: Parser<U>, skip = false): Parser<T | U> {
         return new Parser<T | U>((state, context) => {
             const newStateA = this.run(state, context);
-            if (!newStateA.succ) return newStateA;
+            if (newStateA == null) return null;
             const newStateB = parser.run(newStateA, context);
-            if (!newStateB.succ) return newStateB;
-            return skip ? updateSucc(newStateB, newStateA.val, 0) : newStateB;
+            if (newStateB == null) return null;
+            return skip ? updateState(newStateB, newStateA.val, 0) : newStateB;
         });
     }
     or<U>(this: Parser<T>, parser: Parser<U>): Parser<T | U> {
         return new Parser<T | U>((state, context) => {
-            const newStateA = this.run(state, context);
-            if (newStateA.succ) return newStateA;
-            const newStateB = parser.run(state, context);
-            if (newStateB.succ) return newStateB;
-            return margeFail(newStateA, newStateB);
+            return this.run(state, context) ?? parser.run(state, context);
         });
     }
     manyAccum<U>(
@@ -70,13 +62,13 @@ export class Parser<T> {
             let accum: U = init(context.cfg);
             for (let i = 0; i < clampedMax; i++) {
                 const newState = this.run(state, context);
-                if (!newState.succ) {
-                    if (i < clampedMin) return newState;
+                if (newState == null) {
+                    if (i < clampedMin) return null;
                     break;
                 }
                 accum = f(accum, (state = newState).val, context.cfg);
             }
-            return updateSucc(state, accum, 0);
+            return updateState(state, accum, 0);
         });
     }
     many(this: Parser<T>, options?: { min?: number; max?: number }): Parser<T[]> {
