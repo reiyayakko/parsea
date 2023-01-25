@@ -44,6 +44,14 @@ export class Parser<T> {
             return skip ? updateState(newStateB, newStateA.val, 0) : newStateB;
         });
     }
+    between<T>(this: Parser<T>, pre: Parser<unknown>, post = pre): Parser<T> {
+        return new Parser((state, context) => {
+            const newStateA = pre.run(state, context);
+            const newStateB = newStateA && this.run(newStateA, context);
+            const newStateC = newStateB && post.run(newStateB, context);
+            return newStateC && updateState(newStateC, newStateB.val, 0);
+        });
+    }
     or<U>(this: Parser<T>, parser: Parser<U>): Parser<T | U> {
         return new Parser<T | U>((state, context) => {
             return this.run(state, context) ?? parser.run(state, context);

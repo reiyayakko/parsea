@@ -20,6 +20,18 @@ const skip = <T>(left: Parser<T>, right: Parser<unknown>) =>
         return leftValue;
     });
 
+const between = <T>(
+    parser: Parser<T>,
+    pre: Parser<unknown>,
+    post: Parser<unknown> = pre,
+): Parser<T> =>
+    qo(perform => {
+        perform(pre);
+        const value = perform(parser);
+        perform(post);
+        return value;
+    });
+
 const or = <T, U>(left: Parser<T>, right: Parser<U>) =>
     qo(perform => {
         try {
