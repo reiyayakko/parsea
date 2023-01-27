@@ -25,6 +25,12 @@ export const notFollowedBy = (parser: Parser<unknown>): Parser<unknown> =>
         return null;
     });
 
+export const lookAhead = <T>(parser: Parser<T>): Parser<T> =>
+    new Parser((state, context) => {
+        const newState = parser.run(state, context);
+        return newState && updateState(state, newState.val, 0);
+    });
+
 type Seq<T extends readonly Parser<unknown>[]> = [...{ [K in keyof T]: Parsed<T[K]> }];
 
 export const seq: {
