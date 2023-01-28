@@ -1,4 +1,4 @@
-export interface ParseState<T> {
+export interface ParseState<out T> {
     pos: number;
     val: T;
 }

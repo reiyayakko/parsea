@@ -4,13 +4,13 @@ import { ParseState, initState, updateState } from "./state";
 
 export type Parsed<T> = T extends Parser<infer U> ? U : never;
 
-type ParseRunner<T, U> = (
+type ParseRunner<in T, out U> = (
     this: void,
     state: ParseState<T>,
     context: Context,
 ) => ParseState<U> | null;
 
-export class Parser<T> {
+export class Parser<out T> {
     constructor(readonly run: ParseRunner<unknown, T>) {}
     parse(this: Parser<T>, src: Source, cfg: Config = {}): ParseState<T> | null {
         if (!isArrayLike(src)) {

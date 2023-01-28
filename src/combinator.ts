@@ -44,16 +44,16 @@ export const seq: {
     ): Parser<Partial<Seq<T>>>;
 } = (parsers, options) =>
     new Parser((state, context) => {
-        const accum: unknown[] = [];
+        const values: unknown[] = [];
         for (let i = 0; i < parsers.length; i++) {
             const newState = parsers[i].run(state, context);
             if (newState == null) {
                 if (options?.droppable) break;
                 return null;
             }
-            accum.push((state = newState).val);
+            values.push((state = newState).val);
         }
-        return updateState(state, accum, 0);
+        return updateState(state, values, 0);
     });
 
 export const choice = <T>(parsers: readonly Parser<T>[]): Parser<T> =>
