@@ -36,11 +36,11 @@ type Seq<T extends readonly Parser<unknown>[]> = [...{ [K in keyof T]: Parsed<T[
 export const seq: {
     <T extends readonly Parser<unknown>[] | []>(
         parsers: T,
-        options?: { droppable?: false },
+        options?: { allowPartial?: false },
     ): Parser<Seq<T>>;
     <T extends readonly Parser<unknown>[] | []>(
         parsers: T,
-        options?: { droppable?: boolean },
+        options: { allowPartial: boolean },
     ): Parser<Partial<Seq<T>>>;
 } = (parsers, options) =>
     new Parser((state, context) => {
@@ -48,7 +48,7 @@ export const seq: {
         for (let i = 0; i < parsers.length; i++) {
             const newState = parsers[i].run(state, context);
             if (newState == null) {
-                if (options?.droppable) break;
+                if (options?.allowPartial) break;
                 return null;
             }
             values.push((state = newState).val);

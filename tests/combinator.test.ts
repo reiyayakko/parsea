@@ -36,8 +36,8 @@ describe("combinator", () => {
             expect(lucasNumberParser.parse(lucasNumbers.slice(0, -1))).toBeNull();
             expect(lucasNumberParser.parse([2, 1, 4, 4, 7])).toBeNull();
         });
-        test("`droppable=true`で途中で失敗してもその時点までの結果で成功", () => {
-            const parser = seq([1, 1, 2, 6, 24, 120].map(el), { droppable: true });
+        test("allowPartialで途中で失敗してもその時点までの結果で成功", () => {
+            const parser = seq([1, 1, 2, 6, 24, 120].map(el), { allowPartial: true });
             expect(parser.parse([1, 1, 2, 3, 5, 8])).toEqual({ pos: 3, val: [1, 1, 2] });
             expect(parser.parse([1, 1])).toEqual({ pos: 2, val: [1, 1] });
             expect(parser.parse([])).toEqual({ pos: 0, val: [] });
