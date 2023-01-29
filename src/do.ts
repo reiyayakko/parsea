@@ -2,7 +2,7 @@ import type { Config } from "./context";
 import { Parser } from "./parser";
 import { updateState } from "./state";
 
-const ParseaErrorSymbol = Symbol("Parsea.error");
+const ParseaErrorSymbol = /* #__PURE__ */ Symbol("Parsea.error");
 
 type ParseaError = { [ParseaErrorSymbol]: null };
 
