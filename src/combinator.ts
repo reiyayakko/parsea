@@ -1,6 +1,6 @@
 import { pushError } from "./context";
 import { Parser, Parsed } from "./parser";
-import { updateState } from "./state";
+import { ParseState, updateState } from "./state";
 
 /**
  * Delays variable references until the parser runs.
@@ -31,7 +31,9 @@ export const lookAhead = <T>(parser: Parser<T>): Parser<T> =>
         return newState && updateState(state, newState.val, 0);
     });
 
-type Seq<T extends readonly Parser<unknown>[]> = [...{ [K in keyof T]: Parsed<T[K]> }];
+type Seq<out T extends readonly Parser<unknown>[]> = {
+    [K in keyof T]: Parsed<T[K]>;
+};
 
 export const seq: {
     <T extends readonly Parser<unknown>[] | []>(
@@ -56,12 +58,16 @@ export const seq: {
         return updateState(state, values, 0);
     });
 
-export const choice = <T>(parsers: readonly Parser<T>[]): Parser<T> =>
+type Choice<T extends readonly Parser<unknown>[]> = Parser<Parsed<T[number]>>;
+
+export const choice = <T extends readonly Parser<unknown>[] | []>(
+    parsers: T,
+): Choice<T> =>
     new Parser((state, context) => {
         for (let i = 0; i < parsers.length; i++) {
             const newState = parsers[i].run(state, context);
             if (newState != null) {
-                return newState;
+                return newState as ParseState<Parsed<T[number]>>;
             }
         }
         return null;

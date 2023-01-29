@@ -13,7 +13,7 @@ const sepBy = <T>(parser: Parser<T>, sep: Parser<unknown>) =>
 const ws = regex(/[ \n\r\t]*/);
 
 const jsonValue: Parser<JsonValue> = lazy(() =>
-    choice<JsonValue>([
+    choice([
         object,
         array,
         string,
