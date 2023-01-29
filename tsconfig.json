@@ -1,5 +1,6 @@
 {
     "include": ["**/*", ".*"],
+    "exclude": ["dist/*"],
     "compilerOptions": {
         "moduleResolution": "node",
         "esModuleInterop": true,
@@ -9,6 +10,5 @@
         "strict": true,
         "importsNotUsedAsValues": "error",
         "noEmit": true,
-        "declaration": true,
     },
 }

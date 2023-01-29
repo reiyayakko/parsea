@@ -4,7 +4,7 @@ import { ParseState, initState, updateState } from "./state";
 
 export type Parsed<T> = T extends Parser<infer U> ? U : never;
 
-type ParseRunner<in T, out U> = (
+export type ParseRunner<in T, out U> = (
     this: void,
     state: ParseState<T>,
     context: Context,

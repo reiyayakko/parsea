@@ -1,16 +1,33 @@
 // @ts-check
 
 import { defineConfig } from "rollup";
-import ts from "rollup-plugin-ts";
+import esbuild from "rollup-plugin-esbuild";
+import dts from "rollup-plugin-dts";
 
-const DEV = process.env.BUILD === "development";
-
-export default defineConfig({
-    input: "./src/index.ts",
-    output: [
-        { file: "dist/parsea.esm.js", format: "esm" },
-        { file: "dist/parsea.cjs.js", format: "cjs" },
-    ],
-    external: "emnorst",
-    plugins: [ts({ transpileOnly: DEV })],
+/** @type {(fileNames: string) => import("rollup").OutputOptions} */
+const output = fileNames => ({
+    dir: "dist",
+    manualChunks: {
+        internal: ["./src/internal.ts"],
+    },
+    entryFileNames: fileNames,
+    chunkFileNames: fileNames,
+    minifyInternalExports: false,
 });
+
+export default defineConfig([
+    {
+        input: "./src/index.ts",
+        output: [
+            { ...output("[name].[format].js"), format: "es" },
+            { ...output("[name].[format].js"), format: "cjs" },
+        ],
+        external: "emnorst",
+        plugins: [esbuild()],
+    },
+    {
+        input: "./src/index.ts",
+        output: output("[name].d.ts"),
+        plugins: [dts()],
+    },
+]);
