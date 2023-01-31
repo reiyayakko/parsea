@@ -23,11 +23,11 @@ describe("primitive parsers", () => {
         test("長さ不足で失敗する", () => {
             expect(el("").parse("")).toBeNull();
         });
-        test("Object.isで判定", () => {
+        test("SameValueZeroで判定", () => {
             expect(el(1).parse([1, 2, 3])).toEqual({ pos: 1, val: 1 });
             expect(el(2).parse([1, 2, 3])).toBeNull();
             expect(el(NaN).parse([NaN])).toEqual({ pos: 1, val: NaN });
-            expect(el(-0).parse([0])).toBeNull();
+            expect(el(-0).parse([0])).toEqual({ pos: 1, val: 0 });
         });
     });
     describe("satisfy", () => {
@@ -49,8 +49,7 @@ describe("primitive parsers", () => {
         test("空", () => {
             expect(literal([]).parse([])).toEqual({ pos: 0, val: [] });
         });
-        test("Object.isで判定", () => {
-            // succ
+        test("SameValueZeroで判定", () => {
             const str = "3分間待ってやる";
             expect(literal(str).parse([...(str + "...")])).toEqual({
                 pos: str.length,
@@ -65,10 +64,11 @@ describe("primitive parsers", () => {
                 pos: emoji.length,
                 val: emoji,
             });
-
-            // fail
+            expect(literal(["hoge", NaN, -0]).parse(["hoge", NaN, 0])).toEqual({
+                pos: 3,
+                val: ["hoge", NaN, -0],
+            });
             expect(literal("ふんいき").parse("ふいんき")).toBeNull();
-            expect(literal(["hoge", NaN, -0]).parse(["hoge", NaN, 0])).toBeNull();
         });
     });
 });

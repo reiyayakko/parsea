@@ -1,3 +1,4 @@
+import { equals } from "emnorst";
 import { Config, Source, pushError } from "./context";
 import { Parser } from "./parser";
 import { updateState } from "./state";
@@ -39,7 +40,7 @@ export const ANY_EL = /* #__PURE__ */ new Parser((state, context) => {
     return null;
 });
 
-export const el = <T>(value: T): Parser<T> => satisfy(srcEl => Object.is(srcEl, value));
+export const el = <T>(value: T): Parser<T> => satisfy(srcEl => equals(srcEl, value));
 
 export const satisfy = <T>(
     f:
@@ -67,7 +68,7 @@ export const literal = <T extends Source>(chunk: T): Parser<T> =>
         for (let i = 0; i < chunk.length; i++) {
             const srcEl = context.src[state.pos + i];
             const chunkEl = chunk[i];
-            if (!Object.is(srcEl, chunkEl)) {
+            if (!equals(srcEl, chunkEl)) {
                 pushError(context, state.pos + i);
                 return null;
             }
