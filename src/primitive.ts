@@ -42,6 +42,16 @@ export const ANY_EL = /* #__PURE__ */ new Parser((state, context) => {
 
 export const el = <T>(value: T): Parser<T> => satisfy(srcEl => equals(srcEl, value));
 
+export const oneOf = <T>(values: Iterable<T>): Parser<T> => {
+    const set = new Set<unknown>(values);
+    return satisfy(el => set.has(el));
+};
+
+export const noneOf = (values: Iterable<unknown>): Parser<unknown> => {
+    const set = new Set(values);
+    return satisfy(el => !set.has(el));
+};
+
 export const satisfy = <T>(
     f:
         | ((el: unknown, config: Config) => boolean)
