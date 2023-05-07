@@ -1,4 +1,4 @@
-import { el } from "../src/primitive";
+import { el } from "./primitive";
 
 describe("Parser", () => {
     describe("many", () => {

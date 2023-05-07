@@ -1,4 +1,4 @@
-import { jsonParser } from "../examples/json";
+import { jsonParser } from "./json";
 
 describe("JSON", () => {
     const jsonNumbers = ["0", "3.141592", "4.2195e1", "0.00E+00", "0e-0"];

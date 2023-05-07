@@ -1,5 +1,5 @@
-import { choice, seq } from "../src/combinator";
-import { el, pure } from "../src/primitive";
+import { choice, seq } from "./combinator";
+import { el, pure } from "./primitive";
 
 describe("combinator", () => {
     describe("choice", () => {

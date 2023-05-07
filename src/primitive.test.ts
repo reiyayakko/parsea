@@ -1,4 +1,4 @@
-import { ANY_EL, EOI, el, literal, pure, satisfy } from "../src/primitive";
+import { ANY_EL, EOI, el, literal, pure, satisfy } from "./primitive";
 
 describe("primitive parsers", () => {
     test("pure", () => {

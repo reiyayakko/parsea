@@ -1,6 +1,6 @@
 import { isInt32 } from "emnorst";
-import { satisfy } from "../src/primitive";
-import { qo } from "../src/do";
+import { satisfy } from "./primitive";
+import { qo } from "./do";
 
 test("do", () => {
     const parser = qo(perform => {

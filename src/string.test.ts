@@ -1,5 +1,5 @@
-import { literal } from "../src/primitive";
-import { regexGroup, regex } from "../src/string";
+import { literal } from "./primitive";
+import { regexGroup, regex } from "./string";
 
 describe("string parsers", () => {
     describe("regexGroup", () => {
