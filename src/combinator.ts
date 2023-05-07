@@ -1,6 +1,6 @@
 import { pushError } from "./context";
-import { Parser, Parsed } from "./parser";
-import { ParseState, updateState } from "./state";
+import { Parser, type Parsed } from "./parser";
+import { updateState, type ParseState } from "./state";
 
 /**
  * Delays variable references until the parser runs.

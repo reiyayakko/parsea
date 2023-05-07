@@ -1,5 +1,5 @@
 import { equals } from "emnorst";
-import { Config, Source, pushError } from "./context";
+import { pushError, type Config, type Source } from "./context";
 import { Parser } from "./parser";
 import { updateState } from "./state";
 

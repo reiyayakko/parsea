@@ -1,4 +1,4 @@
-import { Config, Parser, qo } from "../src";
+import { qo, type Config, type Parser } from "../src";
 
 // For simplicity, the behavior may differ in a few cases.
 

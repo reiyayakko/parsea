@@ -1,6 +1,6 @@
-import { isArrayLike, clamp, MAX_INT32 } from "emnorst";
+import { MAX_INT32, clamp, isArrayLike } from "emnorst";
 import type { Config, Context, Source } from "./context";
-import { ParseState, initState, updateState } from "./state";
+import { initState, updateState, type ParseState } from "./state";
 
 export type Parsed<T> = T extends Parser<infer U> ? U : never;
 

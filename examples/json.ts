@@ -1,5 +1,5 @@
 import type { JsonValue } from "emnorst";
-import { EOI, choice, el, lazy, literal, Parser, qo, regex, seq } from "../src";
+import { EOI, choice, el, lazy, literal, qo, regex, seq, type Parser } from "../src";
 
 const sepBy = <T>(parser: Parser<T>, sep: Parser<unknown>) =>
     qo(perform => {
