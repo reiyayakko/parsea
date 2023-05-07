@@ -1,3 +1,4 @@
+import { test, expect } from "@jest/globals";
 import { isInt32 } from "emnorst";
 import { satisfy } from "./primitive";
 import { qo } from "./do";

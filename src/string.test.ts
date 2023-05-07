@@ -1,3 +1,4 @@
+import { describe, test, expect } from "@jest/globals";
 import { literal } from "./primitive";
 import { regexGroup, regex } from "./string";
 

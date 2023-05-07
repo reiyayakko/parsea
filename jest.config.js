@@ -7,6 +7,7 @@
 
 /** @type {import("@jest/types").Config.InitialOptions} */
 export default {
+    injectGlobals: false,
     coverageDirectory: "coverage",
     coverageProvider: "v8",
     transform: { "\\.ts$": "@swc/jest" },

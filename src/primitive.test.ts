@@ -1,3 +1,4 @@
+import { describe, test, expect, jest } from "@jest/globals";
 import { ANY_EL, EOI, el, literal, pure, satisfy } from "./primitive";
 
 describe("primitive parsers", () => {
@@ -32,7 +33,7 @@ describe("primitive parsers", () => {
     });
     describe("satisfy", () => {
         test("長さ不足で失敗する", () => {
-            const mock = jest.fn<boolean, []>().mockReturnValue(true);
+            const mock = jest.fn<() => boolean>().mockReturnValue(true);
             expect(satisfy(mock).parse([])).toBeNull();
             expect(mock).toHaveBeenCalledTimes(0);
         });

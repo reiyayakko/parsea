@@ -1,3 +1,4 @@
+import { describe, expect, test } from "@jest/globals";
 import { jsonParser } from "./json";
 
 describe("JSON", () => {
