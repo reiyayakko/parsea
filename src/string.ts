@@ -24,11 +24,13 @@ export const regexGroup = (re: RegExp): Parser<RegExpGroupArray> => {
 };
 
 export const regex: {
-    (re: RegExp, groupId?: never): Parser<string>;
+    (re: RegExp): Parser<string>;
     (re: RegExp, groupId: number | string): Parser<string | undefined>;
-} = (re, groupId = 0) =>
-    regexGroup(re).map(matchResult =>
-        typeof groupId === "number"
-            ? matchResult[groupId]
-            : matchResult.groups?.[groupId]!,
+    <T>(re: RegExp, groupId: number | string, defaultValue: T): Parser<string | T>;
+} = (re: RegExp, groupId: number | string = 0, defaultValue?: undefined) =>
+    regexGroup(re).map(
+        matchResult =>
+            (typeof groupId === "number"
+                ? matchResult[groupId]
+                : matchResult.groups?.[groupId]!) ?? defaultValue,
     );

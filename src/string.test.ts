@@ -47,6 +47,9 @@ describe("regex", () => {
         expect(regex(/(?<a>.)(?<b>.)/, "b").parse("ab")?.v).toBe("b");
         expect(regex(/(?<a>.)(?<b>.)/, "unknown").parse("ab")?.v).toBeUndefined();
     });
+    test("defaultValue", () => {
+        expect(regex(/(?:)/, 1, "default").parse("")?.v).toBe("default");
+    });
 });
 
 describe.skip("anyChar", () => {
