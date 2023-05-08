@@ -1,4 +1,4 @@
-import { pushError } from "./context";
+import * as error from "./error";
 import { Parser } from "./parser";
 import { updateState } from "./state";
 
@@ -11,12 +11,12 @@ export const regexGroup = (re: RegExp): Parser<RegExpGroupArray> => {
 
     return new Parser((state, context) => {
         if (typeof context.src !== "string") {
-            pushError(context, state.pos);
+            context.addError(error.unknown(state.pos));
             return null;
         }
         const matchResult = fixedRegex.exec(context.src.slice(state.pos));
         if (matchResult === null) {
-            pushError(context, state.pos);
+            context.addError(error.unknown(state.pos));
             return null;
         }
         return updateState(state, matchResult, matchResult[0].length);

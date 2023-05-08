@@ -1,5 +1,6 @@
 import { equals } from "emnorst";
-import { pushError, type Config, type Source } from "./context";
+import type { Config, Source } from "./context";
+import * as error from "./error";
 import { Parser } from "./parser";
 import { updateState } from "./state";
 
@@ -11,7 +12,7 @@ export const pure = <T>(value: T): Parser<T> =>
 
 export const fail = (): Parser<never> =>
     new Parser((state, context) => {
-        pushError(context, state.pos);
+        context.addError(error.unknown(state.pos));
         return null;
     });
 
@@ -20,7 +21,7 @@ export const fail = (): Parser<never> =>
  */
 export const EOI = /* #__PURE__ */ new Parser((state, context) => {
     if (state.pos < context.src.length) {
-        pushError(context, state.pos);
+        context.addError(error.unknown(state.pos));
         return null;
     }
     return state;
@@ -36,7 +37,7 @@ export const ANY_EL = /* #__PURE__ */ new Parser((state, context) => {
     if (state.pos < context.src.length) {
         return updateState(state, context.src[state.pos], 1);
     }
-    pushError(context, state.pos);
+    context.addError(error.unknown(state.pos));
     return null;
 });
 
@@ -65,21 +66,21 @@ export const satisfy = <T>(
         ) {
             return updateState(state, srcEl, 1);
         }
-        pushError(context, state.pos);
+        context.addError(error.unknown(state.pos));
         return null;
     });
 
 export const literal = <T extends Source>(chunk: T): Parser<T> =>
     new Parser((state, context) => {
         if (state.pos + chunk.length > context.src.length) {
-            pushError(context, state.pos);
+            context.addError(error.unknown(state.pos));
             return null;
         }
         for (let i = 0; i < chunk.length; i++) {
             const srcEl = context.src[state.pos + i];
             const chunkEl = chunk[i];
             if (!equals(srcEl, chunkEl)) {
-                pushError(context, state.pos + i);
+                context.addError(error.unknown(state.pos + i));
                 return null;
             }
         }

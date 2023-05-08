@@ -1,4 +1,4 @@
-import { pushError } from "./context";
+import * as error from "./error";
 import { Parser, type Parsed } from "./parser";
 import { updateState, type ParseState } from "./state";
 
@@ -21,7 +21,7 @@ export const notFollowedBy = (parser: Parser<unknown>): Parser<unknown> =>
         if (newState == null) {
             return state;
         }
-        pushError(context, state.pos);
+        context.addError(error.unknown(state.pos));
         return null;
     });
 

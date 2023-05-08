@@ -1,5 +1,5 @@
 import { MAX_INT32, clamp, isArrayLike } from "emnorst";
-import type { Config, Context, Source } from "./context";
+import { Context, type Config, type Source } from "./context";
 import { initState, updateState, type ParseState } from "./state";
 
 export type Parsed<T> = T extends Parser<infer U> ? U : never;
@@ -16,7 +16,7 @@ export class Parser<out T> {
         if (!isArrayLike(src)) {
             throw new TypeError("source is not ArrayLike.");
         }
-        const context: Context = { src, cfg, errs: [] };
+        const context = new Context(src, cfg);
         const finalState = this.run(initState, context);
         return finalState;
     }
