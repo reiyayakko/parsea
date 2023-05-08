@@ -2,6 +2,16 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Added `lookAhead`
+- Added `oneOf`
+- Added `noneOf`
+
+### Changed
+- Renamed `seq` option "`droppable`" to "`allowPartial`".
+- Change type of `choice`.
+- Change match algorithm from SameValue to SameValueZero in el and literal.
+- Added defaultValue parameter in `regex`.
 
 ## [0.6.0] - 2023-01-26
 ### Added
