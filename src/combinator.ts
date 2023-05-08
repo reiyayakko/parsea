@@ -21,14 +21,14 @@ export const notFollowedBy = (parser: Parser<unknown>): Parser<unknown> =>
         if (newState == null) {
             return state;
         }
-        context.addError(error.unknown(state.pos));
+        context.addError(error.unknown(state.i));
         return null;
     });
 
 export const lookAhead = <T>(parser: Parser<T>): Parser<T> =>
     new Parser((state, context) => {
         const newState = parser.run(state, context);
-        return newState && updateState(state, newState.val, 0);
+        return newState && updateState(state, newState.v, 0);
     });
 
 type Seq<out T extends readonly Parser<unknown>[]> = {
@@ -53,7 +53,7 @@ export const seq: {
                 if (options?.allowPartial) break;
                 return null;
             }
-            values.push((state = newState).val);
+            values.push((state = newState).v);
         }
         return updateState(state, values, 0);
     });

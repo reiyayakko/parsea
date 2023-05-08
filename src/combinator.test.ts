@@ -5,8 +5,8 @@ import { el, pure } from "./primitive";
 describe("choice", () => {
     test("最初に成功した結果で成功", () => {
         const parser = choice([el(2), el(4), pure(11)]);
-        expect(parser.parse([4])).toEqual({ pos: 1, val: 4 });
-        expect(parser.parse([])).toEqual({ pos: 0, val: 11 });
+        expect(parser.parse([4])).toEqual({ i: 1, v: 4 });
+        expect(parser.parse([])).toEqual({ i: 0, v: 11 });
     });
     test("いずれかが成功すれば成功", () => {
         const browsers = [
@@ -18,7 +18,7 @@ describe("choice", () => {
         ];
         const parser = choice(browsers.map(el));
         for (const browser of browsers) {
-            expect(parser.parse([browser])?.val).toBe(browser);
+            expect(parser.parse([browser])?.v).toBe(browser);
         }
         expect(parser.parse(["Internet Explorer"])).toBeNull();
     });
@@ -29,8 +29,8 @@ describe("seq", () => {
     const lucasNumberParser = seq(lucasNumbers.map(el));
     test("順番にパースして各パーサーの結果の配列で成功", () => {
         expect(lucasNumberParser.parse([...lucasNumbers, 11, 18])).toEqual({
-            pos: lucasNumbers.length,
-            val: lucasNumbers,
+            i: lucasNumbers.length,
+            v: lucasNumbers,
         });
     });
     test("途中で失敗するとその時点で失敗", () => {
@@ -39,8 +39,8 @@ describe("seq", () => {
     });
     test("allowPartialで途中で失敗してもその時点までの結果で成功", () => {
         const parser = seq([1, 1, 2, 6, 24, 120].map(el), { allowPartial: true });
-        expect(parser.parse([1, 1, 2, 3, 5, 8])).toEqual({ pos: 3, val: [1, 1, 2] });
-        expect(parser.parse([1, 1])).toEqual({ pos: 2, val: [1, 1] });
-        expect(parser.parse([])).toEqual({ pos: 0, val: [] });
+        expect(parser.parse([1, 1, 2, 3, 5, 8])).toEqual({ i: 3, v: [1, 1, 2] });
+        expect(parser.parse([1, 1])).toEqual({ i: 2, v: [1, 1] });
+        expect(parser.parse([])).toEqual({ i: 0, v: [] });
     });
 });

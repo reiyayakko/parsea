@@ -11,12 +11,12 @@ export const regexGroup = (re: RegExp): Parser<RegExpGroupArray> => {
 
     return new Parser((state, context) => {
         if (typeof context.src !== "string") {
-            context.addError(error.unknown(state.pos));
+            context.addError(error.unknown(state.i));
             return null;
         }
-        const matchResult = fixedRegex.exec(context.src.slice(state.pos));
+        const matchResult = fixedRegex.exec(context.src.slice(state.i));
         if (matchResult === null) {
-            context.addError(error.unknown(state.pos));
+            context.addError(error.unknown(state.i));
             return null;
         }
         return updateState(state, matchResult, matchResult[0].length);

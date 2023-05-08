@@ -14,8 +14,8 @@ describe("JSON", () => {
         ...jsonNumbers.map(jsonNumber => "-" + jsonNumber),
     ])("%o", json => {
         expect(jsonParser.parse(json)).toEqual({
-            pos: json.length,
-            val: JSON.parse(json),
+            i: json.length,
+            v: JSON.parse(json),
         });
     });
     test("number parsing to fail..", () => {
@@ -36,6 +36,6 @@ describe("JSON", () => {
         ["u1234", "\u1234"],
     ])("escape %s", (escapeChar, char = escapeChar) => {
         const json = `"\\${escapeChar}"`;
-        expect(jsonParser.parse(json)).toEqual({ pos: json.length, val: char });
+        expect(jsonParser.parse(json)).toEqual({ i: json.length, v: char });
     });
 });

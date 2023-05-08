@@ -17,15 +17,15 @@ describe("regexGroup", () => {
     });
     test("途中からパース", () => {
         expect(literal("hello ").and(regexGroup(/\w+/)).parse("hello world!")).toEqual({
-            pos: "hello world".length,
-            val: expect.arrayContaining(["world"]),
+            i: "hello world".length,
+            v: expect.arrayContaining(["world"]),
         });
     });
     test("正規表現でパースしてRegExpExecArrayで成功", () => {
         const parser = regexGroup(/(Uin|In|Floa)t(8|16|32|64)(Clamped)?Array/);
         expect(parser.parse("Uint64ClampedArray!")).toEqual({
-            pos: "Uint64ClampedArray".length,
-            val: expect.arrayContaining(["Uint64ClampedArray", "Uin", "64", "Clamped"]),
+            i: "Uint64ClampedArray".length,
+            v: expect.arrayContaining(["Uint64ClampedArray", "Uin", "64", "Clamped"]),
         });
         expect(parser.parse("Uint128Array")).toBeNull();
     });
@@ -34,18 +34,18 @@ describe("regexGroup", () => {
 describe("regex", () => {
     test("groupIdを省略した場合マッチした文字列全体で成功", () => {
         const parser = regex(/(.)(.)?/);
-        expect(parser.parse("ab")?.val).toBe("ab");
-        expect(parser.parse("a")?.val).toBe("a");
+        expect(parser.parse("ab")?.v).toBe("ab");
+        expect(parser.parse("a")?.v).toBe("a");
         expect(parser.parse("\n")).toBeNull();
     });
     test("typeof groupId === number なら`array[groupId]`", () => {
-        expect(regex(/(.)(.)/, 2).parse("ab")?.val).toBe("b");
-        expect(regex(/(.)(.)?/, 2).parse("a")?.val).toBeUndefined();
-        expect(regex(/(.)(.)/, 8).parse("ab")?.val).toBeUndefined();
+        expect(regex(/(.)(.)/, 2).parse("ab")?.v).toBe("b");
+        expect(regex(/(.)(.)?/, 2).parse("a")?.v).toBeUndefined();
+        expect(regex(/(.)(.)/, 8).parse("ab")?.v).toBeUndefined();
     });
     test("typeof groupId === string なら`array.groups[groupId]`", () => {
-        expect(regex(/(?<a>.)(?<b>.)/, "b").parse("ab")?.val).toBe("b");
-        expect(regex(/(?<a>.)(?<b>.)/, "unknown").parse("ab")?.val).toBeUndefined();
+        expect(regex(/(?<a>.)(?<b>.)/, "b").parse("ab")?.v).toBe("b");
+        expect(regex(/(?<a>.)(?<b>.)/, "unknown").parse("ab")?.v).toBeUndefined();
     });
 });
 
@@ -58,6 +58,6 @@ describe.skip("anyChar", () => {
         expect(anyChar.parse(["しかし、なにもおこらなかった！"])).toBeNull();
     });
     test.each(["a", "あ", "👍", "👪", "👨‍👩‍👧‍👦"])('"%s"は1文字', char => {
-        expect(anyChar.parse(char)).toEqual({ pos: char.length, val: char });
+        expect(anyChar.parse(char)).toEqual({ i: char.length, v: char });
     });
 });

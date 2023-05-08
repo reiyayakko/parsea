@@ -12,7 +12,7 @@ export const pure = <T>(value: T): Parser<T> =>
 
 export const fail = (): Parser<never> =>
     new Parser((state, context) => {
-        context.addError(error.unknown(state.pos));
+        context.addError(error.unknown(state.i));
         return null;
     });
 
@@ -20,8 +20,8 @@ export const fail = (): Parser<never> =>
  * end of input
  */
 export const EOI = /* #__PURE__ */ new Parser((state, context) => {
-    if (state.pos < context.src.length) {
-        context.addError(error.unknown(state.pos));
+    if (state.i < context.src.length) {
+        context.addError(error.unknown(state.i));
         return null;
     }
     return state;
@@ -34,10 +34,10 @@ export const EOI = /* #__PURE__ */ new Parser((state, context) => {
  * @example any.parse([]); // parse fail
  */
 export const ANY_EL = /* #__PURE__ */ new Parser((state, context) => {
-    if (state.pos < context.src.length) {
-        return updateState(state, context.src[state.pos], 1);
+    if (state.i < context.src.length) {
+        return updateState(state, context.src[state.i], 1);
     }
-    context.addError(error.unknown(state.pos));
+    context.addError(error.unknown(state.i));
     return null;
 });
 
@@ -61,26 +61,26 @@ export const satisfy = <T>(
     new Parser((state, context) => {
         let srcEl: unknown;
         if (
-            state.pos < context.src.length &&
-            f((srcEl = context.src[state.pos]), context.cfg)
+            state.i < context.src.length &&
+            f((srcEl = context.src[state.i]), context.cfg)
         ) {
             return updateState(state, srcEl, 1);
         }
-        context.addError(error.unknown(state.pos));
+        context.addError(error.unknown(state.i));
         return null;
     });
 
 export const literal = <T extends Source>(chunk: T): Parser<T> =>
     new Parser((state, context) => {
-        if (state.pos + chunk.length > context.src.length) {
-            context.addError(error.unknown(state.pos));
+        if (state.i + chunk.length > context.src.length) {
+            context.addError(error.unknown(state.i));
             return null;
         }
         for (let i = 0; i < chunk.length; i++) {
-            const srcEl = context.src[state.pos + i];
+            const srcEl = context.src[state.i + i];
             const chunkEl = chunk[i];
             if (!equals(srcEl, chunkEl)) {
-                context.addError(error.unknown(state.pos + i));
+                context.addError(error.unknown(state.i + i));
                 return null;
             }
         }

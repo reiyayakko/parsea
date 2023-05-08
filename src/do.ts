@@ -21,7 +21,7 @@ export const qo = <T>(runner: (perform: Perform, config: Config) => T): Parser<T
                 if (newState == null) {
                     throw { [ParseaErrorSymbol]: null };
                 }
-                return (state = newState).val;
+                return (state = newState).v;
             }, context.cfg);
             return updateState(state, value, 0);
         } catch (err) {

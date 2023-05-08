@@ -29,13 +29,13 @@ export class Parser<out T> {
     map<U>(this: Parser<T>, f: (value: T, config: Config) => U): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
-            return newState && updateState(newState, f(newState.val, context.cfg), 0);
+            return newState && updateState(newState, f(newState.v, context.cfg), 0);
         });
     }
     flatMap<U>(this: Parser<T>, f: (value: T, config: Config) => Parser<U>): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
-            return newState && f(newState.val, context.cfg).run(newState, context);
+            return newState && f(newState.v, context.cfg).run(newState, context);
         });
     }
     and<U>(this: Parser<unknown>, parser: Parser<U>, skip?: false): Parser<U>;
@@ -47,7 +47,7 @@ export class Parser<out T> {
             if (newStateA == null) return null;
             const newStateB = parser.run(newStateA, context);
             if (newStateB == null) return null;
-            return skip ? updateState(newStateB, newStateA.val, 0) : newStateB;
+            return skip ? updateState(newStateB, newStateA.v, 0) : newStateB;
         });
     }
     between<T>(this: Parser<T>, pre: Parser<unknown>, post = pre): Parser<T> {
@@ -55,7 +55,7 @@ export class Parser<out T> {
             const newStateA = pre.run(state, context);
             const newStateB = newStateA && this.run(newStateA, context);
             const newStateC = newStateB && post.run(newStateB, context);
-            return newStateC && updateState(newStateC, newStateB.val, 0);
+            return newStateC && updateState(newStateC, newStateB.v, 0);
         });
     }
     or<U>(this: Parser<T>, parser: Parser<U>): Parser<T | U> {
@@ -87,7 +87,7 @@ export class Parser<out T> {
                     if (i < clampedMin) return null;
                     break;
                 }
-                accum = f(accum, (state = newState).val, context.cfg) ?? accum;
+                accum = f(accum, (state = newState).v, context.cfg) ?? accum;
             }
             return updateState(state, accum, 0);
         });
