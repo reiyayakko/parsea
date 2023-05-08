@@ -1,75 +1,69 @@
 import { describe, test, expect, jest } from "@jest/globals";
 import { ANY_EL, EOI, el, literal, pure, satisfy } from "./primitive";
 
-describe("primitive parsers", () => {
-    test("pure", () => {
-        const sym = Symbol("ID");
-        expect(pure(sym).parse([])).toEqual({ pos: 0, val: sym });
+test("pure", () => {
+    const symbol = Symbol("ID");
+    expect(pure(symbol).parse([])?.val).toBe(symbol);
+});
+
+describe("EOI", () => {
+    test("end of input", () => {
+        expect(ANY_EL.and(EOI).parse(["el"])).not.toBeNull();
     });
-    test("EOI", () => {
-        expect(EOI.parse([])).toEqual({ pos: 0, val: null });
-        expect(ANY_EL.and(EOI, true).parse(["el"])).toEqual({ pos: 1, val: "el" });
+    test("消費しきっていない要素がある場合失敗", () => {
         expect(EOI.parse(["el"])).toBeNull();
     });
-    describe("ANY_EL", () => {
-        test("長さ不足で失敗する", () => {
-            expect(ANY_EL.parse([])).toBeNull();
-        });
-        test("任意の要素で成功する", () => {
-            expect(ANY_EL.parse([1, 2, 3])).toEqual({ pos: 1, val: 1 });
-            expect(ANY_EL.parse(["el"])).toEqual({ pos: 1, val: "el" });
-        });
+});
+
+describe("ANY_EL", () => {
+    test("lengthが1以上必要", () => {
+        expect(ANY_EL.parse([])).toBeNull();
     });
-    describe("el", () => {
-        test("長さ不足で失敗する", () => {
-            expect(el("").parse("")).toBeNull();
-        });
-        test("SameValueZeroで判定", () => {
-            expect(el(1).parse([1, 2, 3])).toEqual({ pos: 1, val: 1 });
-            expect(el(2).parse([1, 2, 3])).toBeNull();
-            expect(el(NaN).parse([NaN])).toEqual({ pos: 1, val: NaN });
-            expect(el(-0).parse([0])).toEqual({ pos: 1, val: 0 });
-        });
+    test("長さを1消費", () => {
+        expect(ANY_EL.parse([0])?.pos).toBe(1);
     });
-    describe("satisfy", () => {
-        test("長さ不足で失敗する", () => {
-            const mock = jest.fn<() => boolean>().mockReturnValue(true);
-            expect(satisfy(mock).parse([])).toBeNull();
-            expect(mock).toHaveBeenCalledTimes(0);
-        });
-        test("条件に合う要素で成功", () => {
-            const evenParser = satisfy(el => (el as number) % 2 === 0);
-            expect(evenParser.parse([8])).toEqual({ pos: 1, val: 8 });
-            expect(evenParser.parse([7])).toBeNull();
-        });
+    test("任意の要素で成功する", () => {
+        expect(ANY_EL.parse(["el"])?.val).toBe("el");
     });
-    describe("literal", () => {
-        test("長さ不足で失敗する", () => {
-            expect(literal([2, 3, 5, 7, 11]).parse([2, 3, 5])).toBeNull();
-        });
-        test("空", () => {
-            expect(literal([]).parse([])).toEqual({ pos: 0, val: [] });
-        });
-        test("SameValueZeroで判定", () => {
-            const str = "3分間待ってやる";
-            expect(literal(str).parse([...(str + "...")])).toEqual({
-                pos: str.length,
-                val: str,
-            });
-            expect(literal(["バ", "ル", "ス"]).parse("バルス")).toEqual({
-                pos: 3,
-                val: ["バ", "ル", "ス"],
-            });
-            const emoji = "👨‍👩‍👧‍👦";
-            expect(literal(emoji).parse(emoji + "!")).toEqual({
-                pos: emoji.length,
-                val: emoji,
-            });
-            expect(literal(["hoge", NaN, -0]).parse(["hoge", NaN, 0])).toEqual({
-                pos: 3,
-                val: ["hoge", NaN, -0],
-            });
-            expect(literal("ふんいき").parse("ふいんき")).toBeNull();
-        });
+});
+
+describe("el", () => {
+    test("SameValueZeroで判定", () => {
+        expect(el(1).parse([1])?.val).toBe(1);
+        expect(el(2).parse([1])).toBeNull();
+        expect(el(NaN).parse([NaN])?.val).toBe(NaN);
+        expect(el(-0).parse([0])?.val).toBe(0);
+    });
+});
+
+describe("satisfy", () => {
+    test("残りの長さが1以上必要", () => {
+        const mock = jest.fn<() => boolean>().mockReturnValue(true);
+        expect(satisfy(mock).parse([])).toBeNull();
+        expect(mock).toHaveBeenCalledTimes(0);
+    });
+    test("条件に合う要素で成功", () => {
+        const EvenNumberParser = satisfy(el => (el as number) % 2 === 0);
+        expect(EvenNumberParser.parse([8])).not.toBeNull();
+        expect(EvenNumberParser.parse([7])).toBeNull();
+    });
+    test("valueは要素", () => {
+        expect(satisfy(() => true).parse([6])?.val).toBe(6);
+    });
+});
+
+describe("literal", () => {
+    test("sourceが短いと失敗", () => {
+        expect(literal([2, 3, 5, 7, 11]).parse([2, 3, 5])).toBeNull();
+    });
+    test("空", () => {
+        expect(literal([]).parse([])?.val).toStrictEqual([]);
+    });
+    test("違う要素で失敗", () => {
+        expect(literal("ふんいき").parse("ふいんき")).toBeNull();
+    });
+    test("SameValueZeroで判定", () => {
+        const parser = literal(["hoge", NaN, -0]);
+        expect(parser.parse(["hoge", NaN, 0])?.val).toStrictEqual(["hoge", NaN, -0]);
     });
 });

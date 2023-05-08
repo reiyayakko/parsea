@@ -1,7 +1,25 @@
-import { describe, test, expect } from "@jest/globals";
-import { el } from "./primitive";
+import { describe, test, expect, jest } from "@jest/globals";
+import { el, pure } from "./primitive";
+import type { Parser } from "./parser";
 
 describe("Parser", () => {
+    test("parseにArrayLike以外を入れるとエラー", () => {
+        expect(() => {
+            pure(null).parse({ length: NaN });
+        }).toThrow(TypeError);
+    });
+    test("map", () => {
+        const fn = jest.fn<() => string>().mockReturnValue("hoge");
+        const result = pure(null).map(fn).parse([]);
+        expect(fn).lastCalledWith(null, {});
+        expect(result?.val).toBe("hoge");
+    });
+    test("flatMap", () => {
+        const fn = jest.fn<() => Parser<string>>().mockReturnValue(pure("hoge"));
+        const result = pure(null).flatMap(fn).parse([]);
+        expect(fn).lastCalledWith(null, {});
+        expect(result?.val).toBe("hoge");
+    });
     describe("many", () => {
         test("min", () => {
             expect(el(1).many().parse([])).toEqual({ pos: 0, val: [] });
