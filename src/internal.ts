@@ -1,4 +1,5 @@
 export * from "./context";
-export * from "./parser";
-export * from "./state";
 export * as error from "./error";
+export * from "./parser";
+export * from "./result";
+export * from "./state";

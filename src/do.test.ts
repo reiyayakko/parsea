@@ -1,7 +1,7 @@
-import { describe, test, expect } from "@jest/globals";
+import { describe, expect, test } from "@jest/globals";
 import { isInt32 } from "emnorst";
-import { satisfy } from "./primitive";
 import { qo } from "./do";
+import { satisfy } from "./primitive";
 
 describe("qo", () => {
     test("error", () => {
@@ -18,7 +18,11 @@ describe("qo", () => {
             const b = perform(satisfy<string>(el => typeof el === "string"));
             return { a, b };
         });
-        expect(parser.parse([5, "*"])).toEqual({ i: 2, v: { a: 5, b: "*" } });
-        expect(parser.parse([20, 5])).toBeNull();
+        expect(parser.parse([5, "*"])).toEqual({
+            success: true,
+            index: 2,
+            value: { a: 5, b: "*" },
+        });
+        expect(parser.parse([20, 5])).toHaveProperty("success", false);
     });
 });
