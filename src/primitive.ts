@@ -48,7 +48,7 @@ export const oneOf = <T>(values: Iterable<T>): Parser<T> => {
     return satisfy(el => set.has(el));
 };
 
-export const noneOf = (values: Iterable<unknown>): Parser<unknown> => {
+export const noneOf = (values: Iterable<unknown>): Parser => {
     const set = new Set(values);
     return satisfy(el => !set.has(el));
 };

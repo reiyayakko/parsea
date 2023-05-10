@@ -11,7 +11,7 @@ export type ParseRunner<in T, out U> = (
     context: Context,
 ) => ParseState<U> | null;
 
-export class Parser<out T> {
+export class Parser<out T = unknown> {
     constructor(readonly run: ParseRunner<unknown, T>) {}
     parse(this: Parser<T>, source: Source, config: Config = {}): ParseResult<T> {
         if (!isArrayLike(source)) {
@@ -21,7 +21,7 @@ export class Parser<out T> {
         const finalState = this.run(initState, context);
         return createParseResult(finalState, context);
     }
-    return<U>(this: Parser<unknown>, value: U): Parser<U> {
+    return<U>(this: Parser, value: U): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
             return newState && updateState(newState, value, 0);
@@ -39,8 +39,8 @@ export class Parser<out T> {
             return newState && f(newState.v, context.cfg).run(newState, context);
         });
     }
-    and<U>(this: Parser<unknown>, parser: Parser<U>, skip?: false): Parser<U>;
-    and(this: Parser<T>, parser: Parser<unknown>, skip: true): Parser<T>;
+    and<U>(this: Parser, parser: Parser<U>, skip?: false): Parser<U>;
+    and(this: Parser<T>, parser: Parser, skip: true): Parser<T>;
     and<U>(this: Parser<T>, parser: Parser<U>, skip: boolean): Parser<T | U>;
     and<U>(this: Parser<T>, parser: Parser<U>, skip = false): Parser<T | U> {
         return new Parser<T | U>((state, context) => {
@@ -51,7 +51,7 @@ export class Parser<out T> {
             return skip ? updateState(newStateB, newStateA.v, 0) : newStateB;
         });
     }
-    between<T>(this: Parser<T>, pre: Parser<unknown>, post = pre): Parser<T> {
+    between<T>(this: Parser<T>, pre: Parser, post = pre): Parser<T> {
         return new Parser((state, context) => {
             const newStateA = pre.run(state, context);
             const newStateB = newStateA && this.run(newStateA, context);

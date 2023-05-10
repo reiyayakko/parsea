@@ -10,21 +10,17 @@ const map = <T, U>(parser: Parser<T>, f: (value: T, config: Config) => U) =>
 const flatMap = <T, U>(parser: Parser<T>, f: (value: T, config: Config) => Parser<U>) =>
     qo((perform, config) => perform(f(perform(parser), config)));
 
-const and = <T>(left: Parser<unknown>, right: Parser<T>) =>
+const and = <T>(left: Parser, right: Parser<T>) =>
     qo(perform => (perform(left), perform(right)));
 
-const skip = <T>(left: Parser<T>, right: Parser<unknown>) =>
+const skip = <T>(left: Parser<T>, right: Parser) =>
     qo(perform => {
         const leftValue = perform(left);
         perform(right);
         return leftValue;
     });
 
-const between = <T>(
-    parser: Parser<T>,
-    pre: Parser<unknown>,
-    post: Parser<unknown> = pre,
-): Parser<T> =>
+const between = <T>(parser: Parser<T>, pre: Parser, post = pre): Parser<T> =>
     qo(perform => {
         perform(pre);
         const value = perform(parser);
