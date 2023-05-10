@@ -47,8 +47,8 @@ export const seq: {
 } = (parsers, options) =>
     new Parser((state, context) => {
         const values: unknown[] = [];
-        for (let i = 0; i < parsers.length; i++) {
-            const newState = parsers[i].run(state, context);
+        for (const parser of parsers) {
+            const newState = parser.run(state, context);
             if (newState == null) {
                 if (options?.allowPartial) break;
                 return null;
@@ -62,8 +62,8 @@ type Choice<T extends readonly Parser[]> = Parser<Parsed<T[number]>>;
 
 export const choice = <T extends readonly Parser[] | []>(parsers: T): Choice<T> =>
     new Parser((state, context) => {
-        for (let i = 0; i < parsers.length; i++) {
-            const newState = parsers[i].run(state, context);
+        for (const parser of parsers) {
+            const newState = parser.run(state, context);
             if (newState != null) {
                 return newState as ParseState<Parsed<T[number]>>;
             }
