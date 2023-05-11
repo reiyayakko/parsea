@@ -59,4 +59,4 @@ const object = sepBy(keyValue, el(","))
     .between(el("{"), el("}"))
     .map<Record<string, JsonValue>>(Object.fromEntries);
 
-export const jsonParser = jsonValue.and(EOI, true);
+export const jsonParser = jsonValue.skip(EOI);

@@ -6,6 +6,7 @@
 - Added `lookAhead`
 - Added `oneOf`
 - Added `noneOf`
+- Added `Parser.prototype.skip`
 
 ### Changed
 - Renamed `seq` option "`droppable`" to "`allowPartial`".
