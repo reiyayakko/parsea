@@ -2,11 +2,7 @@ import * as error from "./error";
 import { Parser } from "./parser";
 import { updateState } from "./state";
 
-export interface RegExpGroupArray extends Array<string> {
-    groups?: RegExpExecArray["groups"];
-}
-
-export const regexGroup = (re: RegExp): Parser<RegExpGroupArray> => {
+export const regexGroup = (re: RegExp): Parser<RegExpExecArray> => {
     const fixedRegex = new RegExp(`^(?:${re.source})`, re.flags.replace("g", ""));
 
     return new Parser((state, context) => {

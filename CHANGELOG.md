@@ -14,6 +14,9 @@
 - Change match algorithm from SameValue to SameValueZero in el and literal.
 - Added defaultValue parameter in `regex`.
 
+### Removed
+- `RegExpGroupArray` type
+
 ## [0.6.0] - 2023-01-26
 ### Added
 - Added `option` to Parser class.
