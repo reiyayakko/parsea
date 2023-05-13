@@ -1,10 +1,10 @@
 import type { JsonValue } from "emnorst";
-import { EOI, choice, el, lazy, literal, Parser, qo, regex, seq } from "../src";
+import { EOI, choice, el, lazy, literal, qo, regex, type Parser } from "../src";
 
-const sepBy = <T>(parser: Parser<T>, sep: Parser<unknown>) =>
+const sepBy = <T>(parser: Parser<T>, sep: Parser) =>
     qo(perform => {
         const head = perform(parser);
-        const rest = perform(sep.and(parser).many());
+        const rest = perform(sep.then(parser).many());
         return [head, ...rest];
     });
 
@@ -13,7 +13,7 @@ const sepBy = <T>(parser: Parser<T>, sep: Parser<unknown>) =>
 const ws = regex(/[ \n\r\t]*/);
 
 const jsonValue: Parser<JsonValue> = lazy(() =>
-    choice<JsonValue>([
+    choice([
         object,
         array,
         string,
@@ -52,11 +52,11 @@ const empty = ws.map<[]>(() => []);
 
 const array = sepBy(jsonValue, el(",")).or(empty).between(el("["), el("]"));
 
-const keyValue = seq([ws.and(string), ws.and(el(":")).and(jsonValue)]);
+const keyValue = string.between(ws).skip(el(":")).and(jsonValue);
 
 const object = sepBy(keyValue, el(","))
     .or(empty)
     .between(el("{"), el("}"))
     .map<Record<string, JsonValue>>(Object.fromEntries);
 
-export const jsonParser = jsonValue.and(EOI, true);
+export const jsonParser = jsonValue.skip(EOI);

@@ -1,3 +1,5 @@
+import type { ParseError } from "./error";
+
 export type Source<T = unknown> =
     | (T extends string ? string : string extends T ? string : never)
     | ArrayLike<T>;
@@ -6,16 +8,10 @@ export interface Config {
     readonly [key: string]: unknown;
 }
 
-export interface Context {
-    readonly cfg: Config;
-    readonly src: Source;
-    readonly errs: ParseError[];
+export class Context {
+    constructor(readonly src: Source, readonly cfg: Config) {}
+    private readonly errs: ParseError[] = [];
+    addError(error: ParseError): void {
+        this.errs.push(error);
+    }
 }
-
-export interface ParseError {
-    pos: number;
-}
-
-export const pushError = (context: Context, pos: number) => {
-    context.errs.push({ pos });
-};

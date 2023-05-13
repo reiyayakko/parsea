@@ -1,6 +1,6 @@
-import { pushError } from "./context";
-import { Parser, Parsed } from "./parser";
-import { updateState } from "./state";
+import * as error from "./error";
+import { Parser, type Parsed } from "./parser";
+import { updateState, type ParseState } from "./state";
 
 /**
  * Delays variable references until the parser runs.
@@ -15,47 +15,57 @@ export const lazy = <T>(getParser: () => Parser<T>): Parser<T> => {
     });
 };
 
-export const notFollowedBy = (parser: Parser<unknown>): Parser<unknown> =>
+export const notFollowedBy = (parser: Parser): Parser =>
     new Parser((state, context) => {
         const newState = parser.run(state, context);
         if (newState == null) {
             return state;
         }
-        pushError(context, state.pos);
+        context.addError(error.unknown(state.i));
         return null;
     });
 
-type Seq<T extends readonly Parser<unknown>[]> = [...{ [K in keyof T]: Parsed<T[K]> }];
+export const lookAhead = <T>(parser: Parser<T>): Parser<T> =>
+    new Parser((state, context) => {
+        const newState = parser.run(state, context);
+        return newState && updateState(state, newState.v);
+    });
+
+type Seq<out T extends readonly Parser[]> = {
+    [K in keyof T]: Parsed<T[K]>;
+};
 
 export const seq: {
-    <T extends readonly Parser<unknown>[] | []>(
+    <T extends readonly Parser[] | []>(
         parsers: T,
-        options?: { droppable?: false },
+        options?: { allowPartial?: false },
     ): Parser<Seq<T>>;
-    <T extends readonly Parser<unknown>[] | []>(
+    <T extends readonly Parser[] | []>(
         parsers: T,
-        options?: { droppable?: boolean },
+        options: { allowPartial: boolean },
     ): Parser<Partial<Seq<T>>>;
 } = (parsers, options) =>
     new Parser((state, context) => {
-        const accum: unknown[] = [];
-        for (let i = 0; i < parsers.length; i++) {
-            const newState = parsers[i].run(state, context);
+        const values: unknown[] = [];
+        for (const parser of parsers) {
+            const newState = parser.run(state, context);
             if (newState == null) {
-                if (options?.droppable) break;
+                if (options?.allowPartial) break;
                 return null;
             }
-            accum.push((state = newState).val);
+            values.push((state = newState).v);
         }
-        return updateState(state, accum, 0);
+        return updateState(state, values);
     });
 
-export const choice = <T>(parsers: readonly Parser<T>[]): Parser<T> =>
+type Choice<T extends readonly Parser[]> = Parser<Parsed<T[number]>>;
+
+export const choice = <T extends readonly Parser[] | []>(parsers: T): Choice<T> =>
     new Parser((state, context) => {
-        for (let i = 0; i < parsers.length; i++) {
-            const newState = parsers[i].run(state, context);
+        for (const parser of parsers) {
+            const newState = parser.run(state, context);
             if (newState != null) {
-                return newState;
+                return newState as ParseState<Parsed<T[number]>>;
             }
         }
         return null;

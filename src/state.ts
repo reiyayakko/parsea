@@ -1,18 +1,18 @@
-export interface ParseState<T> {
-    pos: number;
-    val: T;
-}
+export type ParseState<out T> = {
+    readonly i: number;
+    readonly v: T;
+};
 
 export const initState: ParseState<null> = {
-    pos: 0,
-    val: null,
+    i: 0,
+    v: null,
 };
 
 export const updateState = <T>(
     state: ParseState<unknown>,
     value: T,
-    consumeLength: number,
+    consumeLength = 0,
 ): ParseState<T> => ({
-    pos: state.pos + consumeLength,
-    val: value,
+    i: state.i + consumeLength,
+    v: value,
 });

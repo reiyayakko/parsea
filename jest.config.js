@@ -7,10 +7,8 @@
 
 /** @type {import("@jest/types").Config.InitialOptions} */
 export default {
-    collectCoverage: true,
+    injectGlobals: false,
     coverageDirectory: "coverage",
     coverageProvider: "v8",
-    transform: {
-        "\\.ts$": ["esbuild-jest", { sourcemap: true }],
-    },
+    transform: { "\\.ts$": "@swc/jest" },
 };

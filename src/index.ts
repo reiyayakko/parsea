@@ -1,7 +1,5 @@
 export * from "./combinator";
-export * from "./context";
 export * from "./do";
-export * from "./parser";
+export type { Config, ParseResult, Parsed, Parser } from "./internal";
 export * from "./primitive";
-export * from "./state";
 export * from "./string";
