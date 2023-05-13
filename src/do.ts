@@ -38,6 +38,6 @@ export const qo = <T>(runner: (perform: Perform, config: Config) => T): Parser<T
 
         return perform.try(() => {
             const value = runner(perform, context.cfg);
-            return updateState(state, value, 0);
+            return updateState(state, value);
         });
     });

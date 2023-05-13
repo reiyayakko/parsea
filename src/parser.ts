@@ -24,13 +24,13 @@ export class Parser<out T = unknown> {
     return<U>(this: Parser, value: U): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
-            return newState && updateState(newState, value, 0);
+            return newState && updateState(newState, value);
         });
     }
     map<U>(this: Parser<T>, f: (value: T, config: Config) => U): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
-            return newState && updateState(newState, f(newState.v, context.cfg), 0);
+            return newState && updateState(newState, f(newState.v, context.cfg));
         });
     }
     flatMap<U>(this: Parser<T>, f: (value: T, config: Config) => Parser<U>): Parser<U> {
@@ -49,7 +49,7 @@ export class Parser<out T = unknown> {
         return new Parser((state, context) => {
             const newStateA = this.run(state, context);
             const newStateB = newStateA && parser.run(newStateA, context);
-            return newStateB && updateState(newStateB, newStateA.v, 0);
+            return newStateB && updateState(newStateB, newStateA.v);
         });
     }
     and<U>(this: Parser<T>, parser: Parser<U>): Parser<[T, U]> {
@@ -63,7 +63,7 @@ export class Parser<out T = unknown> {
         return new Parser((state, context) => {
             const newStateA = this.run(state, context);
             const newStateB = newStateA && parser.run(newStateA, context);
-            return newStateB && updateState(newStateB, zip(newStateA.v, newStateB.v), 0);
+            return newStateB && updateState(newStateB, zip(newStateA.v, newStateB.v));
         });
     }
     between<T>(this: Parser<T>, pre: Parser, post = pre): Parser<T> {
@@ -71,7 +71,7 @@ export class Parser<out T = unknown> {
             const newStateA = pre.run(state, context);
             const newStateB = newStateA && this.run(newStateA, context);
             const newStateC = newStateB && post.run(newStateB, context);
-            return newStateC && updateState(newStateC, newStateB.v, 0);
+            return newStateC && updateState(newStateC, newStateB.v);
         });
     }
     or<U>(this: Parser<T>, parser: Parser<U>): Parser<T | U> {
@@ -83,7 +83,7 @@ export class Parser<out T = unknown> {
     option<U>(this: Parser<T>, value: U): Parser<T | U>;
     option<U = null>(this: Parser<T>, value: U = null as unknown as U): Parser<T | U> {
         return new Parser<T | U>((state, context) => {
-            return this.run(state, context) ?? updateState(state, value, 0);
+            return this.run(state, context) ?? updateState(state, value);
         });
     }
     manyAccum<U>(
@@ -105,7 +105,7 @@ export class Parser<out T = unknown> {
                 }
                 accum = f(accum, (state = newState).v, context.cfg) ?? accum;
             }
-            return updateState(state, accum, 0);
+            return updateState(state, accum);
         });
     }
     many(this: Parser<T>, options?: { min?: number; max?: number }): Parser<T[]> {

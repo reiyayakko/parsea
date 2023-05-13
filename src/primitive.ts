@@ -8,7 +8,7 @@ import { updateState } from "./state";
  * Always succeed with the value of the argument.
  */
 export const pure = <T>(value: T): Parser<T> =>
-    new Parser(state => updateState(state, value, 0));
+    new Parser(state => updateState(state, value));
 
 export const fail = (): Parser<never> =>
     new Parser((state, context) => {

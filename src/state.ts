@@ -11,7 +11,7 @@ export const initState: ParseState<null> = {
 export const updateState = <T>(
     state: ParseState<unknown>,
     value: T,
-    consumeLength: number,
+    consumeLength = 0,
 ): ParseState<T> => ({
     i: state.i + consumeLength,
     v: value,

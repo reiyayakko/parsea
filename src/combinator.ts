@@ -28,7 +28,7 @@ export const notFollowedBy = (parser: Parser): Parser =>
 export const lookAhead = <T>(parser: Parser<T>): Parser<T> =>
     new Parser((state, context) => {
         const newState = parser.run(state, context);
-        return newState && updateState(state, newState.v, 0);
+        return newState && updateState(state, newState.v);
     });
 
 type Seq<out T extends readonly Parser[]> = {
@@ -55,7 +55,7 @@ export const seq: {
             }
             values.push((state = newState).v);
         }
-        return updateState(state, values, 0);
+        return updateState(state, values);
     });
 
 type Choice<T extends readonly Parser[]> = Parser<Parsed<T[number]>>;
