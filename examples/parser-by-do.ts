@@ -30,43 +30,44 @@ const between = <T>(parser: Parser<T>, pre: Parser, post = pre): Parser<T> =>
 
 const or = <T, U>(left: Parser<T>, right: Parser<U>) =>
     qo(perform => {
-        try {
-            return perform(left);
-        } catch (err) {
-            return perform(right);
-        }
+        const leftResult = perform.try(() => ({
+            value: perform(left),
+        }));
+        return leftResult ? leftResult.value : perform(right);
     });
 
 const option = <T, U>(parser: Parser<T>, value: U) =>
     qo(perform => {
-        try {
-            return perform(parser);
-        } catch (err) {
-            return value;
-        }
+        const result = perform.try(() => ({
+            value: perform(parser),
+        }));
+        return result ? result.value : value;
     });
 
 const seq = <T>(
     parsers: readonly Parser<T>[],
-    options?: { droppable?: boolean },
+    options?: { allowPartial?: boolean },
 ): Parser<T[]> =>
     qo(perform => {
         const accum: T[] = [];
-        try {
+        const fullSeq = () => {
             for (const parser of parsers) {
                 accum.push(perform(parser));
             }
-        } catch (err) {
-            if (!options?.droppable) throw err;
+        };
+        if (options?.allowPartial) {
+            perform.try(fullSeq, true);
+        } else {
+            fullSeq();
         }
         return accum;
     });
 
 const many = <T>(parser: Parser<T>): Parser<T[]> =>
     qo(perform => {
-        const xs = [];
-        try {
+        const xs: T[] = [];
+        perform.try(() => {
             for (;;) xs.push(perform(parser));
-        } catch (err) {}
+        }, true);
         return xs;
     });
