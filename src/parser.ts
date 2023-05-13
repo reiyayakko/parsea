@@ -52,6 +52,20 @@ export class Parser<out T = unknown> {
             return newStateB && updateState(newStateB, newStateA.v, 0);
         });
     }
+    and<U>(this: Parser<T>, parser: Parser<U>): Parser<[T, U]> {
+        return this.andMap(parser, (a, b) => [a, b]);
+    }
+    andMap<U, V>(
+        this: Parser<T>,
+        parser: Parser<U>,
+        zip: (left: T, right: U) => V,
+    ): Parser<V> {
+        return new Parser((state, context) => {
+            const newStateA = this.run(state, context);
+            const newStateB = newStateA && parser.run(newStateA, context);
+            return newStateB && updateState(newStateB, zip(newStateA.v, newStateB.v), 0);
+        });
+    }
     between<T>(this: Parser<T>, pre: Parser, post = pre): Parser<T> {
         return new Parser((state, context) => {
             const newStateA = pre.run(state, context);

@@ -7,6 +7,8 @@
 - Added `oneOf`
 - Added `noneOf`
 - Added `Parser.prototype.skip`
+- Added `Parser.prototype.then`
+- Added `Parser.prototype.andMap`
 - Added `ParseResult`
 - Added `perform.try` in qo
 
@@ -16,6 +18,7 @@
 - Change match algorithm from SameValue to SameValueZero in el and literal.
 - Added defaultValue parameter in `regex`.
 - Change parse result type to `ParseResult`.
+- `Parser.prototype.and` now returns the results of both parsers as a tuple. Use "then" or "skip" for the previous use.
 
 ### Removed
 - `RegExpGroupArray` type

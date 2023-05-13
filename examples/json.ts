@@ -1,5 +1,5 @@
 import type { JsonValue } from "emnorst";
-import { EOI, choice, el, lazy, literal, qo, regex, seq, type Parser } from "../src";
+import { EOI, choice, el, lazy, literal, qo, regex, type Parser } from "../src";
 
 const sepBy = <T>(parser: Parser<T>, sep: Parser) =>
     qo(perform => {
@@ -52,7 +52,7 @@ const empty = ws.map<[]>(() => []);
 
 const array = sepBy(jsonValue, el(",")).or(empty).between(el("["), el("]"));
 
-const keyValue = seq([ws.then(string), ws.then(el(":")).then(jsonValue)]);
+const keyValue = string.between(ws).skip(el(":")).and(jsonValue);
 
 const object = sepBy(keyValue, el(","))
     .or(empty)
