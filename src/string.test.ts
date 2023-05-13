@@ -17,7 +17,7 @@ describe("regexGroup", () => {
         expect(regexGroup(/alpha|beta/).parse(" beta")).toHaveProperty("success", false);
     });
     test("途中からパース", () => {
-        expect(literal("hello ").and(regexGroup(/\w+/)).parse("hello world!")).toEqual({
+        expect(literal("hello ").then(regexGroup(/\w+/)).parse("hello world!")).toEqual({
             success: true,
             index: "hello world".length,
             value: expect.arrayContaining(["world"]),

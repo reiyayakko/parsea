@@ -8,7 +8,7 @@ test("pure", () => {
 
 describe("EOI", () => {
     test("end of input", () => {
-        expect(ANY_EL.and(EOI).parse(["el"])).toHaveProperty("success", true);
+        expect(ANY_EL.then(EOI).parse(["el"])).toHaveProperty("success", true);
     });
     test("消費しきっていない要素がある場合失敗", () => {
         expect(EOI.parse(["el"])).toHaveProperty("success", false);

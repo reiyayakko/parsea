@@ -4,7 +4,7 @@ import { EOI, choice, el, lazy, literal, qo, regex, seq, type Parser } from "../
 const sepBy = <T>(parser: Parser<T>, sep: Parser) =>
     qo(perform => {
         const head = perform(parser);
-        const rest = perform(sep.and(parser).many());
+        const rest = perform(sep.then(parser).many());
         return [head, ...rest];
     });
 
@@ -52,7 +52,7 @@ const empty = ws.map<[]>(() => []);
 
 const array = sepBy(jsonValue, el(",")).or(empty).between(el("["), el("]"));
 
-const keyValue = seq([ws.and(string), ws.and(el(":")).and(jsonValue)]);
+const keyValue = seq([ws.then(string), ws.then(el(":")).then(jsonValue)]);
 
 const object = sepBy(keyValue, el(","))
     .or(empty)

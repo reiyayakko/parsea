@@ -39,7 +39,7 @@ export class Parser<out T = unknown> {
             return newState && f(newState.v, context.cfg).run(newState, context);
         });
     }
-    and<U>(this: Parser<T>, parser: Parser<U>): Parser<U> {
+    then<U>(this: Parser, parser: Parser<U>): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
             return newState && parser.run(newState, context);
