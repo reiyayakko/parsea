@@ -1,10 +1,10 @@
 import type { JsonValue } from "emnorst";
-import { EOI, choice, el, lazy, literal, qo, regex, type Parser } from "../src";
+import { EOI, choice, el, lazy, literal, many, qo, regex, type Parser } from "../src";
 
 const sepBy = <T>(parser: Parser<T>, sep: Parser) =>
     qo(perform => {
         const head = perform(parser);
-        const rest = perform(sep.then(parser).many());
+        const rest = perform(sep.then(parser).apply(many));
         return [head, ...rest];
     });
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
-import { choice, seq } from "./combinator";
+import { choice, many, seq } from "./combinator";
 import { el, pure } from "./primitive";
 
 describe("choice", () => {
@@ -42,5 +42,26 @@ describe("seq", () => {
             value: [1, 1],
         });
         expect(parser.parse([])).toHaveProperty("value", []);
+    });
+});
+
+describe("many", () => {
+    test("empty", () => {
+        expect(many(el(1)).parse([])).toHaveProperty("value", []);
+    });
+    test("min", () => {
+        const parser = many(el(1), { min: 2 });
+        expect(parser.parse([1, 1])).toHaveProperty("value", [1, 1]);
+        expect(parser.parse([1, "1"])).toHaveProperty("success", false);
+        expect(parser.parse([1])).toHaveProperty("success", false);
+    });
+    test("max", () => {
+        const parser = many(el(1), { max: 2 });
+        expect(parser.parse([1, 1, 1, 1])).toHaveProperty("value", [1, 1]);
+        expect(parser.parse([1])).toHaveProperty("value", [1]);
+    });
+    test("min > max", () => {
+        const parser = many(el(1), { min: 3, max: 1 });
+        expect(parser.parse([1, 1, 1, 1])).toHaveProperty("value", [1, 1, 1]);
     });
 });

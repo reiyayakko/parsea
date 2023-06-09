@@ -1,4 +1,5 @@
-import { MAX_INT32, clamp, isArrayLike } from "emnorst";
+import { isArrayLike } from "emnorst";
+import { many, manyAccum } from "./combinator";
 import { Context, type Config, type Source } from "./context";
 import { createParseResult, type ParseResult } from "./result";
 import { initState, updateState, type ParseState } from "./state";
@@ -93,35 +94,17 @@ export class Parser<out T = unknown> {
             return this.run(state, context) ?? updateState(state, value);
         });
     }
+    /** @deprecated Use instead `.apply(manyAccum)` */
     manyAccum<U>(
         this: Parser<T>,
         f: (accum: U, cur: T, config: Config) => U | void,
         init: (config: Config) => U,
         options?: { min?: number; max?: number },
     ): Parser<U> {
-        const clampedMin = clamp(options?.min || 0, 0, MAX_INT32) | 0;
-        const clampedMax = clamp(options?.max || MAX_INT32, clampedMin, MAX_INT32) | 0;
-
-        return new Parser((state, context) => {
-            let accum: U = init(context.cfg);
-            for (let i = 0; i < clampedMax; i++) {
-                const newState = this.run(state, context);
-                if (newState == null) {
-                    if (i < clampedMin) return null;
-                    break;
-                }
-                accum = f(accum, (state = newState).v, context.cfg) ?? accum;
-            }
-            return updateState(state, accum);
-        });
+        return manyAccum(this, f, init, options);
     }
+    /** @deprecated Use instead `.apply(many)` */
     many(this: Parser<T>, options?: { min?: number; max?: number }): Parser<T[]> {
-        return this.manyAccum<T[]>(
-            (array, value) => {
-                array.push(value);
-            },
-            () => [],
-            options,
-        );
+        return many(this, options);
     }
 }
