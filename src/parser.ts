@@ -21,6 +21,13 @@ export class Parser<out T = unknown> {
         const finalState = this.run(initState, context);
         return createParseResult(finalState, context);
     }
+    apply<A extends readonly unknown[], R>(
+        this: Parser<T>,
+        f: (parser: Parser<T>, ...args: A) => Parser<R>,
+        ...args: A
+    ): Parser<R> {
+        return f(this, ...args);
+    }
     return<U>(this: Parser, value: U): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);

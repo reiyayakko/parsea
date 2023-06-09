@@ -2,6 +2,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Added `Parser.prototype.apply`
 
 ## [0.7.0] - 2023-05-13
 ### Added
