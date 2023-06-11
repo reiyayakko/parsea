@@ -1,3 +1,4 @@
+import { isArrayLike } from "emnorst";
 import type { ParseError } from "./error";
 
 export type Source<T = unknown> =
@@ -9,7 +10,11 @@ export interface Config {
 }
 
 export class Context {
-    constructor(readonly src: Source, readonly cfg: Config) {}
+    constructor(readonly src: Source, readonly cfg: Config) {
+        if (!isArrayLike(src)) {
+            throw new TypeError("source is not ArrayLike.");
+        }
+    }
     private readonly errs: ParseError[] = [];
     addError(error: ParseError): void {
         this.errs.push(error);

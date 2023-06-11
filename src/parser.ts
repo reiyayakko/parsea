@@ -1,4 +1,3 @@
-import { isArrayLike } from "emnorst";
 import { many, manyAccum } from "./combinator";
 import { Context, type Config, type Source } from "./context";
 import { createParseResult, type ParseResult } from "./result";
@@ -15,9 +14,6 @@ export type ParseRunner<in T, out U> = (
 export class Parser<out T = unknown> {
     constructor(readonly run: ParseRunner<unknown, T>) {}
     parse(this: Parser<T>, source: Source, config: Config = {}): ParseResult<T> {
-        if (!isArrayLike(source)) {
-            throw new TypeError("source is not ArrayLike.");
-        }
         const context = new Context(source, config);
         const finalState = this.run(initState, context);
         return createParseResult(finalState, context);

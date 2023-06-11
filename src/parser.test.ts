@@ -3,11 +3,6 @@ import type { Parser } from "./parser";
 import { pure } from "./primitive";
 
 describe("Parser", () => {
-    test("parseにArrayLike以外を入れるとエラー", () => {
-        expect(() => {
-            pure(null).parse({ length: NaN });
-        }).toThrow(TypeError);
-    });
     test("map", () => {
         const fn = jest.fn<() => string>().mockReturnValue("hoge");
         const result = pure(null).map(fn).parse([]);
