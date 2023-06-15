@@ -50,11 +50,12 @@ const number = regex(/-?(0|[1-9]\d*)(.\d+)?([Ee][-+]?\d+)?/).map(Number);
 
 const empty = ws.map<[]>(() => []);
 
-const array = sepBy(jsonValue, el(",")).or(empty).between(el("["), el("]"));
+const array = jsonValue.apply(sepBy, el(",")).or(empty).between(el("["), el("]"));
 
 const keyValue = string.between(ws).skip(el(":")).and(jsonValue);
 
-const object = sepBy(keyValue, el(","))
+const object = keyValue
+    .apply(sepBy, el(","))
     .or(empty)
     .between(el("{"), el("}"))
     .map<Record<string, JsonValue>>(Object.fromEntries);
