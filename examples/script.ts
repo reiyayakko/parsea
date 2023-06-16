@@ -30,6 +30,10 @@ const sepBy = <T>(parser: P.Parser<T>, sep: P.Parser): P.Parser<T[]> => {
 
 const ws = P.regex(/\s*/);
 
+const keyword = (keyword: string): P.Parser => {
+    return P.literal(keyword).then(P.notFollowedBy(P.regex(/\w/)));
+};
+
 const Ident = P.regex(/\w+/).map(name => ({ type: "Ident", name } satisfies Expr));
 
 export type Stat =
@@ -40,13 +44,13 @@ export type Stat =
     | { type: "Break" }
     | { type: "Expr"; expr: Expr };
 
-const Let = P.literal("let")
+const Let = keyword("let")
     .then(Ident.between(ws))
     .skip(P.el("="))
     .andMap(expr, ({ name }, init): Stat => ({ type: "Let", name, init }));
 
 const DefFn = P.seq([
-    P.literal("fn").then(Ident.between(ws)),
+    keyword("fn").then(Ident.between(ws)),
     Ident.between(ws)
         .apply(sepBy, P.el(","))
         .skip(ws)
@@ -60,17 +64,17 @@ const DefFn = P.seq([
     body,
 }));
 
-const Return = P.literal("return")
+const Return = keyword("return")
     .then(expr.option(null))
     .skip(ws)
     .map<Stat>(body => ({ type: "Return", body }));
 
-const While = P.literal("while")
+const While = keyword("while")
     .skip(ws)
     .then(expr.between(P.el("("), P.el(")")))
     .andMap(expr, (test, body): Stat => ({ type: "While", test, body }));
 
-const Break = P.literal("break").return<Stat>({ type: "Break" }).skip(ws);
+const Break = keyword("break").return<Stat>({ type: "Break" }).skip(ws);
 
 const Expr = expr.map<Stat>(expr => ({ type: "Expr", expr }));
 
@@ -79,8 +83,8 @@ export const stat: P.Parser<Stat> = P.choice([Let, DefFn, Return, While, Break, 
     .between(ws);
 
 const Bool = P.choice([
-    P.literal("true").return(true),
-    P.literal("false").return(false),
+    keyword("true").return(true),
+    keyword("false").return(false),
 ]).map<Expr>(value => ({ type: "Bool", value }));
 
 const digit = P.oneOf("0123456789");
@@ -121,11 +125,11 @@ const Block = stat
     .between(P.el("{"), P.el("}"));
 
 const If = P.seq([
-    P.literal("if")
+    keyword("if")
         .then(ws)
         .then(expr.between(P.el("("), P.el(")"))),
     expr,
-    P.literal("else").then(expr).option(null),
+    keyword("else").then(expr).option(null),
 ]).map<Expr>(([test, then, else_]) => ({
     type: "If",
     test,
