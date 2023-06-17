@@ -1,6 +1,30 @@
 import { describe, expect, test } from "@jest/globals";
+import { expected } from "./error";
 import { literal } from "./primitive";
-import { regex, regexGroup } from "./string";
+import { regex, regexGroup, string } from "./string";
+
+describe("string", () => {
+    test("source type", () => {
+        expect(string("").parse([])).toHaveProperty("success", false);
+    });
+    test("short source", () => {
+        expect(string("a").parse("")).toEqual({
+            success: false,
+            index: 0,
+            errors: [expected("a")],
+        });
+    });
+    test("ok", () => {
+        expect(string("a").parse("a")).toHaveProperty("value", "a");
+    });
+    test("fail", () => {
+        expect(string("a").parse("b")).toEqual({
+            success: false,
+            index: 0,
+            errors: [expected("a")],
+        });
+    });
+});
 
 describe("regexGroup", () => {
     test("sourceがstring型ではない場合失敗", () => {

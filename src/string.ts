@@ -1,5 +1,25 @@
+import * as error from "./error";
 import { Parser } from "./parser";
 import { updateState } from "./state";
+
+export const string = <const T extends string>(string: T): Parser<T> => {
+    return new Parser((state, context) => {
+        if (typeof context.src !== "string") {
+            context.addError(state.i);
+            return null;
+        }
+        if (state.i + string.length > context.src.length) {
+            context.addError(state.i, error.expected(string));
+            return null;
+        }
+        const slice = context.src.slice(state.i, state.i + string.length);
+        if (slice !== string) {
+            context.addError(state.i, error.expected(string));
+            return null;
+        }
+        return updateState(state, string, string.length);
+    });
+};
 
 export const regexGroup = (re: RegExp): Parser<RegExpExecArray> => {
     const fixedRegex = new RegExp(`^(?:${re.source})`, re.flags.replace("g", ""));

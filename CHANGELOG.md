@@ -6,6 +6,7 @@
 - Added `Parser.prototype.apply`
 - Added `many`
 - Added `manyAccum`
+- Added `string`
 
 ### Deprecated
 - `Parser.prototype.many`
