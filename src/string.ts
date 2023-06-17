@@ -21,6 +21,38 @@ export const string = <const T extends string>(string: T): Parser<T> => {
     });
 };
 
+export const CODE_POINT = /* @__PURE__ */ new Parser((state, context) => {
+    if (typeof context.src !== "string") {
+        context.addError(state.i);
+        return null;
+    }
+    if (state.i + 1 > context.src.length) {
+        context.addError(state.i);
+        return null;
+    }
+    const first = context.src.charCodeAt(state.i);
+    // high surrogate
+    if (0xd800 <= first && first < 0xdc00) {
+        if (state.i + 2 > context.src.length) {
+            context.addError(state.i);
+            return null;
+        }
+        const second = context.src.charCodeAt(state.i + 1);
+        // low surrogate
+        if (0xdc00 <= second && second < 0xe000) {
+            return updateState(state, context.src.slice(state.i, state.i + 2), 2);
+        }
+        context.addError(state.i);
+        return null;
+    }
+    // low surrogate
+    if (0xdc00 <= first && first < 0xe000) {
+        context.addError(state.i);
+        return null;
+    }
+    return updateState(state, context.src[state.i], 1);
+});
+
 export const regexGroup = (re: RegExp): Parser<RegExpExecArray> => {
     const fixedRegex = new RegExp(`^(?:${re.source})`, re.flags.replace("g", ""));
 

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import { expected } from "./error";
 import { literal } from "./primitive";
-import { regex, regexGroup, string } from "./string";
+import { CODE_POINT, regex, regexGroup, string } from "./string";
 
 describe("string", () => {
     test("source type", () => {
@@ -23,6 +23,32 @@ describe("string", () => {
             index: 0,
             errors: [expected("a")],
         });
+    });
+});
+
+describe("CODE_POINT", () => {
+    test("source type", () => {
+        expect(CODE_POINT.parse([])).toHaveProperty("success", false);
+    });
+    test("short source", () => {
+        expect(CODE_POINT.parse("")).toHaveProperty("success", false);
+    });
+    test("code unit", () => {
+        expect(CODE_POINT.parse("a")).toHaveProperty("value", "a");
+    });
+    test("surrogate pair", () => {
+        const char = "🫠";
+        expect(char).toHaveLength(2);
+        expect(CODE_POINT.parse(char)).toHaveProperty("value", char);
+    });
+    test("high surrogate only", () => {
+        expect(CODE_POINT.parse("\ud83e")).toHaveProperty("success", false);
+    });
+    test("high surrogate + non low surrogate", () => {
+        expect(CODE_POINT.parse("\ud83e\x20")).toHaveProperty("success", false);
+    });
+    test("low surrogate only", () => {
+        expect(CODE_POINT.parse("\udee0")).toHaveProperty("success", false);
     });
 });
 

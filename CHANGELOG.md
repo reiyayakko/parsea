@@ -7,6 +7,7 @@
 - Added `many`
 - Added `manyAccum`
 - Added `string`
+- Added `CODE_POINT`
 
 ### Deprecated
 - `Parser.prototype.many`
