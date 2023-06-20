@@ -23,7 +23,7 @@ export const notFollowedBy = (parser: Parser): Parser =>
         if (newState == null) {
             return state;
         }
-        context.addError(error.unknown(state.i));
+        context.addError(state.i, error.unknown);
         return null;
     });
 

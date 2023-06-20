@@ -15,8 +15,15 @@ export class Context {
             throw new TypeError("source is not ArrayLike.");
         }
     }
-    private readonly errs: ParseError[] = [];
-    addError(error: ParseError): void {
-        this.errs.push(error);
+    private errorIndex = -1;
+    private errors: ParseError[] = [];
+    addError(index: number, error: ParseError): void {
+        if (index > this.errorIndex) {
+            this.errorIndex = index;
+            this.errors = [];
+        }
+        if (index === this.errorIndex) {
+            this.errors.push(error);
+        }
     }
 }

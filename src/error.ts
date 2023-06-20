@@ -1,6 +1,3 @@
-export type ParseError = { type: "Unknown"; index: number };
+export type ParseError = { type: "Unknown" };
 
-export const unknown = (index: number): ParseError => ({
-    type: "Unknown",
-    index,
-});
+export const unknown: ParseError = { type: "Unknown" };
