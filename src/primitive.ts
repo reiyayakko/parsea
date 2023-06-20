@@ -41,7 +41,12 @@ export const ANY_EL = /* #__PURE__ */ new Parser((state, context) => {
     return null;
 });
 
-export const el = <T>(value: T): Parser<T> => satisfy(srcEl => equals(srcEl, value));
+export const el = <T>(value: T): Parser<T> =>
+    satisfy(srcEl => equals(srcEl, value), {
+        error: error.expected(
+            typeof value === "string" && value.length === 1 ? value : [value],
+        ),
+    });
 
 export const oneOf = <T>(values: Iterable<T>): Parser<T> => {
     const set = new Set<unknown>(values);
@@ -57,6 +62,7 @@ export const satisfy = <T>(
     f:
         | ((el: unknown, config: Config) => boolean)
         | ((el: unknown, config: Config) => el is T),
+    options?: { error?: error.ParseError },
 ): Parser<T> =>
     new Parser((state, context) => {
         let srcEl: unknown;
@@ -66,21 +72,21 @@ export const satisfy = <T>(
         ) {
             return updateState(state, srcEl, 1);
         }
-        context.addError(state.i, error.unknown);
+        context.addError(state.i, options?.error ?? error.unknown);
         return null;
     });
 
 export const literal = <T extends Source>(chunk: T): Parser<T> =>
     new Parser((state, context) => {
         if (state.i + chunk.length > context.src.length) {
-            context.addError(state.i, error.unknown);
+            context.addError(state.i, error.expected(chunk));
             return null;
         }
         for (let i = 0; i < chunk.length; i++) {
             const srcEl = context.src[state.i + i];
             const chunkEl = chunk[i];
             if (!equals(srcEl, chunkEl)) {
-                context.addError(state.i, error.unknown);
+                context.addError(state.i, error.expected(chunk));
                 return null;
             }
         }
