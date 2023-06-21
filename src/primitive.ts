@@ -12,7 +12,7 @@ export const pure = <T>(value: T): Parser<T> =>
 
 export const fail = (): Parser<never> =>
     new Parser((state, context) => {
-        context.addError(state.i, error.unknown);
+        context.addError(state.i);
         return null;
     });
 
@@ -21,7 +21,7 @@ export const fail = (): Parser<never> =>
  */
 export const EOI = /* #__PURE__ */ new Parser((state, context) => {
     if (state.i < context.src.length) {
-        context.addError(state.i, error.unknown);
+        context.addError(state.i);
         return null;
     }
     return state;
@@ -37,7 +37,7 @@ export const ANY_EL = /* #__PURE__ */ new Parser((state, context) => {
     if (state.i < context.src.length) {
         return updateState(state, context.src[state.i], 1);
     }
-    context.addError(state.i, error.unknown);
+    context.addError(state.i);
     return null;
 });
 
@@ -72,7 +72,7 @@ export const satisfy = <T>(
         ) {
             return updateState(state, srcEl, 1);
         }
-        context.addError(state.i, options?.error ?? error.unknown);
+        context.addError(state.i, options?.error);
         return null;
     });
 

@@ -17,12 +17,12 @@ export class Context {
     }
     private errorIndex = -1;
     private errors: ParseError[] = [];
-    addError(index: number, error: ParseError): void {
+    addError(index: number, error?: ParseError): void {
         if (index > this.errorIndex) {
             this.errorIndex = index;
             this.errors = [];
         }
-        if (index === this.errorIndex) {
+        if (error && index === this.errorIndex) {
             this.errors.push(error);
         }
     }
