@@ -53,6 +53,25 @@ export const CODE_POINT = /* @__PURE__ */ new Parser((state, context) => {
     return updateState(state, context.src[state.i], 1);
 });
 
+const graphemeSegmenter = /* @__PURE__ */ new Intl.Segmenter();
+
+export const ANY_CHAR = /* @__PURE__ */ new Parser((state, context) => {
+    if (typeof context.src !== "string") {
+        context.addError(state.i);
+        return null;
+    }
+    const segments = graphemeSegmenter.segment(context.src);
+    // NOTE: TypeScriptの型定義に含まれていないが、範囲外のindexを渡せばundefinedが返ってくる。
+    const segmentData = segments.containing(state.i) satisfies Intl.SegmentData as
+        | Intl.SegmentData
+        | undefined;
+    if (segmentData == null || segmentData.index !== state.i) {
+        context.addError(state.i);
+        return null;
+    }
+    return updateState(state, segmentData.segment, segmentData.segment.length);
+});
+
 export const regexGroup = (re: RegExp): Parser<RegExpExecArray> => {
     const fixedRegex = new RegExp(`^(?:${re.source})`, re.flags.replace("g", ""));
 

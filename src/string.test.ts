@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import { expected } from "./error";
 import { literal } from "./primitive";
-import { CODE_POINT, regex, regexGroup, string } from "./string";
+import { ANY_CHAR, CODE_POINT, regex, regexGroup, string } from "./string";
 
 describe("string", () => {
     test("source type", () => {
@@ -49,6 +49,22 @@ describe("CODE_POINT", () => {
     });
     test("low surrogate only", () => {
         expect(CODE_POINT.parse("\udee0")).toHaveProperty("success", false);
+    });
+});
+
+describe("ANY_CHAR", () => {
+    test("source type", () => {
+        expect(ANY_CHAR.parse([])).toHaveProperty("success", false);
+    });
+    test("short source", () => {
+        expect(ANY_CHAR.parse("")).toHaveProperty("success", false);
+    });
+    test.each(["a", "あ", "👍", "👪", "👨‍👩‍👧‍👦"])('"%s"は1文字', char => {
+        expect(ANY_CHAR.between(string("^"), string("$")).parse(`^${char}$`)).toEqual({
+            success: true,
+            index: char.length + 2,
+            value: char,
+        });
     });
 });
 
@@ -105,23 +121,5 @@ describe("regex", () => {
     });
     test("defaultValue", () => {
         expect(regex(/(?:)/, 1, "default").parse("")).toHaveProperty("value", "default");
-    });
-});
-
-describe.skip("anyChar", () => {
-    let anyChar: import("../src/parser").Parser<string>;
-    test("長さ不足で失敗する", () => {
-        expect(anyChar.parse("")).toHaveProperty("success", false);
-    });
-    test("sourceがstring型ではない場合失敗", () => {
-        const nonStringSource = ["しかし、なにもおこらなかった！"];
-        expect(anyChar.parse(nonStringSource)).toHaveProperty("success", false);
-    });
-    test.each(["a", "あ", "👍", "👪", "👨‍👩‍👧‍👦"])('"%s"は1文字', char => {
-        expect(anyChar.parse(char)).toEqual({
-            success: true,
-            index: char.length,
-            value: char,
-        });
     });
 });
