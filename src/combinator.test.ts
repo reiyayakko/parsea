@@ -1,6 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import { choice, many, seq } from "./combinator";
 import { el, pure } from "./primitive";
+import { expected } from "./error";
 
 describe("choice", () => {
     test("最初に成功した結果で成功", () => {
@@ -14,7 +15,11 @@ describe("choice", () => {
         for (const browser of browsers) {
             expect(parser.parse([browser])).toHaveProperty("value", browser);
         }
-        expect(parser.parse(["Internet Explorer"])).toHaveProperty("success", false);
+        expect(parser.parse(["Internet Explorer"])).toEqual({
+            success: false,
+            index: 0,
+            errors: browsers.map(browser => expected([browser])),
+        });
     });
 });
 
@@ -27,7 +32,7 @@ describe("seq", () => {
     });
     test("途中で失敗するとその時点で失敗", () => {
         const result = lucasNumberParser.parse([2, 1, 4, 4, 7]);
-        expect(result).toHaveProperty("success", false);
+        expect(result).toEqual({ success: false, index: 2, errors: [expected([3])] });
     });
     test("allowPartialで途中で失敗してもその時点までの結果で成功", () => {
         const parser = seq([1, 1, 2, 6, 24, 120].map(el), { allowPartial: true });

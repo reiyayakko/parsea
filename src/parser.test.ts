@@ -1,8 +1,16 @@
 import { describe, expect, jest, test } from "@jest/globals";
 import type { Parser } from "./parser";
-import { pure } from "./primitive";
+import { literal, pure } from "./primitive";
+import { label } from "./error";
 
 describe("Parser", () => {
+    test("label", () => {
+        expect(literal("hoge").label("label").parse([])).toEqual({
+            success: false,
+            index: 0,
+            errors: [label("label", 1)],
+        });
+    });
     test("map", () => {
         const fn = jest.fn<() => string>().mockReturnValue("hoge");
         const result = pure(null).map(fn).parse([]);
