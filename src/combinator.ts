@@ -1,6 +1,5 @@
 import { MAX_INT32, clamp } from "emnorst";
 import type { Config } from ".";
-import * as error from "./error";
 import { Parser, type Parsed } from "./parser";
 import { updateState, type ParseState } from "./state";
 
@@ -23,7 +22,7 @@ export const notFollowedBy = (parser: Parser): Parser =>
         if (newState == null) {
             return state;
         }
-        context.addError(error.unknown(state.i));
+        context.addError(state.i);
         return null;
     });
 

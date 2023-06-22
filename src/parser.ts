@@ -1,5 +1,6 @@
 import { many, manyAccum } from "./combinator";
 import { Context, type Config, type Source } from "./context";
+import * as error from "./error";
 import { createParseResult, type ParseResult } from "./result";
 import { initState, updateState, type ParseState } from "./state";
 
@@ -24,6 +25,16 @@ export class Parser<out T = unknown> {
         ...args: A
     ): Parser<R> {
         return f(this, ...args);
+    }
+    label(this: Parser<T>, label: string): Parser<T> {
+        return new Parser((state, context) => {
+            const labelStart = context.group();
+            const newState = this.run(state, context);
+            if (newState == null) {
+                context.addError(state.i, error.label(label, context.length(labelStart)));
+            }
+            return newState;
+        });
     }
     return<U>(this: Parser, value: U): Parser<U> {
         return new Parser((state, context) => {
