@@ -7,6 +7,9 @@
 - Added `many`
 - Added `manyAccum`
 
+### Changed
+- Change default for `Parser.prototype.option` to undefined.
+
 ### Deprecated
 - `Parser.prototype.many`
 - `Parser.prototype.manyAccum`
