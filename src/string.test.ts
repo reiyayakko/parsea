@@ -1,6 +1,13 @@
 import { describe, expect, test } from "@jest/globals";
 import { expected } from "./error";
-import { ANY_CHAR, CODE_POINT, regex, regexGroup, string } from "./string";
+import {
+    ANY_CHAR,
+    CODE_POINT,
+    graphemeString,
+    regex,
+    regexGroup,
+    string,
+} from "./string";
 
 describe("string", () => {
     test("source type", () => {
@@ -21,6 +28,38 @@ describe("string", () => {
             success: false,
             index: 0,
             errors: [expected("a")],
+        });
+    });
+});
+
+describe("graphemeString", () => {
+    test("source type", () => {
+        expect(graphemeString("").parse([])).toHaveProperty("success", false);
+    });
+    test("short source", () => {
+        expect(graphemeString("a").parse("")).toEqual({
+            success: false,
+            index: 0,
+            errors: [expected("a")],
+        });
+    });
+    test("success", () => {
+        expect(graphemeString("a").parse("a")).toMatchObject({
+            success: true,
+            value: "a",
+        });
+    });
+    test("fail", () => {
+        expect(graphemeString("a").parse("b")).toEqual({
+            success: false,
+            index: 0,
+            errors: [expected("a")],
+        });
+    });
+    test("NFC <-> NFD", () => {
+        expect(graphemeString("\xf1").parse("\xf1".normalize("NFD"))).toMatchObject({
+            success: true,
+            value: "\xf1".normalize("NFD"),
         });
     });
 });

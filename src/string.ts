@@ -17,6 +17,49 @@ export const string = <const T extends string>(string: T): Parser<T> => {
     });
 };
 
+const graphemeSegmenter = /* @__PURE__ */ new Intl.Segmenter();
+
+export const graphemeString = (string: string): Parser<string> => {
+    const normalizedString = string.normalize();
+    return new Parser((state, context) => {
+        if (typeof context.src !== "string") {
+            context.addError(state.i);
+            return null;
+        }
+        const segments = graphemeSegmenter.segment(context.src);
+        let sourceIndex = 0;
+        let normalizedIndex = 0;
+        while (normalizedIndex < normalizedString.length) {
+            // NOTE: TypeScriptの型定義に含まれていないが、範囲外のindexを渡せばundefinedが返ってくる。
+            const segmentData = segments.containing(
+                state.i + sourceIndex,
+            ) satisfies Intl.SegmentData as Intl.SegmentData | undefined;
+            if (segmentData == null || segmentData.index !== state.i + sourceIndex) {
+                context.addError(state.i, error.expected(normalizedString));
+                return null;
+            }
+            const normalizedSegment = segmentData.segment.normalize();
+            if (
+                normalizedSegment !==
+                normalizedString.slice(
+                    normalizedIndex,
+                    normalizedIndex + normalizedSegment.length,
+                )
+            ) {
+                context.addError(state.i, error.expected(normalizedString));
+                return null;
+            }
+            normalizedIndex += normalizedSegment.length;
+            sourceIndex += segmentData.segment.length;
+        }
+        return updateState(
+            state,
+            context.src.slice(state.i, state.i + sourceIndex),
+            sourceIndex,
+        );
+    });
+};
+
 export const CODE_POINT = /* @__PURE__ */ new Parser((state, context) => {
     if (typeof context.src !== "string") {
         context.addError(state.i);
@@ -48,8 +91,6 @@ export const CODE_POINT = /* @__PURE__ */ new Parser((state, context) => {
     }
     return updateState(state, context.src[state.i], 1);
 });
-
-const graphemeSegmenter = /* @__PURE__ */ new Intl.Segmenter();
 
 export const ANY_CHAR = /* @__PURE__ */ new Parser((state, context) => {
     if (typeof context.src !== "string") {

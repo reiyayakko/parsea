@@ -7,6 +7,7 @@
 - Added `many`
 - Added `manyAccum`
 - Added `string`
+- Added `graphemeString`
 - Added `CODE_POINT`
 - Added `ANY_CHAR`
 
