@@ -36,7 +36,7 @@ export class Parser<out T = unknown> {
             return newState;
         });
     }
-    return<U>(this: Parser, value: U): Parser<U> {
+    return<const U>(this: Parser, value: U): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
             return newState && updateState(newState, value);
@@ -95,7 +95,7 @@ export class Parser<out T = unknown> {
         });
     }
     option(this: Parser<T>): Parser<T | undefined>;
-    option<U>(this: Parser<T>, value: U): Parser<T | U>;
+    option<const U>(this: Parser<T>, value: U): Parser<T | U>;
     option<U>(this: Parser<T>, value?: U): Parser<T | U> {
         return new Parser<T | U>((state, context) => {
             return this.run(state, context) ?? updateState(state, value as U);
