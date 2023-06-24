@@ -8,10 +8,6 @@ export const string = <const T extends string>(string: T): Parser<T> => {
             context.addError(state.i);
             return null;
         }
-        if (state.i + string.length > context.src.length) {
-            context.addError(state.i, error.expected(string));
-            return null;
-        }
         const slice = context.src.slice(state.i, state.i + string.length);
         if (slice !== string) {
             context.addError(state.i, error.expected(string));
