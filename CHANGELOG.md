@@ -6,6 +6,10 @@
 - Added `Parser.prototype.apply`
 - Added `many`
 - Added `manyAccum`
+- Added `string`
+- Added `graphemeString`
+- Added `CODE_POINT`
+- Added `ANY_CHAR`
 
 ### Changed
 - Change default for `Parser.prototype.option` to undefined.
