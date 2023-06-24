@@ -1,5 +1,6 @@
-import { MAX_INT32, clamp, isArrayLike } from "emnorst";
+import { many, manyAccum } from "./combinator";
 import { Context, type Config, type Source } from "./context";
+import * as error from "./error";
 import { createParseResult, type ParseResult } from "./result";
 import { initState, updateState, type ParseState } from "./state";
 
@@ -14,14 +15,28 @@ export type ParseRunner<in T, out U> = (
 export class Parser<out T = unknown> {
     constructor(readonly run: ParseRunner<unknown, T>) {}
     parse(this: Parser<T>, source: Source, config: Config = {}): ParseResult<T> {
-        if (!isArrayLike(source)) {
-            throw new TypeError("source is not ArrayLike.");
-        }
         const context = new Context(source, config);
         const finalState = this.run(initState, context);
         return createParseResult(finalState, context);
     }
-    return<U>(this: Parser, value: U): Parser<U> {
+    apply<A extends readonly unknown[], R>(
+        this: Parser<T>,
+        f: (parser: Parser<T>, ...args: A) => Parser<R>,
+        ...args: A
+    ): Parser<R> {
+        return f(this, ...args);
+    }
+    label(this: Parser<T>, label: string): Parser<T> {
+        return new Parser((state, context) => {
+            const labelStart = context.group();
+            const newState = this.run(state, context);
+            if (newState == null) {
+                context.addError(state.i, error.label(label, context.length(labelStart)));
+            }
+            return newState;
+        });
+    }
+    return<const U>(this: Parser, value: U): Parser<U> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
             return newState && updateState(newState, value);
@@ -79,42 +94,24 @@ export class Parser<out T = unknown> {
             return this.run(state, context) ?? parser.run(state, context);
         });
     }
-    option(this: Parser<T>): Parser<T | null>;
-    option<U>(this: Parser<T>, value: U): Parser<T | U>;
-    option<U = null>(this: Parser<T>, value: U = null as unknown as U): Parser<T | U> {
+    option(this: Parser<T>): Parser<T | undefined>;
+    option<const U>(this: Parser<T>, value: U): Parser<T | U>;
+    option<U>(this: Parser<T>, value?: U): Parser<T | U> {
         return new Parser<T | U>((state, context) => {
-            return this.run(state, context) ?? updateState(state, value);
+            return this.run(state, context) ?? updateState(state, value as U);
         });
     }
+    /** @deprecated Use instead `.apply(manyAccum)` */
     manyAccum<U>(
         this: Parser<T>,
         f: (accum: U, cur: T, config: Config) => U | void,
         init: (config: Config) => U,
         options?: { min?: number; max?: number },
     ): Parser<U> {
-        const clampedMin = clamp(options?.min || 0, 0, MAX_INT32) | 0;
-        const clampedMax = clamp(options?.max || MAX_INT32, clampedMin, MAX_INT32) | 0;
-
-        return new Parser((state, context) => {
-            let accum: U = init(context.cfg);
-            for (let i = 0; i < clampedMax; i++) {
-                const newState = this.run(state, context);
-                if (newState == null) {
-                    if (i < clampedMin) return null;
-                    break;
-                }
-                accum = f(accum, (state = newState).v, context.cfg) ?? accum;
-            }
-            return updateState(state, accum);
-        });
+        return manyAccum(this, f, init, options);
     }
+    /** @deprecated Use instead `.apply(many)` */
     many(this: Parser<T>, options?: { min?: number; max?: number }): Parser<T[]> {
-        return this.manyAccum<T[]>(
-            (array, value) => {
-                array.push(value);
-            },
-            () => [],
-            options,
-        );
+        return many(this, options);
     }
 }

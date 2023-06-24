@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`script 1`] = `
+{
+  "last": null,
+  "stats": [
+    {
+      "body": {
+        "last": {
+          "elements": [],
+          "type": "Tuple",
+        },
+        "stats": [
+          {
+            "expr": {
+              "arguments": [
+                {
+                  "type": "String",
+                  "value": "Hello world!",
+                },
+              ],
+              "callee": {
+                "name": "print",
+                "type": "Ident",
+              },
+              "type": "Call",
+            },
+            "type": "Expr",
+          },
+        ],
+        "type": "Block",
+      },
+      "name": "main",
+      "params": [],
+      "type": "DefFn",
+    },
+  ],
+  "type": "Block",
+}
+`;

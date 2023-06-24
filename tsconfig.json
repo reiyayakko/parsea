@@ -11,5 +11,6 @@
         "lib": ["ESNext"],
         "strict": true,
         "noEmit": true,
+        "stripInternal": true,
     },
 }

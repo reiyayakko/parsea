@@ -1,6 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
-import { choice, seq } from "./combinator";
+import { choice, many, seq } from "./combinator";
 import { el, pure } from "./primitive";
+import { expected } from "./error";
 
 describe("choice", () => {
     test("最初に成功した結果で成功", () => {
@@ -14,7 +15,11 @@ describe("choice", () => {
         for (const browser of browsers) {
             expect(parser.parse([browser])).toHaveProperty("value", browser);
         }
-        expect(parser.parse(["Internet Explorer"])).toHaveProperty("success", false);
+        expect(parser.parse(["Internet Explorer"])).toEqual({
+            success: false,
+            index: 0,
+            errors: browsers.map(browser => expected([browser])),
+        });
     });
 });
 
@@ -27,7 +32,7 @@ describe("seq", () => {
     });
     test("途中で失敗するとその時点で失敗", () => {
         const result = lucasNumberParser.parse([2, 1, 4, 4, 7]);
-        expect(result).toHaveProperty("success", false);
+        expect(result).toEqual({ success: false, index: 2, errors: [expected([3])] });
     });
     test("allowPartialで途中で失敗してもその時点までの結果で成功", () => {
         const parser = seq([1, 1, 2, 6, 24, 120].map(el), { allowPartial: true });
@@ -42,5 +47,26 @@ describe("seq", () => {
             value: [1, 1],
         });
         expect(parser.parse([])).toHaveProperty("value", []);
+    });
+});
+
+describe("many", () => {
+    test("empty", () => {
+        expect(many(el(1)).parse([])).toHaveProperty("value", []);
+    });
+    test("min", () => {
+        const parser = many(el(1), { min: 2 });
+        expect(parser.parse([1, 1])).toHaveProperty("value", [1, 1]);
+        expect(parser.parse([1, "1"])).toHaveProperty("success", false);
+        expect(parser.parse([1])).toHaveProperty("success", false);
+    });
+    test("max", () => {
+        const parser = many(el(1), { max: 2 });
+        expect(parser.parse([1, 1, 1, 1])).toHaveProperty("value", [1, 1]);
+        expect(parser.parse([1])).toHaveProperty("value", [1]);
+    });
+    test("min > max", () => {
+        const parser = many(el(1), { min: 3, max: 1 });
+        expect(parser.parse([1, 1, 1, 1])).toHaveProperty("value", [1, 1, 1]);
     });
 });

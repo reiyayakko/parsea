@@ -1,5 +1,6 @@
 import { describe, expect, jest, test } from "@jest/globals";
 import { ANY_EL, EOI, el, literal, pure, satisfy } from "./primitive";
+import { expected } from "./error";
 
 test("pure", () => {
     const symbol = Symbol("ID");
@@ -54,16 +55,21 @@ describe("satisfy", () => {
 
 describe("literal", () => {
     test("sourceが短いと失敗", () => {
-        expect(literal([2, 3, 5, 7, 11]).parse([2, 3, 5])).toHaveProperty(
-            "success",
-            false,
-        );
+        expect(literal("abc").parse("ab")).toEqual({
+            success: false,
+            index: 0,
+            errors: [expected("abc")],
+        });
     });
     test("空", () => {
         expect(literal([]).parse([])).toHaveProperty("value", []);
     });
     test("違う要素で失敗", () => {
-        expect(literal("ふんいき").parse("ふいんき")).toHaveProperty("success", false);
+        expect(literal("ふんいき").parse("ふいんき")).toEqual({
+            success: false,
+            index: 0,
+            errors: [expected("ふんいき")],
+        });
     });
     test("SameValueZeroで判定", () => {
         const parser = literal(["hoge", NaN, -0]);

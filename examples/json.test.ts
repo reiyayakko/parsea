@@ -19,12 +19,14 @@ describe("JSON", () => {
             value: JSON.parse(json),
         });
     });
+
     test("number parsing to fail..", () => {
         expect(jsonParser.parse("00")).toHaveProperty("success", false);
         expect(jsonParser.parse("- 0")).toHaveProperty("success", false);
         expect(jsonParser.parse("0.")).toHaveProperty("success", false);
         expect(jsonParser.parse(".0")).toHaveProperty("success", false);
     });
+
     test.each([
         ['"'],
         ["\\"],

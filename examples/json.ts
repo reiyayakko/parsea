@@ -1,10 +1,10 @@
 import type { JsonValue } from "emnorst";
-import { EOI, choice, el, lazy, literal, qo, regex, type Parser } from "../src";
+import { EOI, choice, el, lazy, literal, many, qo, regex, type Parser } from "../src";
 
 const sepBy = <T>(parser: Parser<T>, sep: Parser) =>
     qo(perform => {
         const head = perform(parser);
-        const rest = perform(sep.then(parser).many());
+        const rest = perform(sep.then(parser).apply(many));
         return [head, ...rest];
     });
 
@@ -50,11 +50,12 @@ const number = regex(/-?(0|[1-9]\d*)(.\d+)?([Ee][-+]?\d+)?/).map(Number);
 
 const empty = ws.map<[]>(() => []);
 
-const array = sepBy(jsonValue, el(",")).or(empty).between(el("["), el("]"));
+const array = jsonValue.apply(sepBy, el(",")).or(empty).between(el("["), el("]"));
 
 const keyValue = string.between(ws).skip(el(":")).and(jsonValue);
 
-const object = sepBy(keyValue, el(","))
+const object = keyValue
+    .apply(sepBy, el(","))
     .or(empty)
     .between(el("{"), el("}"))
     .map<Record<string, JsonValue>>(Object.fromEntries);

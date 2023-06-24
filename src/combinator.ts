@@ -1,4 +1,5 @@
-import * as error from "./error";
+import { MAX_INT32, clamp } from "emnorst";
+import type { Config } from ".";
 import { Parser, type Parsed } from "./parser";
 import { updateState, type ParseState } from "./state";
 
@@ -21,7 +22,7 @@ export const notFollowedBy = (parser: Parser): Parser =>
         if (newState == null) {
             return state;
         }
-        context.addError(error.unknown(state.i));
+        context.addError(state.i);
         return null;
     });
 
@@ -70,3 +71,40 @@ export const choice = <T extends readonly Parser[] | []>(parsers: T): Choice<T> 
         }
         return null;
     });
+
+export const manyAccum = <T, U>(
+    parser: Parser<T>,
+    f: (accum: U, cur: T, config: Config) => U | void,
+    init: (config: Config) => U,
+    options?: { min?: number; max?: number },
+): Parser<U> => {
+    const clampedMin = clamp(options?.min || 0, 0, MAX_INT32) | 0;
+    const clampedMax = clamp(options?.max || MAX_INT32, clampedMin, MAX_INT32) | 0;
+
+    return new Parser((state, context) => {
+        let accum: U = init(context.cfg);
+        for (let i = 0; i < clampedMax; i++) {
+            const newState = parser.run(state, context);
+            if (newState == null) {
+                if (i < clampedMin) return null;
+                break;
+            }
+            accum = f(accum, (state = newState).v, context.cfg) ?? accum;
+        }
+        return updateState(state, accum);
+    });
+};
+
+export const many = <T>(
+    parser: Parser<T>,
+    options?: { min?: number; max?: number },
+): Parser<T[]> => {
+    return manyAccum<T, T[]>(
+        parser,
+        (array, value) => {
+            array.push(value);
+        },
+        () => [],
+        options,
+    );
+};
