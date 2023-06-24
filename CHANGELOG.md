@@ -2,14 +2,18 @@
 # Change Log
 
 ## [Unreleased]
+
+## [0.8.0] - 2023-06-24
 ### Added
 - Added `Parser.prototype.apply`
+- Added `Parser.prototype.label`
 - Added `many`
 - Added `manyAccum`
 - Added `string`
 - Added `graphemeString`
 - Added `CODE_POINT`
 - Added `ANY_CHAR`
+- Added `index` and `errors` properties to FailureParseResult.
 
 ### Changed
 - Change default for `Parser.prototype.option` to undefined.
