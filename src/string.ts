@@ -110,14 +110,19 @@ export const ANY_CHAR = /* @__PURE__ */ new Parser<string, string>((state, conte
 });
 
 export const regexGroup = (re: RegExp): Parser<RegExpExecArray, string> => {
-    const fixedRegex = new RegExp(`^(?:${re.source})`, re.flags.replace("g", ""));
+    let flags = re.flags.replace("g", "");
+    if (!re.sticky) {
+        flags += "y";
+    }
+    const fixedRegex = new RegExp(re, flags);
 
     return new Parser((state, context) => {
         if (typeof context.src !== "string") {
             context.addError(state.i);
             return null;
         }
-        const matchResult = fixedRegex.exec(context.src.slice(state.i));
+        fixedRegex.lastIndex = state.i;
+        const matchResult = fixedRegex.exec(context.src);
         if (matchResult === null) {
             context.addError(state.i);
             return null;
