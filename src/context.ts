@@ -9,8 +9,8 @@ export interface Config {
     readonly [key: string]: unknown;
 }
 
-export class Context {
-    constructor(readonly src: Source, readonly cfg: Config) {
+export class Context<out T = unknown> {
+    constructor(readonly src: ArrayLike<T>, readonly cfg: Config) {
         if (!isArrayLike(src)) {
             throw new TypeError("source is not ArrayLike.");
         }

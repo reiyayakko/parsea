@@ -2,7 +2,7 @@ import * as error from "./error";
 import { Parser } from "./parser";
 import { updateState } from "./state";
 
-export const string = <const T extends string>(string: T): Parser<T> => {
+export const string = <const T extends string>(string: T): Parser<T, string> => {
     return new Parser((state, context) => {
         if (typeof context.src !== "string") {
             context.addError(state.i);
@@ -19,7 +19,7 @@ export const string = <const T extends string>(string: T): Parser<T> => {
 
 const graphemeSegmenter = /* @__PURE__ */ new Intl.Segmenter();
 
-export const graphemeString = (string: string): Parser<string> => {
+export const graphemeString = (string: string): Parser<string, string> => {
     const normalizedString = string.normalize();
     return new Parser((state, context) => {
         if (typeof context.src !== "string") {
@@ -60,7 +60,7 @@ export const graphemeString = (string: string): Parser<string> => {
     });
 };
 
-export const CODE_POINT = /* @__PURE__ */ new Parser((state, context) => {
+export const CODE_POINT = /* @__PURE__ */ new Parser<string, string>((state, context) => {
     if (typeof context.src !== "string") {
         context.addError(state.i);
         return null;
@@ -92,7 +92,7 @@ export const CODE_POINT = /* @__PURE__ */ new Parser((state, context) => {
     return updateState(state, context.src[state.i], 1);
 });
 
-export const ANY_CHAR = /* @__PURE__ */ new Parser((state, context) => {
+export const ANY_CHAR = /* @__PURE__ */ new Parser<string, string>((state, context) => {
     if (typeof context.src !== "string") {
         context.addError(state.i);
         return null;
@@ -109,7 +109,7 @@ export const ANY_CHAR = /* @__PURE__ */ new Parser((state, context) => {
     return updateState(state, segmentData.segment, segmentData.segment.length);
 });
 
-export const regexGroup = (re: RegExp): Parser<RegExpExecArray> => {
+export const regexGroup = (re: RegExp): Parser<RegExpExecArray, string> => {
     const fixedRegex = new RegExp(`^(?:${re.source})`, re.flags.replace("g", ""));
 
     return new Parser((state, context) => {
@@ -127,9 +127,12 @@ export const regexGroup = (re: RegExp): Parser<RegExpExecArray> => {
 };
 
 export const regex: {
-    (re: RegExp): Parser<string>;
-    (re: RegExp, groupId: number | string): Parser<string | undefined>;
-    <T>(re: RegExp, groupId: number | string, defaultValue: T): Parser<string | T>;
+    (re: RegExp): Parser<string, string>;
+    (re: RegExp, groupId: number | string): Parser<string | undefined, string>;
+    <T>(re: RegExp, groupId: number | string, defaultValue: T): Parser<
+        string | T,
+        string
+    >;
 } = (re: RegExp, groupId: number | string = 0, defaultValue?: undefined) =>
     regexGroup(re).map(
         matchResult =>

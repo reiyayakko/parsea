@@ -5,14 +5,16 @@ import { updateState } from "./state";
 
 const ParseaDoErrorSymbol = /* #__PURE__ */ Symbol();
 
-interface Perform {
-    <T>(parser: Parser<T>): T;
+export type Perform<S> = {
+    <T>(parser: Parser<T, S>): T;
     try<T>(runner: () => T, allowPartialCommit?: boolean): T | null;
-}
+};
 
-export const qo = <T>(runner: (perform: Perform, config: Config) => T): Parser<T> =>
+export const qo = <T, S>(
+    runner: (perform: Perform<S>, config: Config) => T,
+): Parser<T, S> =>
     new Parser((state, context) => {
-        const perform: Perform = parser => {
+        const perform: Perform<S> = parser => {
             const newState = parser.run(state, context);
             if (newState == null) {
                 throw { [ParseaDoErrorSymbol]: null };
