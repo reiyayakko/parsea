@@ -1,9 +1,9 @@
 import { describe, expect, test } from "@jest/globals";
-import { expr, stat } from "./script";
+import { expr, stmt } from "./script";
 
-describe("stat", () => {
+describe("stmt", () => {
     test("Let", () => {
-        const result = stat.parse("let hoge = 0;");
+        const result = stmt.parse("let hoge = 0;");
         expect(result.success && result.value).toEqual({
             type: "Let",
             name: "hoge",
@@ -12,17 +12,17 @@ describe("stat", () => {
     });
 
     test("DefFn", () => {
-        const result = stat.parse("fn main(arg) {};");
+        const result = stmt.parse("fn main(arg) {};");
         expect(result.success && result.value).toEqual({
             type: "DefFn",
             name: "main",
             params: ["arg"],
-            body: { type: "Block", stats: [], last: null },
+            body: { type: "Block", stmts: [], last: null },
         });
     });
 
     test("Return", () => {
-        const result = stat.parse("return;");
+        const result = stmt.parse("return;");
         expect(result.success && result.value).toEqual({
             type: "Return",
             body: null,
@@ -30,23 +30,23 @@ describe("stat", () => {
     });
 
     test("While", () => {
-        const result = stat.parse("while (false) {};");
+        const result = stmt.parse("while (false) {};");
         expect(result.success && result.value).toEqual({
             type: "While",
             test: { type: "Bool", value: false },
-            body: { type: "Block", stats: [], last: null },
+            body: { type: "Block", stmts: [], last: null },
         });
     });
 
     test("Break", () => {
-        const result = stat.parse("break;");
+        const result = stmt.parse("break;");
         expect(result.success && result.value).toEqual({
             type: "Break",
         });
     });
 
     test("Expr", () => {
-        const result = stat.parse("0;");
+        const result = stmt.parse("0;");
         expect(result.success && result.value).toEqual({
             type: "Expr",
             expr: { type: "Number", value: 0 },
@@ -127,15 +127,15 @@ describe("expr", () => {
             const result = expr.parse("{}");
             expect(result.success && result.value).toEqual({
                 type: "Block",
-                stats: [],
+                stmts: [],
                 last: null,
             });
         });
-        test("stats", () => {
+        test("stmts", () => {
             const result = expr.parse("{ 0; }");
             expect(result.success && result.value).toEqual({
                 type: "Block",
-                stats: [{ type: "Expr", expr: { type: "Number", value: 0 } }],
+                stmts: [{ type: "Expr", expr: { type: "Number", value: 0 } }],
                 last: null,
             });
         });
@@ -143,7 +143,7 @@ describe("expr", () => {
             const result = expr.parse("{ 0 }");
             expect(result.success && result.value).toEqual({
                 type: "Block",
-                stats: [],
+                stmts: [],
                 last: { type: "Number", value: 0 },
             });
         });
@@ -155,7 +155,7 @@ describe("expr", () => {
             expect(result.success && result.value).toEqual({
                 type: "If",
                 test: { type: "Bool", value: true },
-                then: { type: "Block", stats: [], last: null },
+                then: { type: "Block", stmts: [], last: null },
                 else: null,
             });
         });

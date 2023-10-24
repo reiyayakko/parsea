@@ -5,7 +5,7 @@ export type Expr =
     | { type: "Number"; value: number }
     | { type: "String"; value: string }
     | { type: "Tuple"; elements: readonly Expr[] }
-    | { type: "Block"; stats: Stat[]; last: Expr | null }
+    | { type: "Block"; stmts: Stmt[]; last: Expr | null }
     | { type: "If"; test: Expr; then: Expr; else: Expr | null }
     | { type: "Ident"; name: string }
     | { type: "Call"; callee: Expr; arguments: readonly Expr[] }
@@ -39,7 +39,7 @@ const keyword = (keyword: string): P.Parser<unknown, string> => {
 
 const Ident = P.regex(/\w+/).map(name => ({ type: "Ident", name }) satisfies Expr);
 
-export type Stat =
+export type Stmt =
     | { type: "Let"; name: string; init: Expr }
     | { type: "DefFn"; name: string; params: readonly string[]; body: Expr }
     | { type: "Return"; body: Expr | null }
@@ -50,7 +50,7 @@ export type Stat =
 const Let = keyword("let")
     .then(Ident.between(ws))
     .skip(P.el("="))
-    .andMap(expr, ({ name }, init): Stat => ({ type: "Let", name, init }));
+    .andMap(expr, ({ name }, init): Stmt => ({ type: "Let", name, init }));
 
 const DefFn = P.seq([
     keyword("fn").then(Ident.between(ws)),
@@ -60,7 +60,7 @@ const DefFn = P.seq([
         .between(P.el("("), P.el(")"))
         .map(nodes => nodes.map(node => node.name)),
     expr,
-]).map<Stat>(([{ name }, params, body]) => ({
+]).map<Stmt>(([{ name }, params, body]) => ({
     type: "DefFn",
     name,
     params,
@@ -70,18 +70,18 @@ const DefFn = P.seq([
 const Return = keyword("return")
     .then(expr.option(null))
     .skip(ws)
-    .map<Stat>(body => ({ type: "Return", body }));
+    .map<Stmt>(body => ({ type: "Return", body }));
 
 const While = keyword("while")
     .skip(ws)
     .then(expr.between(P.el("("), P.el(")")))
-    .andMap(expr, (test, body): Stat => ({ type: "While", test, body }));
+    .andMap(expr, (test, body): Stmt => ({ type: "While", test, body }));
 
-const Break = keyword("break").return<Stat>({ type: "Break" }).skip(ws);
+const Break = keyword("break").return<Stmt>({ type: "Break" }).skip(ws);
 
-const Expr = expr.map<Stat>(expr => ({ type: "Expr", expr }));
+const Expr = expr.map<Stmt>(expr => ({ type: "Expr", expr }));
 
-export const stat: P.Parser<Stat, string> = P.choice([
+export const stmt: P.Parser<Stmt, string> = P.choice([
     Let,
     DefFn,
     Return,
@@ -126,10 +126,10 @@ const Tuple = expr
     .between(P.el("("), P.el(")"))
     .map(elements => ({ type: "Tuple", elements }) satisfies Expr);
 
-const Block = stat
+const Block = stmt
     .apply(P.many)
-    .andMap(expr.option(null), (stats, last) => {
-        return { type: "Block", stats, last } satisfies Expr;
+    .andMap(expr.option(null), (stmts, last) => {
+        return { type: "Block", stmts, last } satisfies Expr;
     })
     .skip(ws)
     .between(P.el("{"), P.el("}"));
