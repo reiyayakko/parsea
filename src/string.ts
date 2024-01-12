@@ -139,5 +139,6 @@ export const regex: {
         matchResult =>
             (typeof groupId === "number"
                 ? matchResult[groupId]
-                : matchResult.groups?.[groupId]!) ?? defaultValue,
+                : // biome-ignore lint/style/noNonNullAssertion: overrideのため
+                  matchResult.groups?.[groupId]!) ?? defaultValue,
     );
