@@ -7,13 +7,11 @@ import { type ParseState, updateState } from "./state";
  * Delays variable references until the parser runs.
  */
 export const lazy = <T, S>(getParser: () => Parser<T, S>): Parser<T, S> => {
-    let parser: Parser<T, S>;
-    return new Parser((state, context) => {
-        if (parser == null) {
-            parser = getParser();
-        }
-        return parser.run(state, context);
+    const lazyParser: Parser<T, S> = new Parser((state, context) => {
+        // @ts-expect-error readonly
+        return (lazyParser.run = getParser().run)(state, context);
     });
+    return lazyParser;
 };
 
 export const notFollowedBy = <S>(parser: Parser<unknown, S>): Parser<unknown, S> =>
