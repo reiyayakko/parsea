@@ -23,34 +23,35 @@
     }
   },
   "scripts": {
-    "watch": "tsup --watch",
     "build": "tsup",
     "test": "jest",
     "coverage": "jest --coverage",
-    "fmt:check": "prettier **/*.ts -c",
-    "fmt": "prettier **/*.ts -w"
+    "format": "biome format .",
+    "lint": "biome lint .",
+    "check": "biome check ."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rizzzse/parsea.git"
+    "url": "git+https://github.com/uzmoi/parsea.git"
   },
   "keywords": [
     "parsing"
   ],
-  "author": "rizzzse <rizzzse@gmail.com> (https://github.com/rizzzse)",
+  "author": "uzmoi",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rizzzse/parsea/issues"
+    "url": "https://github.com/uzmoi/parsea/issues"
   },
-  "homepage": "https://github.com/rizzzse/parsea#readme",
+  "homepage": "https://github.com/uzmoi/parsea#readme",
   "dependencies": {
     "emnorst": "^1.0.0-next.2"
   },
   "devDependencies": {
-    "@swc/jest": "^0.2.26",
-    "jest": "^29.5.0",
-    "prettier": "^2.8.8",
-    "tsup": "^6.7.0",
-    "typescript": "^5.0.4"
+    "@biomejs/biome": "^1.5.1",
+    "@swc/jest": "^0.2.29",
+    "jest": "^29.7.0",
+    "lefthook": "^1.5.6",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
   }
 }

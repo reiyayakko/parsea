@@ -27,11 +27,10 @@ export const createParseResult = <T>(
             index: error.index,
             errors: error.errors,
         };
-    } else {
-        return {
-            success: true,
-            index: finalState.i,
-            value: finalState.v,
-        };
     }
+    return {
+        success: true,
+        index: finalState.i,
+        value: finalState.v,
+    };
 };

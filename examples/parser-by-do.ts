@@ -1,4 +1,4 @@
-import { qo, type Config, type Parser } from "../src";
+import { type Config, type Parser, qo } from "../src";
 
 // For simplicity, the behavior may differ in a few cases.
 
@@ -13,7 +13,10 @@ const flatMap = <T, U, S>(
 ) => qo<U, S>((perform, config) => perform(f(perform(parser), config)));
 
 const and = <T, S>(left: Parser<unknown, S>, right: Parser<T, S>) =>
-    qo<T, S>(perform => (perform(left), perform(right)));
+    qo<T, S>(perform => {
+        perform(left);
+        return perform(right);
+    });
 
 const skip = <T, S>(left: Parser<T, S>, right: Parser<unknown, S>) =>
     qo<T, S>(perform => {

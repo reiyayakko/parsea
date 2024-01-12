@@ -6,7 +6,10 @@ export interface Config {
 }
 
 export class Context<out T = unknown> {
-    constructor(readonly src: ArrayLike<T>, readonly cfg: Config) {
+    constructor(
+        readonly src: ArrayLike<T>,
+        readonly cfg: Config,
+    ) {
         if (!isArrayLike(src)) {
             throw new TypeError("source is not ArrayLike.");
         }

@@ -1,0 +1,6 @@
+
+[pre-commit]
+parallel = true
+
+[pre-commit.commands.check]
+run = "npx biome check --no-errors-on-unmatched {staged_files}"

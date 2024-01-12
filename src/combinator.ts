@@ -1,7 +1,7 @@
 import { MAX_INT32, clamp } from "emnorst";
 import type { Config } from ".";
-import { Parser, type Parsed, type Source } from "./parser";
-import { updateState, type ParseState } from "./state";
+import { type Parsed, Parser, type Source } from "./parser";
+import { type ParseState, updateState } from "./state";
 
 /**
  * Delays variable references until the parser runs.

@@ -37,7 +37,7 @@ const keyword = (keyword: string): P.Parser<unknown, string> => {
     return P.literal(keyword).then(P.notFollowedBy(P.regex(/\w/)));
 };
 
-const Ident = P.regex(/\w+/).map(name => ({ type: "Ident", name } satisfies Expr));
+const Ident = P.regex(/\w+/).map(name => ({ type: "Ident", name }) satisfies Expr);
 
 export type Stat =
     | { type: "Let"; name: string; init: Expr }
@@ -124,7 +124,7 @@ const Tuple = expr
     .apply(sepBy, P.el(","))
     .skip(ws)
     .between(P.el("("), P.el(")"))
-    .map(elements => ({ type: "Tuple", elements } satisfies Expr));
+    .map(elements => ({ type: "Tuple", elements }) satisfies Expr);
 
 const Block = stat
     .apply(P.many)

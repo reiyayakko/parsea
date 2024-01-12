@@ -171,7 +171,7 @@ describe("expr", () => {
     });
 
     test("tail", () => {
-        const result = expr.parse(`f(0)(1)`);
+        const result = expr.parse("f(0)(1)");
         expect(result.success && result.value).toEqual({
             type: "Call",
             callee: {

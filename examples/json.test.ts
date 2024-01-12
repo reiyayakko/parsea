@@ -8,10 +8,10 @@ describe("JSON", () => {
         " null ",
         " [ ] ",
         " [ null , 0 ] ",
-        ` {  } `,
+        " {  } ",
         ` { "1" : null , "2" : 0 } `,
         ...jsonNumbers,
-        ...jsonNumbers.map(jsonNumber => "-" + jsonNumber),
+        ...jsonNumbers.map(jsonNumber => `-${jsonNumber}`),
     ])("%o", json => {
         expect(jsonParser.parse(json)).toEqual({
             success: true,

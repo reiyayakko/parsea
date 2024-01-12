@@ -1,6 +1,6 @@
 import { describe, expect, jest, test } from "@jest/globals";
-import { ANY_EL, EOI, el, literal, pure, satisfy } from "./primitive";
 import { expected } from "./error";
+import { ANY_EL, EOI, el, literal, pure, satisfy } from "./primitive";
 
 test("pure", () => {
     const symbol = Symbol("ID");
