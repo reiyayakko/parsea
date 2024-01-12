@@ -1,8 +1,8 @@
 import { many, manyAccum } from "./combinator";
-import { Context, type Config } from "./context";
+import { type Config, Context } from "./context";
 import * as error from "./error";
-import { createParseResult, type ParseResult } from "./result";
-import { initState, updateState, type ParseState } from "./state";
+import { type ParseResult, createParseResult } from "./result";
+import { type ParseState, initState, updateState } from "./state";
 
 export type Parsed<T> = T extends Parser<infer U> ? U : never;
 

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import { choice, many, seq } from "./combinator";
-import { el, pure } from "./primitive";
 import { expected } from "./error";
+import { el, pure } from "./primitive";
 
 describe("choice", () => {
     test("最初に成功した結果で成功", () => {
