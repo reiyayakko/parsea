@@ -32,17 +32,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rizzzse/parsea.git"
+    "url": "git+https://github.com/uzmoi/parsea.git"
   },
   "keywords": [
     "parsing"
   ],
-  "author": "rizzzse <rizzzse@gmail.com> (https://github.com/rizzzse)",
+  "author": "uzmoi",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rizzzse/parsea/issues"
+    "url": "https://github.com/uzmoi/parsea/issues"
   },
-  "homepage": "https://github.com/rizzzse/parsea#readme",
+  "homepage": "https://github.com/uzmoi/parsea#readme",
   "dependencies": {
     "emnorst": "^1.0.0-next.2"
   },
