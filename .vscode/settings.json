@@ -5,4 +5,7 @@
     "quickfix.biome": "always",
     "source.organizeImports.biome": "always",
   },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
 }
