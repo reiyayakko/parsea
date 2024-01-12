@@ -7,6 +7,12 @@ on:
   workflow_dispatch:
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: biomejs/setup-biome@v2
+      - run: biome ci .
   test:
     runs-on: ubuntu-latest
     steps:
@@ -17,7 +23,6 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run check
       - run: npm run coverage
 
       - name: Upload coverage to Codecov
