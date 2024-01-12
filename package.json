@@ -23,7 +23,6 @@
     }
   },
   "scripts": {
-    "watch": "tsup --watch",
     "build": "tsup",
     "test": "jest",
     "coverage": "jest --coverage",
