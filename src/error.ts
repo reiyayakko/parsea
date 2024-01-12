@@ -1,10 +1,8 @@
-import type { Source } from "./context";
-
 export type ParseError =
-    | { type: "Expected"; value: Source }
+    | { type: "Expected"; value: ArrayLike<unknown> }
     | { type: "Label"; name: string; length: number };
 
-export const expected = (value: Source): ParseError => ({
+export const expected = (value: ArrayLike<unknown>): ParseError => ({
     type: "Expected",
     value,
 });

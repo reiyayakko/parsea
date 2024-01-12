@@ -4,50 +4,52 @@ import { qo, type Config, type Parser } from "../src";
 
 const pure = <T>(value: T) => qo(() => value);
 
-const map = <T, U>(parser: Parser<T>, f: (value: T, config: Config) => U) =>
-    qo((perform, config) => f(perform(parser), config));
+const map = <T, U, S>(parser: Parser<T, S>, f: (value: T, config: Config) => U) =>
+    qo<U, S>((perform, config) => f(perform(parser), config));
 
-const flatMap = <T, U>(parser: Parser<T>, f: (value: T, config: Config) => Parser<U>) =>
-    qo((perform, config) => perform(f(perform(parser), config)));
+const flatMap = <T, U, S>(
+    parser: Parser<T, S>,
+    f: (value: T, config: Config) => Parser<U, S>,
+) => qo<U, S>((perform, config) => perform(f(perform(parser), config)));
 
-const and = <T>(left: Parser, right: Parser<T>) =>
-    qo(perform => (perform(left), perform(right)));
+const and = <T, S>(left: Parser<unknown, S>, right: Parser<T, S>) =>
+    qo<T, S>(perform => (perform(left), perform(right)));
 
-const skip = <T>(left: Parser<T>, right: Parser) =>
-    qo(perform => {
+const skip = <T, S>(left: Parser<T, S>, right: Parser<unknown, S>) =>
+    qo<T, S>(perform => {
         const leftValue = perform(left);
         perform(right);
         return leftValue;
     });
 
-const between = <T>(parser: Parser<T>, pre: Parser, post = pre): Parser<T> =>
-    qo(perform => {
+const between = <T, S>(parser: Parser<T, S>, pre: Parser<unknown, S>, post = pre) =>
+    qo<T, S>(perform => {
         perform(pre);
         const value = perform(parser);
         perform(post);
         return value;
     });
 
-const or = <T, U>(left: Parser<T>, right: Parser<U>) =>
-    qo(perform => {
+const or = <T, U, S>(left: Parser<T, S>, right: Parser<U, S>) =>
+    qo<T | U, S>(perform => {
         const leftResult = perform.try(() => ({
             value: perform(left),
         }));
         return leftResult ? leftResult.value : perform(right);
     });
 
-const option = <T, U>(parser: Parser<T>, value: U) =>
-    qo(perform => {
+const option = <T, U, S>(parser: Parser<T, S>, value: U) =>
+    qo<T | U, S>(perform => {
         const result = perform.try(() => ({
             value: perform(parser),
         }));
         return result ? result.value : value;
     });
 
-const seq = <T>(
-    parsers: readonly Parser<T>[],
+const seq = <T, S>(
+    parsers: readonly Parser<T, S>[],
     options?: { allowPartial?: boolean },
-): Parser<T[]> =>
+): Parser<T[], S> =>
     qo(perform => {
         const accum: T[] = [];
         const fullSeq = () => {
@@ -63,7 +65,7 @@ const seq = <T>(
         return accum;
     });
 
-const many = <T>(parser: Parser<T>): Parser<T[]> =>
+const many = <T, S>(parser: Parser<T, S>): Parser<T[], S> =>
     qo(perform => {
         const xs: T[] = [];
         perform.try(() => {

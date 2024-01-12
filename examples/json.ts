@@ -1,8 +1,8 @@
 import type { JsonValue } from "emnorst";
 import { EOI, choice, el, lazy, literal, many, qo, regex, type Parser } from "../src";
 
-const sepBy = <T>(parser: Parser<T>, sep: Parser) =>
-    qo(perform => {
+const sepBy = <T>(parser: Parser<T, string>, sep: Parser<unknown, string>) =>
+    qo<T[], string>(perform => {
         const head = perform(parser);
         const rest = perform(sep.then(parser).apply(many));
         return [head, ...rest];
@@ -12,7 +12,7 @@ const sepBy = <T>(parser: Parser<T>, sep: Parser) =>
 
 const ws = regex(/[ \n\r\t]*/);
 
-const jsonValue: Parser<JsonValue> = lazy(() =>
+const jsonValue: Parser<JsonValue, string> = lazy(() =>
     choice([
         object,
         array,

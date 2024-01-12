@@ -11,11 +11,14 @@ export type Expr =
     | { type: "Call"; callee: Expr; arguments: readonly Expr[] }
     | { type: "Property"; target: Expr; name: string };
 
-export const expr: P.Parser<Expr> = P.lazy(() =>
+export const expr: P.Parser<Expr, string> = P.lazy(() =>
     P.choice([Bool, Number, String, Tuple, Block, If, Ident]).between(ws).flatMap(tail),
 );
 
-const sepBy = <T>(parser: P.Parser<T>, sep: P.Parser): P.Parser<T[]> => {
+const sepBy = <T, S>(
+    parser: P.Parser<T, S>,
+    sep: P.Parser<unknown, S>,
+): P.Parser<T[], S> => {
     return P.qo(perform => {
         const xs: T[] = [];
         perform.try(() => {
@@ -30,7 +33,7 @@ const sepBy = <T>(parser: P.Parser<T>, sep: P.Parser): P.Parser<T[]> => {
 
 const ws = P.regex(/\s*/);
 
-const keyword = (keyword: string): P.Parser => {
+const keyword = (keyword: string): P.Parser<unknown, string> => {
     return P.literal(keyword).then(P.notFollowedBy(P.regex(/\w/)));
 };
 
@@ -78,7 +81,14 @@ const Break = keyword("break").return<Stat>({ type: "Break" }).skip(ws);
 
 const Expr = expr.map<Stat>(expr => ({ type: "Expr", expr }));
 
-export const stat: P.Parser<Stat> = P.choice([Let, DefFn, Return, While, Break, Expr])
+export const stat: P.Parser<Stat, string> = P.choice([
+    Let,
+    DefFn,
+    Return,
+    While,
+    Break,
+    Expr,
+])
     .skip(P.el(";"))
     .between(ws);
 
@@ -89,7 +99,7 @@ const Bool = P.choice([
 
 const digit = P.oneOf("0123456789");
 const digits = digit.apply(
-    P.manyAccum<string, string>,
+    P.manyAccum<string, string, string>,
     (accum, digit) => accum + digit,
     () => "",
     { min: 1 },
@@ -140,8 +150,11 @@ const If = P.seq([
 const tail = (expr: Expr) =>
     P.choice([Call, Property])
         .skip(ws)
-        .apply(P.many)
-        .map(tails => tails.reduce((expr, tail) => tail(expr), expr));
+        .apply(
+            P.manyAccum<(callee: Expr) => Expr, Expr, string>,
+            (expr, tail) => tail(expr),
+            () => expr,
+        );
 
 const Call = Tuple.map<(callee: Expr) => Expr>(({ elements }) => callee => ({
     type: "Call",

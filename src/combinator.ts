@@ -1,13 +1,13 @@
 import { MAX_INT32, clamp } from "emnorst";
 import type { Config } from ".";
-import { Parser, type Parsed } from "./parser";
+import { Parser, type Parsed, type Source } from "./parser";
 import { updateState, type ParseState } from "./state";
 
 /**
  * Delays variable references until the parser runs.
  */
-export const lazy = <T>(getParser: () => Parser<T>): Parser<T> => {
-    let parser: Parser<T>;
+export const lazy = <T, S>(getParser: () => Parser<T, S>): Parser<T, S> => {
+    let parser: Parser<T, S>;
     return new Parser((state, context) => {
         if (parser == null) {
             parser = getParser();
@@ -16,7 +16,7 @@ export const lazy = <T>(getParser: () => Parser<T>): Parser<T> => {
     });
 };
 
-export const notFollowedBy = (parser: Parser): Parser =>
+export const notFollowedBy = <S>(parser: Parser<unknown, S>): Parser<unknown, S> =>
     new Parser((state, context) => {
         const newState = parser.run(state, context);
         if (newState == null) {
@@ -26,7 +26,7 @@ export const notFollowedBy = (parser: Parser): Parser =>
         return null;
     });
 
-export const lookAhead = <T>(parser: Parser<T>): Parser<T> =>
+export const lookAhead = <T, S = unknown>(parser: Parser<T, S>): Parser<T, S> =>
     new Parser((state, context) => {
         const newState = parser.run(state, context);
         return newState && updateState(state, newState.v);
@@ -40,16 +40,16 @@ export const seq: {
     <T extends readonly Parser[] | []>(
         parsers: T,
         options?: { allowPartial?: false },
-    ): Parser<Seq<T>>;
+    ): Parser<Seq<T>, Source<T[number]>>;
     <T extends readonly Parser[] | []>(
         parsers: T,
         options: { allowPartial: boolean },
-    ): Parser<Partial<Seq<T>>>;
+    ): Parser<Partial<Seq<T>>, Source<T[number]>>;
 } = (parsers, options) =>
     new Parser((state, context) => {
         const values: unknown[] = [];
         for (const parser of parsers) {
-            const newState = parser.run(state, context);
+            const newState = parser.run(state, context as never);
             if (newState == null) {
                 if (options?.allowPartial) break;
                 return null;
@@ -59,12 +59,12 @@ export const seq: {
         return updateState(state, values);
     });
 
-type Choice<T extends readonly Parser[]> = Parser<Parsed<T[number]>>;
+type Choice<T extends readonly Parser[]> = Parser<Parsed<T[number]>, Source<T[number]>>;
 
 export const choice = <T extends readonly Parser[] | []>(parsers: T): Choice<T> =>
     new Parser((state, context) => {
         for (const parser of parsers) {
-            const newState = parser.run(state, context);
+            const newState = parser.run(state, context as never);
             if (newState != null) {
                 return newState as ParseState<Parsed<T[number]>>;
             }
@@ -72,12 +72,12 @@ export const choice = <T extends readonly Parser[] | []>(parsers: T): Choice<T> 
         return null;
     });
 
-export const manyAccum = <T, U>(
-    parser: Parser<T>,
+export const manyAccum = <T, U, S>(
+    parser: Parser<T, S>,
     f: (accum: U, cur: T, config: Config) => U | void,
     init: (config: Config) => U,
     options?: { min?: number; max?: number },
-): Parser<U> => {
+): Parser<U, S> => {
     const clampedMin = clamp(options?.min || 0, 0, MAX_INT32) | 0;
     const clampedMax = clamp(options?.max || MAX_INT32, clampedMin, MAX_INT32) | 0;
 
@@ -95,11 +95,11 @@ export const manyAccum = <T, U>(
     });
 };
 
-export const many = <T>(
-    parser: Parser<T>,
+export const many = <T, S>(
+    parser: Parser<T, S>,
     options?: { min?: number; max?: number },
-): Parser<T[]> => {
-    return manyAccum<T, T[]>(
+): Parser<T[], S> => {
+    return manyAccum<T, T[], S>(
         parser,
         (array, value) => {
             array.push(value);
