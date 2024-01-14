@@ -140,10 +140,11 @@ export const regex: {
         defaultValue: T,
     ): Parser<string | T, string>;
 } = (re: RegExp, groupId: number | string = 0, defaultValue?: undefined) =>
-    regexGroup(re).map(
-        matchResult =>
-            (typeof groupId === "number"
+    regexGroup(re).map(matchResult => {
+        const groupValue =
+            typeof groupId === "number"
                 ? matchResult[groupId]
                 : // biome-ignore lint/style/noNonNullAssertion: overrideのため
-                  matchResult.groups?.[groupId]!) ?? defaultValue,
-    );
+                  matchResult.groups?.[groupId]!;
+        return groupValue ?? defaultValue;
+    });
