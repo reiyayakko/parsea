@@ -20,11 +20,8 @@ describe("JSON", () => {
         });
     });
 
-    test("number parsing to fail..", () => {
-        expect(jsonParser.parse("00")).toHaveProperty("success", false);
-        expect(jsonParser.parse("- 0")).toHaveProperty("success", false);
-        expect(jsonParser.parse("0.")).toHaveProperty("success", false);
-        expect(jsonParser.parse(".0")).toHaveProperty("success", false);
+    test.each(["00", "- 0", "0.", ".0"])("%o is invalid json.", n => {
+        expect(jsonParser.parse(n)).toHaveProperty("success", false);
     });
 
     test.each([

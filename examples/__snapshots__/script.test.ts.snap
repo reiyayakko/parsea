@@ -3,14 +3,14 @@
 exports[`script 1`] = `
 {
   "last": null,
-  "stats": [
+  "stmts": [
     {
       "body": {
         "last": {
           "elements": [],
           "type": "Tuple",
         },
-        "stats": [
+        "stmts": [
           {
             "expr": {
               "arguments": [

@@ -3,6 +3,10 @@
 
 ## [Unreleased]
 
+## [0.9.0] - 2024-01-16
+### Changed
+- Add source type parameter to `Parser`.
+
 ## [0.8.0] - 2023-06-24
 ### Added
 - Added `Parser.prototype.apply`
