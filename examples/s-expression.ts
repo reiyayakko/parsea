@@ -11,6 +11,6 @@ export const SExpression: Parser<SExpression, string> = choice([
         .option()
         .and(list)
         .map(([quote, list]) => (quote ? ["quote", ...list] : list)),
-    regex(/"([^"]|\\.)*"/),
+    regex(/"([^"\\]|\\.)*"/),
     regex(/[^\s()"]+/),
 ]).between(regex(/\s*/));
