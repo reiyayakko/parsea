@@ -49,21 +49,11 @@ const option = <T, U, S>(parser: Parser<T, S>, value: U) =>
         return result ? result.value : value;
     });
 
-const seq = <T, S>(
-    parsers: readonly Parser<T, S>[],
-    options?: { allowPartial?: boolean },
-): Parser<T[], S> =>
+const seq = <T, S>(parsers: readonly Parser<T, S>[]): Parser<T[], S> =>
     qo(perform => {
         const accum: T[] = [];
-        const fullSeq = () => {
-            for (const parser of parsers) {
-                accum.push(perform(parser));
-            }
-        };
-        if (options?.allowPartial) {
-            perform.try(fullSeq, true);
-        } else {
-            fullSeq();
+        for (const parser of parsers) {
+            accum.push(perform(parser));
         }
         return accum;
     });
@@ -72,7 +62,9 @@ const many = <T, S>(parser: Parser<T, S>): Parser<T[], S> =>
     qo(perform => {
         const xs: T[] = [];
         perform.try(() => {
-            for (;;) xs.push(perform(parser));
-        }, true);
+            for (;;) {
+                xs.push(perform(parser, { allowPartial: true }));
+            }
+        });
         return xs;
     });

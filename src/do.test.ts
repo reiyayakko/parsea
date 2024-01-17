@@ -41,13 +41,13 @@ describe("qo", () => {
             );
         }).parse(["hoge"]);
     });
-    test("try allowPartialCommit", () => {
+    test("try + allowPartial", () => {
         expect.assertions(2);
         qo(perform => {
             perform.try(() => {
                 expect(perform(ANY_EL)).toBe("hoge");
-                perform(fail());
-            }, true);
+                perform(fail(), { allowPartial: true });
+            });
             perform(
                 new Parser(state => {
                     expect(state).toHaveProperty("i", 1);

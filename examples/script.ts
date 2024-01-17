@@ -23,10 +23,10 @@ const sepBy = <T, S>(
         const xs: T[] = [];
         perform.try(() => {
             for (;;) {
-                xs.push(perform(parser));
-                perform(sep);
+                xs.push(perform(parser, { allowPartial: true }));
+                perform(sep, { allowPartial: true });
             }
-        }, true);
+        });
         return xs;
     });
 };
