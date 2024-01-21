@@ -20,9 +20,9 @@ const and = <T, S>(left: Parser<unknown, S>, right: Parser<T, S>) =>
 
 const skip = <T, S>(left: Parser<T, S>, right: Parser<unknown, S>) =>
     qo<T, S>(perform => {
-        const leftValue = perform(left);
+        const result = perform(left);
         perform(right);
-        return leftValue;
+        return result;
     });
 
 const between = <T, S>(parser: Parser<T, S>, pre: Parser<unknown, S>, post = pre) =>
@@ -35,9 +35,11 @@ const between = <T, S>(parser: Parser<T, S>, pre: Parser<unknown, S>, post = pre
 
 const or = <T, U, S>(left: Parser<T, S>, right: Parser<U, S>) =>
     qo<T | U, S>(perform => {
-        const symbol = Symbol();
-        const leftResult = perform.try(symbol, () => perform(left));
-        return leftResult === symbol ? perform(right) : leftResult;
+        const [success, result] = perform.try(
+            [false] as const,
+            () => [true, perform(left)] as const,
+        );
+        return success ? result : perform(right);
     });
 
 const option = <T, U, S>(parser: Parser<T, S>, defaultValue: U) =>
@@ -47,20 +49,16 @@ const option = <T, U, S>(parser: Parser<T, S>, defaultValue: U) =>
 
 const seq = <T, S>(parsers: readonly Parser<T, S>[]): Parser<T[], S> =>
     qo(perform => {
-        const accum: T[] = [];
-        for (const parser of parsers) {
-            accum.push(perform(parser));
-        }
-        return accum;
+        return parsers.map(parser => perform(parser));
     });
 
 const many = <T, S>(parser: Parser<T, S>): Parser<T[], S> =>
     qo(perform => {
-        const xs: T[] = [];
+        const result: T[] = [];
         perform.try(undefined, () => {
             for (;;) {
-                xs.push(perform(parser, { allowPartial: true }));
+                result.push(perform(parser, { allowPartial: true }));
             }
         });
-        return xs;
+        return result;
     });

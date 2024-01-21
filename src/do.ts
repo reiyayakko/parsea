@@ -3,7 +3,7 @@ import type { Config } from "./context";
 import { Parser } from "./parser";
 import { updateState } from "./state";
 
-const ParseaDoErrorSymbol = /* #__PURE__ */ Symbol();
+const doError = /* #__PURE__ */ Symbol("parsea.doError");
 
 export type PerformOptions = {
     allowPartial?: boolean;
@@ -21,7 +21,7 @@ export const qo = <T, S>(
         const perform: Perform<S> = (parser, options) => {
             const newState = parser.run(state, context);
             if (newState == null) {
-                throw { [ParseaDoErrorSymbol]: options };
+                throw { [doError]: options };
             }
             return (state = newState).v;
         };
@@ -30,11 +30,11 @@ export const qo = <T, S>(
             const beforeTryState = state;
             try {
                 return runner();
-            } catch (err) {
-                if (!has(err, ParseaDoErrorSymbol)) {
-                    throw err;
+            } catch (error) {
+                if (!has(error, doError)) {
+                    throw error;
                 }
-                const options = err[ParseaDoErrorSymbol] as PerformOptions | undefined;
+                const options = error[doError] as PerformOptions | undefined;
                 if (!options?.allowPartial) {
                     state = beforeTryState;
                 }

@@ -1,7 +1,6 @@
 import { describe, expect, test } from "@jest/globals";
 import { isInt32 } from "emnorst";
 import { qo } from "./do";
-import { Parser } from "./parser";
 import { ANY_EL, fail, satisfy } from "./primitive";
 
 describe("qo", () => {
@@ -27,33 +26,29 @@ describe("qo", () => {
         expect(parser.parse([20, 5])).toHaveProperty("success", false);
     });
     test("try", () => {
-        expect.assertions(2);
-        qo(perform => {
+        const parser = qo(perform => {
             perform.try(undefined, () => {
-                expect(perform(ANY_EL)).toBe("hoge");
+                perform(ANY_EL);
                 perform(fail());
             });
-            perform(
-                new Parser(state => {
-                    expect(state).toHaveProperty("i", 0);
-                    return null;
-                }),
-            );
-        }).parse(["hoge"]);
+        });
+        expect(parser.parse(["hoge"])).toEqual({
+            success: true,
+            index: 0,
+            value: undefined,
+        });
     });
     test("try + allowPartial", () => {
-        expect.assertions(2);
-        qo(perform => {
+        const parser = qo(perform => {
             perform.try(undefined, () => {
-                expect(perform(ANY_EL)).toBe("hoge");
+                perform(ANY_EL);
                 perform(fail(), { allowPartial: true });
             });
-            perform(
-                new Parser(state => {
-                    expect(state).toHaveProperty("i", 1);
-                    return null;
-                }),
-            );
-        }).parse(["hoge"]);
+        });
+        expect(parser.parse(["hoge"])).toEqual({
+            success: true,
+            index: 1,
+            value: undefined,
+        });
     });
 });
