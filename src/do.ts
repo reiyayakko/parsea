@@ -11,7 +11,7 @@ export type PerformOptions = {
 
 export type Perform<S> = {
     <T>(parser: Parser<T, S>, options?: PerformOptions): T;
-    try<T>(runner: () => T): T | null;
+    try<T, U>(defaultValue: T, runner: () => U): T | U;
 };
 
 export const qo = <T, S>(
@@ -26,7 +26,7 @@ export const qo = <T, S>(
             return (state = newState).v;
         };
 
-        perform.try = runner => {
+        perform.try = (defaultValue, runner) => {
             const beforeTryState = state;
             try {
                 return runner();
@@ -38,11 +38,11 @@ export const qo = <T, S>(
                 if (!options?.allowPartial) {
                     state = beforeTryState;
                 }
-                return null;
+                return defaultValue;
             }
         };
 
-        return perform.try(() => {
+        return perform.try(null, () => {
             const value = runner(perform, context.cfg);
             return updateState(state, value);
         });

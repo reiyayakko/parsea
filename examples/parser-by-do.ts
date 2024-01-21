@@ -35,18 +35,14 @@ const between = <T, S>(parser: Parser<T, S>, pre: Parser<unknown, S>, post = pre
 
 const or = <T, U, S>(left: Parser<T, S>, right: Parser<U, S>) =>
     qo<T | U, S>(perform => {
-        const leftResult = perform.try(() => ({
-            value: perform(left),
-        }));
-        return leftResult ? leftResult.value : perform(right);
+        const symbol = Symbol();
+        const leftResult = perform.try(symbol, () => perform(left));
+        return leftResult === symbol ? perform(right) : leftResult;
     });
 
-const option = <T, U, S>(parser: Parser<T, S>, value: U) =>
+const option = <T, U, S>(parser: Parser<T, S>, defaultValue: U) =>
     qo<T | U, S>(perform => {
-        const result = perform.try(() => ({
-            value: perform(parser),
-        }));
-        return result ? result.value : value;
+        return perform.try(defaultValue, () => perform(parser));
     });
 
 const seq = <T, S>(parsers: readonly Parser<T, S>[]): Parser<T[], S> =>
@@ -61,7 +57,7 @@ const seq = <T, S>(parsers: readonly Parser<T, S>[]): Parser<T[], S> =>
 const many = <T, S>(parser: Parser<T, S>): Parser<T[], S> =>
     qo(perform => {
         const xs: T[] = [];
-        perform.try(() => {
+        perform.try(undefined, () => {
             for (;;) {
                 xs.push(perform(parser, { allowPartial: true }));
             }

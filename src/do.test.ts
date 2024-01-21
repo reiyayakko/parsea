@@ -29,7 +29,7 @@ describe("qo", () => {
     test("try", () => {
         expect.assertions(2);
         qo(perform => {
-            perform.try(() => {
+            perform.try(undefined, () => {
                 expect(perform(ANY_EL)).toBe("hoge");
                 perform(fail());
             });
@@ -44,7 +44,7 @@ describe("qo", () => {
     test("try + allowPartial", () => {
         expect.assertions(2);
         qo(perform => {
-            perform.try(() => {
+            perform.try(undefined, () => {
                 expect(perform(ANY_EL)).toBe("hoge");
                 perform(fail(), { allowPartial: true });
             });
