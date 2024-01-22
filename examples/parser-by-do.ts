@@ -1,4 +1,4 @@
-import { type Config, type Parser, qo } from "../src";
+import { type Config, type Parser, qo } from "parsea";
 
 // For simplicity, the behavior may differ in a few cases.
 
