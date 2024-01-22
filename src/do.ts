@@ -47,3 +47,5 @@ export const qo = <T, S>(
             return updateState(state, value);
         });
     });
+
+export { qo as do_ };
