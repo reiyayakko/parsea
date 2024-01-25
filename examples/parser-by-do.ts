@@ -20,9 +20,9 @@ const and = <T, S>(left: Parser<unknown, S>, right: Parser<T, S>) =>
 
 const skip = <T, S>(left: Parser<T, S>, right: Parser<unknown, S>) =>
     qo<T, S>(perform => {
-        const leftValue = perform(left);
+        const result = perform(left);
         perform(right);
-        return leftValue;
+        return result;
     });
 
 const between = <T, S>(parser: Parser<T, S>, pre: Parser<unknown, S>, post = pre) =>
@@ -35,44 +35,30 @@ const between = <T, S>(parser: Parser<T, S>, pre: Parser<unknown, S>, post = pre
 
 const or = <T, U, S>(left: Parser<T, S>, right: Parser<U, S>) =>
     qo<T | U, S>(perform => {
-        const leftResult = perform.try(() => ({
-            value: perform(left),
-        }));
-        return leftResult ? leftResult.value : perform(right);
+        const [success, result] = perform.try(
+            [false] as const,
+            () => [true, perform(left)] as const,
+        );
+        return success ? result : perform(right);
     });
 
-const option = <T, U, S>(parser: Parser<T, S>, value: U) =>
+const option = <T, U, S>(parser: Parser<T, S>, defaultValue: U) =>
     qo<T | U, S>(perform => {
-        const result = perform.try(() => ({
-            value: perform(parser),
-        }));
-        return result ? result.value : value;
+        return perform.try(defaultValue, () => perform(parser));
     });
 
-const seq = <T, S>(
-    parsers: readonly Parser<T, S>[],
-    options?: { allowPartial?: boolean },
-): Parser<T[], S> =>
+const seq = <T, S>(parsers: readonly Parser<T, S>[]): Parser<T[], S> =>
     qo(perform => {
-        const accum: T[] = [];
-        const fullSeq = () => {
-            for (const parser of parsers) {
-                accum.push(perform(parser));
-            }
-        };
-        if (options?.allowPartial) {
-            perform.try(fullSeq, true);
-        } else {
-            fullSeq();
-        }
-        return accum;
+        return parsers.map(parser => perform(parser));
     });
 
 const many = <T, S>(parser: Parser<T, S>): Parser<T[], S> =>
     qo(perform => {
-        const xs: T[] = [];
-        perform.try(() => {
-            for (;;) xs.push(perform(parser));
-        }, true);
-        return xs;
+        const result: T[] = [];
+        perform.try(undefined, () => {
+            for (;;) {
+                result.push(perform(parser, { allowPartial: true }));
+            }
+        });
+        return result;
     });
