@@ -2,6 +2,13 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Added alias `do_` for `qo`.
+- Added `PerformOptions` type.
+
+### Changed
+- Moved option to rollback state if `perform.try` fails to `PerformOptions`.
+- Added defaultValue parameter to `perform.try`.
 
 ## [0.9.0] - 2024-01-16
 ### Changed

@@ -3,43 +3,49 @@ import type { Config } from "./context";
 import { Parser } from "./parser";
 import { updateState } from "./state";
 
-const ParseaDoErrorSymbol = /* #__PURE__ */ Symbol();
+const doError = /* #__PURE__ */ Symbol("parsea.doError");
+
+export type PerformOptions = {
+    allowPartial?: boolean;
+};
 
 export type Perform<S> = {
-    <T>(parser: Parser<T, S>): T;
-    try<T>(runner: () => T, allowPartialCommit?: boolean): T | null;
+    <T>(parser: Parser<T, S>, options?: PerformOptions): T;
+    try<T, U = T>(defaultValue: T, runner: () => U): T | U;
 };
 
 export const qo = <T, S>(
     runner: (perform: Perform<S>, config: Config) => T,
 ): Parser<T, S> =>
     new Parser((state, context) => {
-        const perform: Perform<S> = parser => {
+        const perform: Perform<S> = (parser, options) => {
             const newState = parser.run(state, context);
             if (newState == null) {
-                throw { [ParseaDoErrorSymbol]: null };
+                throw { [doError]: options };
             }
             return (state = newState).v;
         };
 
-        // !shouldRollbackState
-        perform.try = (runner, allowPartialCommit) => {
+        perform.try = (defaultValue, runner) => {
             const beforeTryState = state;
             try {
                 return runner();
-            } catch (err) {
-                if (!allowPartialCommit) {
+            } catch (error) {
+                if (!has(error, doError)) {
+                    throw error;
+                }
+                const options = error[doError] as PerformOptions | undefined;
+                if (!options?.allowPartial) {
                     state = beforeTryState;
                 }
-                if (has(err, ParseaDoErrorSymbol)) {
-                    return null;
-                }
-                throw err;
+                return defaultValue;
             }
         };
 
-        return perform.try(() => {
+        return perform.try(null, () => {
             const value = runner(perform, context.cfg);
             return updateState(state, value);
         });
     });
+
+export { qo as do_ };

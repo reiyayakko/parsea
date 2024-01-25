@@ -21,12 +21,12 @@ const sepBy = <T, S>(
 ): P.Parser<T[], S> => {
     return P.qo(perform => {
         const xs: T[] = [];
-        perform.try(() => {
+        perform.try(undefined, () => {
             for (;;) {
-                xs.push(perform(parser));
-                perform(sep);
+                xs.push(perform(parser, { allowPartial: true }));
+                perform(sep, { allowPartial: true });
             }
-        }, true);
+        });
         return xs;
     });
 };
