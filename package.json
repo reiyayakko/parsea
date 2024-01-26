@@ -28,7 +28,8 @@
     "coverage": "jest --coverage",
     "format": "biome format .",
     "lint": "biome lint .",
-    "check": "biome check ."
+    "check": "biome check .",
+    "spell": "cspell --no-progress ."
   },
   "repository": {
     "type": "git",
@@ -49,6 +50,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.5.3",
     "@swc/jest": "^0.2.31",
+    "cspell": "^8.3.2",
     "jest": "^29.7.0",
     "lefthook": "^1.6.1",
     "tsup": "^8.0.1",

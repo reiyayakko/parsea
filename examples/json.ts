@@ -32,6 +32,7 @@ const escapeTable = {
     t: "\t",
 };
 
+// cspell:ignore bfnrt
 const string = regex(/(?:\\(?:["\\/bfnrt]|u[0-9A-Fa-f]{4})|[^"\\])*/)
     .between(el('"'))
     .map(escapedString =>
