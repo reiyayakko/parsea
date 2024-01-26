@@ -60,7 +60,7 @@ export const graphemeString = (string: string): Parser<string, string> => {
     });
 };
 
-export const CODE_POINT = /* @__PURE__ */ new Parser<string, string>((state, context) => {
+export const codePoint = /* @__PURE__ */ new Parser<string, string>((state, context) => {
     if (typeof context.src !== "string") {
         context.addError(state.i);
         return null;
@@ -92,7 +92,7 @@ export const CODE_POINT = /* @__PURE__ */ new Parser<string, string>((state, con
     return updateState(state, context.src[state.i], 1);
 });
 
-export const ANY_CHAR = /* @__PURE__ */ new Parser<string, string>((state, context) => {
+export const anyChar = /* @__PURE__ */ new Parser<string, string>((state, context) => {
     if (typeof context.src !== "string") {
         context.addError(state.i);
         return null;

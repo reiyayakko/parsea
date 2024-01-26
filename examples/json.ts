@@ -1,5 +1,5 @@
 import type { JsonValue } from "emnorst";
-import { EOI, type Parser, choice, el, lazy, literal, many, qo, regex } from "parsea";
+import { type Parser, choice, el, eoi, lazy, literal, many, qo, regex } from "parsea";
 
 const sepBy = <T>(parser: Parser<T, string>, sep: Parser<unknown, string>) =>
     qo<T[], string>(perform => {
@@ -60,4 +60,4 @@ const object = keyValue
     .between(el("{"), el("}"))
     .map<Record<string, JsonValue>>(Object.fromEntries);
 
-export const jsonParser = jsonValue.skip(EOI);
+export const jsonParser = jsonValue.skip(eoi);

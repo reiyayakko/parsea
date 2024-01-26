@@ -19,7 +19,7 @@ export const fail = (): Parser<never, unknown> =>
 /**
  * end of input
  */
-export const EOI = /* #__PURE__ */ new Parser<unknown, unknown>((state, context) => {
+export const eoi = /* #__PURE__ */ new Parser<unknown, unknown>((state, context) => {
     if (state.i < context.src.length) {
         context.addError(state.i);
         return null;
@@ -30,10 +30,10 @@ export const EOI = /* #__PURE__ */ new Parser<unknown, unknown>((state, context)
 /**
  * Matches any element.
  *
- * @example any.parse([someValue]).value === someValue;
- * @example any.parse([]); // parse fail
+ * @example anyEl.parse([someValue]).value === someValue;
+ * @example anyEl.parse([]); // parse fail
  */
-export const ANY_EL = /* #__PURE__ */ new Parser<unknown, unknown>((state, context) => {
+export const anyEl = /* #__PURE__ */ new Parser<unknown, unknown>((state, context) => {
     if (state.i < context.src.length) {
         return updateState(state, context.src[state.i], 1);
     }

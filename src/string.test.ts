@@ -1,13 +1,6 @@
 import { describe, expect, test } from "@jest/globals";
 import { expected } from "./error";
-import {
-    ANY_CHAR,
-    CODE_POINT,
-    graphemeString,
-    regex,
-    regexGroup,
-    string,
-} from "./string";
+import { anyChar, codePoint, graphemeString, regex, regexGroup, string } from "./string";
 
 describe("string", () => {
     test("source type", () => {
@@ -64,41 +57,41 @@ describe("graphemeString", () => {
     });
 });
 
-describe("CODE_POINT", () => {
+describe("codePoint", () => {
     test("source type", () => {
-        expect(CODE_POINT.parse([])).toHaveProperty("success", false);
+        expect(codePoint.parse([])).toHaveProperty("success", false);
     });
     test("short source", () => {
-        expect(CODE_POINT.parse("")).toHaveProperty("success", false);
+        expect(codePoint.parse("")).toHaveProperty("success", false);
     });
     test("code unit", () => {
-        expect(CODE_POINT.parse("a")).toMatchObject({ success: true, value: "a" });
+        expect(codePoint.parse("a")).toMatchObject({ success: true, value: "a" });
     });
     test("surrogate pair", () => {
         const char = "🫠";
         expect(char).toHaveLength(2);
-        expect(CODE_POINT.parse(char)).toMatchObject({ success: true, value: char });
+        expect(codePoint.parse(char)).toMatchObject({ success: true, value: char });
     });
     test("high surrogate only", () => {
-        expect(CODE_POINT.parse("\ud83e")).toHaveProperty("success", false);
+        expect(codePoint.parse("\ud83e")).toHaveProperty("success", false);
     });
     test("high surrogate + non low surrogate", () => {
-        expect(CODE_POINT.parse("\ud83e?")).toHaveProperty("success", false);
+        expect(codePoint.parse("\ud83e?")).toHaveProperty("success", false);
     });
     test("low surrogate only", () => {
-        expect(CODE_POINT.parse("\udee0")).toHaveProperty("success", false);
+        expect(codePoint.parse("\udee0")).toHaveProperty("success", false);
     });
 });
 
-describe("ANY_CHAR", () => {
+describe("anyChar", () => {
     test("source type", () => {
-        expect(ANY_CHAR.parse([])).toHaveProperty("success", false);
+        expect(anyChar.parse([])).toHaveProperty("success", false);
     });
     test("short source", () => {
-        expect(ANY_CHAR.parse("")).toHaveProperty("success", false);
+        expect(anyChar.parse("")).toHaveProperty("success", false);
     });
     test.each(["a", "👍", "👨‍👩‍👧‍👦"])('"%s"は1文字', char => {
-        expect(ANY_CHAR.between(string("^"), string("$")).parse(`^${char}$`)).toEqual({
+        expect(anyChar.between(string("^"), string("$")).parse(`^${char}$`)).toEqual({
             success: true,
             index: char.length + 2,
             value: char,

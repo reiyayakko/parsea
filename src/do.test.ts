@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import { isInt32 } from "emnorst";
 import { qo } from "./do";
-import { ANY_EL, fail, satisfy } from "./primitive";
+import { anyEl, fail, satisfy } from "./primitive";
 
 describe("qo", () => {
     test("error", () => {
@@ -28,7 +28,7 @@ describe("qo", () => {
     test("try", () => {
         const parser = qo(perform => {
             perform.try(undefined, () => {
-                perform(ANY_EL);
+                perform(anyEl);
                 perform(fail());
             });
         });
@@ -41,7 +41,7 @@ describe("qo", () => {
     test("try + allowPartial", () => {
         const parser = qo(perform => {
             perform.try(undefined, () => {
-                perform(ANY_EL);
+                perform(anyEl);
                 perform(fail(), { allowPartial: true });
             });
         });

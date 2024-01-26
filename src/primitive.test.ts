@@ -1,30 +1,30 @@
 import { describe, expect, jest, test } from "@jest/globals";
 import { expected } from "./error";
-import { ANY_EL, EOI, el, literal, pure, satisfy } from "./primitive";
+import { anyEl, el, eoi, literal, pure, satisfy } from "./primitive";
 
 test("pure", () => {
     const symbol = Symbol("ID");
     expect(pure(symbol).parse([])).toHaveProperty("value", symbol);
 });
 
-describe("EOI", () => {
+describe("end of input", () => {
     test("end of input", () => {
-        expect(ANY_EL.then(EOI).parse(["el"])).toHaveProperty("success", true);
+        expect(anyEl.then(eoi).parse(["el"])).toHaveProperty("success", true);
     });
     test("消費しきっていない要素がある場合失敗", () => {
-        expect(EOI.parse(["el"])).toHaveProperty("success", false);
+        expect(eoi.parse(["el"])).toHaveProperty("success", false);
     });
 });
 
-describe("ANY_EL", () => {
+describe("anyEl", () => {
     test("lengthが1以上必要", () => {
-        expect(ANY_EL.parse([])).toHaveProperty("success", false);
+        expect(anyEl.parse([])).toHaveProperty("success", false);
     });
     test("長さを1消費", () => {
-        expect(ANY_EL.parse([0])).toHaveProperty("index", 1);
+        expect(anyEl.parse([0])).toHaveProperty("index", 1);
     });
     test("任意の要素で成功する", () => {
-        expect(ANY_EL.parse(["el"])).toHaveProperty("value", "el");
+        expect(anyEl.parse(["el"])).toHaveProperty("value", "el");
     });
 });
 
