@@ -81,7 +81,7 @@ export const many = <T, S>(
         const result: T[] = [];
         while (result.length < max) {
             const newState = parser.run(state, context);
-            if (newState == null) break;
+            if (newState == null || !(state.i < newState.i)) break;
             result.push((state = newState).v);
         }
         return result.length < min ? null : updateState(state, result);
