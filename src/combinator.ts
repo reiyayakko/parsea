@@ -87,3 +87,38 @@ export const many = <T, S>(
         return result.length < min ? null : updateState(state, result);
     });
 };
+
+/**
+ * To require the trailing {@link separator}, use {@link many} with `parser.skip(separator)`.
+ */
+export const sepBy = <T, S>(
+    parser: Parser<T, S>,
+    separator: Parser<unknown, S>,
+    options?: { min?: number; max?: number; trailing?: "none" | "allow" },
+): Parser<T[], S> => {
+    const min = clamp(options?.min || 0, 0, MAX_INT32) | 0;
+    const max = clamp(options?.max || MAX_INT32, min, MAX_INT32) | 0;
+
+    return new Parser((state, context) => {
+        const result: T[] = [];
+        let beforeSeparatorState = state;
+        while (result.length < max) {
+            const newStateA = parser.run(state, context);
+            if (newStateA == null) {
+                if (options?.trailing === "none") {
+                    state = beforeSeparatorState;
+                }
+                break;
+            }
+
+            result.push((beforeSeparatorState = newStateA).v);
+
+            const newStateB = separator.run(newStateA, context);
+            if (newStateB == null) break;
+
+            if (!(state.i < newStateB.i)) break;
+            state = newStateB;
+        }
+        return result.length < min ? null : updateState(state, result);
+    });
+};

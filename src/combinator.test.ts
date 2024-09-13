@@ -1,7 +1,8 @@
 import { describe, expect, test } from "@jest/globals";
-import { choice, many, seq } from "./combinator";
+import { choice, many, sepBy, seq } from "./combinator";
 import { expected } from "./error";
 import { el, pure } from "./primitive";
+import { regex } from "./string";
 
 describe("choice", () => {
     test("最初に成功した結果で成功", () => {
@@ -68,5 +69,40 @@ describe("many", () => {
     test("min > max", () => {
         const parser = many(el(1), { min: 3, max: 1 });
         expect(parser.parse([1, 1, 1, 1])).toHaveProperty("value", [1, 1, 1]);
+    });
+});
+
+describe("sepBy", () => {
+    const parse = (source: string, options?: Parameters<typeof sepBy>[2]) => {
+        const parser = sepBy(regex(/\d+/).map(Number), el(","), options);
+        return parser.parse(source);
+    };
+
+    test("empty", () => {
+        expect(parse("")).toHaveProperty("value", []);
+    });
+    test("omit trailing separator", () => {
+        expect(parse("0,1")).toHaveProperty("value", [0, 1]);
+    });
+    test("with trailing separator", () => {
+        expect(parse("0,1,")).toHaveProperty("value", [0, 1]);
+    });
+    test('with trailing separator { trailing: "none" }', () => {
+        expect(parse("0,1", { trailing: "none" })).toHaveProperty("value", [0, 1]);
+        expect(parse("0,1,", { trailing: "none" })).toMatchObject({
+            value: [0, 1],
+            index: 3,
+        });
+    });
+    test('empty { trailing: "none" }', () => {
+        expect(parse("", { trailing: "none" })).toHaveProperty("value", []);
+    });
+    test("min", () => {
+        expect(parse("0,1", { min: 2 })).toHaveProperty("value", [0, 1]);
+        expect(parse("0", { min: 2 })).toHaveProperty("success", false);
+        expect(parse("", { min: 2 })).toHaveProperty("success", false);
+    });
+    test("max", () => {
+        expect(parse("0,1,2", { max: 2 })).toMatchObject({ value: [0, 1], index: 4 });
     });
 });
