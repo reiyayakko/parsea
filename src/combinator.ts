@@ -70,39 +70,20 @@ export const choice = <T extends readonly Parser[] | []>(parsers: T): Choice<T> 
         return null;
     });
 
-export const manyAccum = <T, U, S>(
-    parser: Parser<T, S>,
-    f: (accum: U, cur: T, config: Config) => U | void,
-    init: (config: Config) => U,
-    options?: { min?: number; max?: number },
-): Parser<U, S> => {
-    const clampedMin = clamp(options?.min || 0, 0, MAX_INT32) | 0;
-    const clampedMax = clamp(options?.max || MAX_INT32, clampedMin, MAX_INT32) | 0;
-
-    return new Parser((state, context) => {
-        let accum: U = init(context.cfg);
-        for (let i = 0; i < clampedMax; i++) {
-            const newState = parser.run(state, context);
-            if (newState == null) {
-                if (i < clampedMin) return null;
-                break;
-            }
-            accum = f(accum, (state = newState).v, context.cfg) ?? accum;
-        }
-        return updateState(state, accum);
-    });
-};
-
 export const many = <T, S>(
     parser: Parser<T, S>,
     options?: { min?: number; max?: number },
 ): Parser<T[], S> => {
-    return manyAccum<T, T[], S>(
-        parser,
-        (array, value) => {
-            array.push(value);
-        },
-        () => [],
-        options,
-    );
+    const min = clamp(options?.min || 0, 0, MAX_INT32) | 0;
+    const max = clamp(options?.max || MAX_INT32, min, MAX_INT32) | 0;
+
+    return new Parser((state, context) => {
+        const result: T[] = [];
+        while (result.length < max) {
+            const newState = parser.run(state, context);
+            if (newState == null) break;
+            result.push((state = newState).v);
+        }
+        return result.length < min ? null : updateState(state, result);
+    });
 };
