@@ -75,9 +75,11 @@ export class Parser<out T = unknown, in S = never> {
             return newStateB && updateState(newStateB, newStateA.v);
         });
     }
+    /** @deprecated */
     and<U, S2>(this: this, parser: Parser<U, S2>): Parser<[T, U], S & S2> {
         return this.andMap(parser, (a, b) => [a, b]);
     }
+    /** @deprecated */
     andMap<U, V, S2>(
         this: this,
         parser: Parser<U, S2>,
@@ -97,6 +99,7 @@ export class Parser<out T = unknown, in S = never> {
             return newStateC && updateState(newStateC, newStateB.v);
         });
     }
+    /** @deprecated */
     or<U, S2>(this: this, parser: Parser<U, S2>): Parser<T | U, S & S2> {
         return new Parser<T | U, S & S2>((state, context) => {
             return this.run(state, context) ?? parser.run(state, context);
