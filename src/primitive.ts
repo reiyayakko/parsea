@@ -30,16 +30,17 @@ export const eoi = /* #__PURE__ */ new Parser<unknown, unknown>((state, context)
 /**
  * Matches any element.
  *
- * @example anyEl.parse([someValue]).value === someValue;
- * @example anyEl.parse([]); // parse fail
+ * @example anyEl().parse([someValue]).value === someValue;
+ * @example anyEl().parse([]); // parse fail
  */
-export const anyEl = /* #__PURE__ */ new Parser<unknown, unknown>((state, context) => {
-    if (state.i < context.src.length) {
-        return updateState(state, context.src[state.i], 1);
-    }
-    context.addError(state.i);
-    return null;
-});
+export const anyEl = <T>() =>
+    new Parser<T, T>((state, context) => {
+        if (state.i < context.src.length) {
+            return updateState(state, context.src[state.i], 1);
+        }
+        context.addError(state.i);
+        return null;
+    });
 
 export const el = <const T>(value: T): Parser<T, unknown> =>
     satisfy(srcEl => equals(srcEl, value), {

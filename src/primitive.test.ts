@@ -9,7 +9,7 @@ test("pure", () => {
 
 describe("end of input", () => {
     test("end of input", () => {
-        expect(anyEl.then(eoi).parse(["el"])).toHaveProperty("success", true);
+        expect(anyEl().then(eoi).parse(["el"])).toHaveProperty("success", true);
     });
     test("消費しきっていない要素がある場合失敗", () => {
         expect(eoi.parse(["el"])).toHaveProperty("success", false);
@@ -18,13 +18,13 @@ describe("end of input", () => {
 
 describe("anyEl", () => {
     test("lengthが1以上必要", () => {
-        expect(anyEl.parse([])).toHaveProperty("success", false);
+        expect(anyEl().parse([])).toHaveProperty("success", false);
     });
     test("長さを1消費", () => {
-        expect(anyEl.parse([0])).toHaveProperty("index", 1);
+        expect(anyEl().parse([0])).toHaveProperty("index", 1);
     });
     test("任意の要素で成功する", () => {
-        expect(anyEl.parse(["el"])).toHaveProperty("value", "el");
+        expect(anyEl().parse(["el"])).toHaveProperty("value", "el");
     });
 });
 

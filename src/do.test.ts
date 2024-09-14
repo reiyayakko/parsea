@@ -26,7 +26,7 @@ describe("qo", () => {
         expect(parser.parse([20, 5])).toHaveProperty("success", false);
     });
     test("option", () => {
-        const parser = qo(perform => perform.option(anyEl));
+        const parser = qo(perform => perform.option(anyEl()));
         expect(parser.parse([])).toEqual({
             success: true,
             index: 0,
@@ -41,7 +41,7 @@ describe("qo", () => {
     test("try > rollback state", () => {
         const parser = qo(perform => {
             perform.try(() => {
-                perform(anyEl);
+                perform(anyEl());
                 perform(fail());
             });
         });
@@ -54,7 +54,7 @@ describe("qo", () => {
     test("try > no rollback if allowPartial", () => {
         const parser = qo(perform => {
             perform.try(() => {
-                perform(anyEl);
+                perform(anyEl());
                 perform(fail(), { allowPartial: true });
             });
         });
@@ -68,7 +68,7 @@ describe("qo", () => {
         const parser = qo(perform => {
             const result: unknown[] = [];
             perform.while(() => {
-                result.push(perform(anyEl));
+                result.push(perform(anyEl()));
             });
             return result;
         });
@@ -82,8 +82,8 @@ describe("qo", () => {
         const parser = qo(perform => {
             const result: unknown[] = [];
             perform.while(() => {
-                result.push(perform(anyEl));
-                perform(anyEl, { allowPartial: true });
+                result.push(perform(anyEl()));
+                perform(anyEl(), { allowPartial: true });
             });
             return result;
         });
