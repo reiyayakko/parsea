@@ -11,6 +11,8 @@ export type PerformOptions = {
 
 export type Perform<S> = {
     <T>(parser: Parser<T, S>, options?: PerformOptions): T;
+    option<T>(parser: Parser<T, S>): T | undefined;
+    option<T, const U = T>(parser: Parser<T, S>, defaultValue: U): T | U;
     try<const T>(runner: () => T): T | undefined;
     try<const T, const U = T>(runner: () => T, defaultValue: U): T | U;
     while(runner: () => void): void;
@@ -27,6 +29,11 @@ export const qo = <T, S>(
             }
             return (state = newState).v;
         };
+
+        perform.option = ((parser, defaultValue) => {
+            const newState = parser.run(state, context);
+            return newState == null ? defaultValue : (state = newState).v;
+        }) as Perform<S>["option"];
 
         perform.try = ((runner, defaultValue) => {
             const beforeTryState = state;

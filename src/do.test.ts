@@ -25,6 +25,19 @@ describe("qo", () => {
         });
         expect(parser.parse([20, 5])).toHaveProperty("success", false);
     });
+    test("option", () => {
+        const parser = qo(perform => perform.option(anyEl));
+        expect(parser.parse([])).toEqual({
+            success: true,
+            index: 0,
+            value: undefined,
+        });
+        expect(parser.parse([0])).toEqual({
+            success: true,
+            index: 1,
+            value: 0,
+        });
+    });
     test("try > rollback state", () => {
         const parser = qo(perform => {
             perform.try(() => {
