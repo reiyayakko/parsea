@@ -85,17 +85,19 @@ describe("sepBy", () => {
         expect(parse("0,1")).toHaveProperty("value", [0, 1]);
     });
     test("with trailing separator", () => {
-        expect(parse("0,1,")).toHaveProperty("value", [0, 1]);
-    });
-    test('with trailing separator { trailing: "none" }', () => {
-        expect(parse("0,1", { trailing: "none" })).toHaveProperty("value", [0, 1]);
-        expect(parse("0,1,", { trailing: "none" })).toMatchObject({
+        expect(parse("0,1,")).toMatchObject({
             value: [0, 1],
             index: 3,
         });
     });
-    test('empty { trailing: "none" }', () => {
-        expect(parse("", { trailing: "none" })).toHaveProperty("value", []);
+    test('omit trailing separator { trailing: "allow" }', () => {
+        expect(parse("0,1", { trailing: "allow" })).toHaveProperty("value", [0, 1]);
+    });
+    test('with trailing separator { trailing: "allow" }', () => {
+        expect(parse("0,1,", { trailing: "allow" })).toMatchObject({
+            value: [0, 1],
+            index: 4,
+        });
     });
     test("min", () => {
         expect(parse("0,1", { min: 2 })).toHaveProperty("value", [0, 1]);

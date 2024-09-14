@@ -105,7 +105,7 @@ export const sepBy = <T, S>(
         while (result.length < max) {
             const newStateA = parser.run(state, context);
             if (newStateA == null) {
-                if (options?.trailing === "none") {
+                if (options?.trailing !== "allow") {
                     state = beforeSeparatorState;
                 }
                 break;
