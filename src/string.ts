@@ -114,15 +114,15 @@ export const regexGroup = (re: RegExp): Parser<RegExpExecArray, string> => {
     if (!re.sticky) {
         flags += "y";
     }
-    const fixedRegex = new RegExp(re, flags);
+    const stickyRegex = new RegExp(re, flags);
 
     return new Parser((state, context) => {
         if (typeof context.src !== "string") {
             context.addError(state.i);
             return null;
         }
-        fixedRegex.lastIndex = state.i;
-        const matchResult = fixedRegex.exec(context.src);
+        stickyRegex.lastIndex = state.i;
+        const matchResult = stickyRegex.exec(context.src);
         if (matchResult === null) {
             context.addError(state.i);
             return null;
