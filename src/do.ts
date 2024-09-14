@@ -22,6 +22,7 @@ export type Perform<S> = {
     option<T, const U = T>(parser: Parser<T, S>, defaultValue: U): T | U;
     try<const T>(runner: () => T): T | undefined;
     try<const T, const U = T>(runner: () => T, defaultValue: U): T | U;
+    many<T>(parser: Parser<T, S>): T[];
     while(runner: () => void): void;
 };
 
@@ -52,6 +53,16 @@ export const qo = <T, S>(
                 return defaultValue;
             }
         }) as Perform<S>["try"];
+
+        perform.many = parser => {
+            const result = [];
+            while (true) {
+                const newState = parser.run(state, context);
+                if (newState == null || !(state.i < newState.i)) break;
+                result.push((state = newState).v);
+            }
+            return result;
+        };
 
         perform.while = runner => {
             let beforeWhileState!: ParseState<unknown>;
