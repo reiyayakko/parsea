@@ -1,18 +1,11 @@
 import type { JsonValue } from "emnorst";
-import { type Parser, choice, el, eoi, lazy, literal, many, qo, regex } from "parsea";
-
-const sepBy = <T>(parser: Parser<T, string>, sep: Parser<unknown, string>) =>
-    qo<T[], string>(perform => {
-        const head = perform(parser);
-        const rest = perform(sep.then(parser).apply(many));
-        return [head, ...rest];
-    });
+import { type Parser, choice, el, eoi, lazy, literal, regex, sepBy, seq } from "parsea";
 
 // https://www.json.org/
 
 const ws = regex(/[ \n\r\t]*/);
 
-const jsonValue: Parser<JsonValue, string> = lazy(() =>
+const json: Parser<JsonValue, string> = lazy(() =>
     choice([
         object,
         array,
@@ -37,7 +30,7 @@ const string = regex(/(?:\\(?:["\\/bfnrt]|u[0-9A-Fa-f]{4})|[^"\\])*/)
     .between(el('"'))
     .map(escapedString =>
         escapedString.replace(/\\(u[0-9A-Fa-f]{4}|.)/g, (_, escape: string) => {
-            if (escape[0] === "u") {
+            if (escape.startsWith("u")) {
                 return String.fromCharCode(parseInt(escape.slice(1), 16));
             }
             if (escape in escapeTable) {
@@ -51,14 +44,12 @@ const number = regex(/-?(0|[1-9]\d*)(.\d+)?([Ee][-+]?\d+)?/).map(Number);
 
 const empty = ws.map<[]>(() => []);
 
-const array = jsonValue.apply(sepBy, el(",")).or(empty).between(el("["), el("]"));
+const array = choice([json.apply(sepBy, el(",")), empty]).between(el("["), el("]"));
 
-const keyValue = string.between(ws).skip(el(":")).and(jsonValue);
+const keyValue = seq([string.between(ws).skip(el(":")), json]);
 
-const object = keyValue
-    .apply(sepBy, el(","))
-    .or(empty)
+const object = choice([keyValue.apply(sepBy, el(",")), empty])
     .between(el("{"), el("}"))
     .map<Record<string, JsonValue>>(Object.fromEntries);
 
-export const jsonParser = jsonValue.skip(eoi);
+export const jsonParser = json.skip(eoi);
