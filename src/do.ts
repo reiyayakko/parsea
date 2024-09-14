@@ -11,7 +11,8 @@ export type PerformOptions = {
 
 export type Perform<S> = {
     <T>(parser: Parser<T, S>, options?: PerformOptions): T;
-    try<const T, U = T>(defaultValue: T, runner: () => U): T | U;
+    try<const T>(runner: () => T): T | undefined;
+    try<const T, const U = T>(runner: () => T, defaultValue: U): T | U;
     while(runner: () => void): void;
 };
 
@@ -27,7 +28,7 @@ export const qo = <T, S>(
             return (state = newState).v;
         };
 
-        perform.try = (defaultValue, runner) => {
+        perform.try = ((runner, defaultValue) => {
             const beforeTryState = state;
             try {
                 return runner();
@@ -41,7 +42,7 @@ export const qo = <T, S>(
                 }
                 return defaultValue;
             }
-        };
+        }) as Perform<S>["try"];
 
         perform.while = runner => {
             let beforeWhileState!: ParseState<unknown>;
@@ -61,10 +62,10 @@ export const qo = <T, S>(
             }
         };
 
-        return perform.try(null, () => {
+        return perform.try(() => {
             const value = runner(perform, context.cfg);
             return updateState(state, value);
-        });
+        }, null);
     });
 
 export { qo as do_ };

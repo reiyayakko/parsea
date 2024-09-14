@@ -25,9 +25,9 @@ describe("qo", () => {
         });
         expect(parser.parse([20, 5])).toHaveProperty("success", false);
     });
-    test("try", () => {
+    test("try > rollback state", () => {
         const parser = qo(perform => {
-            perform.try(undefined, () => {
+            perform.try(() => {
                 perform(anyEl);
                 perform(fail());
             });
@@ -38,9 +38,9 @@ describe("qo", () => {
             value: undefined,
         });
     });
-    test("try + allowPartial", () => {
+    test("try > no rollback if allowPartial", () => {
         const parser = qo(perform => {
-            perform.try(undefined, () => {
+            perform.try(() => {
                 perform(anyEl);
                 perform(fail(), { allowPartial: true });
             });
