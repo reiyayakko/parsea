@@ -51,4 +51,33 @@ describe("qo", () => {
             value: undefined,
         });
     });
+    test("while", () => {
+        const parser = qo(perform => {
+            const result: unknown[] = [];
+            perform.while(() => {
+                result.push(perform(anyEl));
+            });
+            return result;
+        });
+        expect(parser.parse([0, 1, 2, 3])).toEqual({
+            success: true,
+            index: 4,
+            value: [0, 1, 2, 3],
+        });
+    });
+    test("while + allowPartial", () => {
+        const parser = qo(perform => {
+            const result: unknown[] = [];
+            perform.while(() => {
+                result.push(perform(anyEl));
+                perform(anyEl, { allowPartial: true });
+            });
+            return result;
+        });
+        expect(parser.parse(["hoge"])).toEqual({
+            success: true,
+            index: 1,
+            value: ["hoge"],
+        });
+    });
 });

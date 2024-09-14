@@ -1,7 +1,7 @@
 import { has } from "emnorst";
 import type { Config } from "./context";
 import { Parser } from "./parser";
-import { updateState } from "./state";
+import { type ParseState, updateState } from "./state";
 
 const doError = /* #__PURE__ */ Symbol("parsea.doError");
 
@@ -12,6 +12,7 @@ export type PerformOptions = {
 export type Perform<S> = {
     <T>(parser: Parser<T, S>, options?: PerformOptions): T;
     try<const T, U = T>(defaultValue: T, runner: () => U): T | U;
+    while(runner: () => void): void;
 };
 
 export const qo = <T, S>(
@@ -39,6 +40,24 @@ export const qo = <T, S>(
                     state = beforeTryState;
                 }
                 return defaultValue;
+            }
+        };
+
+        perform.while = runner => {
+            let beforeWhileState!: ParseState<unknown>;
+            try {
+                do {
+                    beforeWhileState = state;
+                    runner();
+                } while (beforeWhileState.i < state.i);
+            } catch (error) {
+                if (!has(error, doError)) {
+                    throw error;
+                }
+                const options = error[doError] as PerformOptions | undefined;
+                if (!(options?.allowPartial ?? true)) {
+                    state = beforeWhileState;
+                }
             }
         };
 
