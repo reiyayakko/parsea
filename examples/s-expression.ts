@@ -7,10 +7,8 @@ const list = lazy(() => SExpression)
     .between(el("("), el(")"));
 
 export const SExpression: Parser<SExpression, string> = choice([
-    el("'")
-        .option()
-        .and(list)
-        .map(([quote, list]) => (quote ? ["quote", ...list] : list)),
+    el("'").then(list.map(list => ["quote", ...list])),
+    list,
     regex(/"([^"\\]|\\.)*"/),
     regex(/[^\s()"]+/),
 ]).between(regex(/\s*/));
