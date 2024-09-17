@@ -44,12 +44,13 @@ const number = regex(/-?(0|[1-9]\d*)(.\d+)?([Ee][-+]?\d+)?/).map(Number);
 
 const empty = ws.map<[]>(() => []);
 
-const array = choice([json.apply(sepBy, el(",")), empty]).between(el("["), el("]"));
+const array = sepBy(json, el(",")).skip(empty).between(el("["), el("]"));
 
 const keyValue = seq([string.between(ws).skip(el(":")), json]);
 
-const object = choice([keyValue.apply(sepBy, el(",")), empty])
+const object = sepBy(keyValue, el(","))
+    .skip(empty)
     .between(el("{"), el("}"))
-    .map<Record<string, JsonValue>>(Object.fromEntries);
+    .map(Object.fromEntries<JsonValue>);
 
 export const jsonParser = json.skip(eoi);
