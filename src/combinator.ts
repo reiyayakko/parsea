@@ -101,26 +101,25 @@ export const sepBy = <T, S>(
 
     return new Parser((state, context) => {
         const result: T[] = [];
-        let beforeSeparatorState = state;
+        let lastState = state;
         while (result.length < max) {
-            const startState = state;
+            const start = state.i;
+
             const newStateA = parser.run(state, context);
-            if (newStateA == null) {
-                if (options?.trailing !== "allow") {
-                    state = beforeSeparatorState;
-                }
-                break;
-            }
-            if (options?.trailing !== "allow") {
-                beforeSeparatorState = newStateA;
-            }
-            result.push((state = newStateA).v);
+            if (newStateA == null) break;
+            result.push((lastState = state = newStateA).v);
+
             const newStateB = separator.run(newStateA, context);
             if (newStateB == null) break;
-
-            if (!(startState.i < newStateB.i)) break;
             state = newStateB;
+
+            if (!(start < state.i)) break;
         }
-        return result.length < min ? null : updateState(state, result);
+
+        if (options?.trailing === "allow") {
+            lastState = state;
+        }
+
+        return result.length < min ? null : updateState(lastState, result);
     });
 };
