@@ -103,6 +103,7 @@ export const sepBy = <T, S>(
         const result: T[] = [];
         let beforeSeparatorState = state;
         while (result.length < max) {
+            const startState = state;
             const newStateA = parser.run(state, context);
             if (newStateA == null) {
                 if (options?.trailing !== "allow") {
@@ -110,13 +111,14 @@ export const sepBy = <T, S>(
                 }
                 break;
             }
-
-            result.push((beforeSeparatorState = newStateA).v);
-
+            if (options?.trailing !== "allow") {
+                beforeSeparatorState = newStateA;
+            }
+            result.push((state = newStateA).v);
             const newStateB = separator.run(newStateA, context);
             if (newStateB == null) break;
 
-            if (!(state.i < newStateB.i)) break;
+            if (!(startState.i < newStateB.i)) break;
             state = newStateB;
         }
         return result.length < min ? null : updateState(state, result);
