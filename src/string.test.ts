@@ -1,155 +1,122 @@
 import { describe, expect, test } from "@jest/globals";
-import { expected } from "./error";
+import { ParseAError, parseA } from "./parsea";
 import { anyChar, codePoint, graphemeString, regex, regexGroup, string } from "./string";
 
 describe("string", () => {
     test("source type", () => {
-        expect(string("").parse([])).toHaveProperty("success", false);
+        expect(() => parseA(string(""), [])).toThrow(ParseAError);
     });
     test("short source", () => {
-        expect(string("a").parse("")).toEqual({
-            success: false,
-            index: 0,
-            errors: [expected("a")],
-        });
+        expect(() => parseA(string("a"), "")).toThrow(ParseAError);
     });
     test("success", () => {
-        expect(string("a").parse("a")).toMatchObject({ success: true, value: "a" });
+        expect(parseA(string("a"), "a")).toBe("a");
     });
     test("fail", () => {
-        expect(string("a").parse("b")).toEqual({
-            success: false,
-            index: 0,
-            errors: [expected("a")],
-        });
+        expect(() => parseA(string("a"), "b")).toThrow(ParseAError);
     });
 });
 
 describe("graphemeString", () => {
     test("source type", () => {
-        expect(graphemeString("").parse([])).toHaveProperty("success", false);
+        expect(() => parseA(graphemeString(""), [])).toThrow(ParseAError);
     });
     test("short source", () => {
-        expect(graphemeString("a").parse("")).toEqual({
-            success: false,
-            index: 0,
-            errors: [expected("a")],
-        });
+        expect(() => parseA(graphemeString("a"), "")).toThrow(ParseAError);
     });
     test("success", () => {
-        expect(graphemeString("a").parse("a")).toMatchObject({
-            success: true,
-            value: "a",
-        });
+        expect(parseA(graphemeString("a"), "a")).toBe("a");
     });
     test("fail", () => {
-        expect(graphemeString("a").parse("b")).toEqual({
-            success: false,
-            index: 0,
-            errors: [expected("a")],
-        });
+        expect(() => parseA(graphemeString("a"), "b")).toThrow(ParseAError);
     });
     test("NFC <-> NFD", () => {
-        expect(graphemeString("\xf1").parse("\xf1".normalize("NFD"))).toMatchObject({
-            success: true,
-            value: "\xf1".normalize("NFD"),
-        });
+        expect(parseA(graphemeString("\xf1"), "\xf1".normalize("NFD"))).toBe(
+            "\xf1".normalize("NFD"),
+        );
     });
 });
 
 describe("codePoint", () => {
     test("source type", () => {
-        expect(codePoint.parse([])).toHaveProperty("success", false);
+        expect(() => parseA(codePoint, [])).toThrow(ParseAError);
     });
     test("short source", () => {
-        expect(codePoint.parse("")).toHaveProperty("success", false);
+        expect(() => parseA(codePoint, "")).toThrow(ParseAError);
     });
     test("code unit", () => {
-        expect(codePoint.parse("a")).toMatchObject({ success: true, value: "a" });
+        expect(parseA(codePoint, "a")).toBe("a");
     });
     test("surrogate pair", () => {
         const char = "🫠";
         expect(char).toHaveLength(2);
-        expect(codePoint.parse(char)).toMatchObject({ success: true, value: char });
+        expect(parseA(codePoint, char)).toBe(char);
     });
     test("high surrogate only", () => {
-        expect(codePoint.parse("\ud83e")).toHaveProperty("success", false);
+        expect(() => parseA(codePoint, "\ud83e")).toThrow(ParseAError);
     });
     test("high surrogate + non low surrogate", () => {
-        expect(codePoint.parse("\ud83e?")).toHaveProperty("success", false);
+        expect(() => parseA(codePoint, "\ud83e?")).toThrow(ParseAError);
     });
     test("low surrogate only", () => {
-        expect(codePoint.parse("\udee0")).toHaveProperty("success", false);
+        expect(() => parseA(codePoint, "\udee0")).toThrow(ParseAError);
     });
 });
 
 describe("anyChar", () => {
     test("source type", () => {
-        expect(anyChar.parse([])).toHaveProperty("success", false);
+        expect(() => parseA(anyChar, [])).toThrow(ParseAError);
     });
     test("short source", () => {
-        expect(anyChar.parse("")).toHaveProperty("success", false);
+        expect(() => parseA(anyChar, "")).toThrow(ParseAError);
     });
     test.each(["a", "👍", "👨‍👩‍👧‍👦"])('"%s"は1文字', char => {
-        expect(anyChar.between(string("^"), string("$")).parse(`^${char}$`)).toEqual({
-            success: true,
-            index: char.length + 2,
-            value: char,
-        });
+        const parser = anyChar.between(string("^"), string("$"));
+        expect(parseA(parser, `^${char}$`)).toBe(char);
     });
 });
 
 describe("regexGroup", () => {
     test("source type", () => {
-        expect(regexGroup(/(?:)/).parse([])).toHaveProperty("success", false);
+        expect(() => parseA(regexGroup(/(?:)/), [])).toThrow(ParseAError);
     });
     test("ignore global flag", () => {
-        const parser = regexGroup(/regexp?/g);
+        const parser = regexGroup(/regexp?/g).skip(string("!"));
         const source = "regex!";
-        expect(parser.parse(source)).toHaveProperty("success", true);
-        expect(parser.parse(source)).toHaveProperty("success", true);
+        expect(parseA(parser, source)).toContain("regex");
+        expect(parseA(parser, source)).toContain("regex");
     });
     test("start index", () => {
         const parser = string("alpha").then(regexGroup(/alpha|beta/));
-        expect(parser.parse("alpha beta")).toHaveProperty("success", false);
+        expect(() => parseA(parser, "alpha beta")).toThrow(ParseAError);
     });
     test("success with RegExpExecArray", () => {
         // cspell:ignore Floa
-        const parser = regexGroup(/(Uin|In|Floa)t(8|16|32|64)(Clamped)?Array/);
-        expect(parser.parse("Uint64ClampedArray!")).toEqual({
-            success: true,
-            index: "Uint64ClampedArray".length,
-            value: expect.arrayContaining(["Uint64ClampedArray", "Uin", "64", "Clamped"]),
-        });
+        const parser = regexGroup(/(Uin|In|Floa)t\d+(Clamped)?Array/).skip(string("!"));
+        expect(parseA(parser, "Uint64ClampedArray!")).toEqual(
+            Object.assign(["Uint64ClampedArray", "Uin", "Clamped"], {
+                index: 0,
+                input: "Uint64ClampedArray!",
+            }),
+        );
     });
     test("fail", () => {
-        expect(regexGroup(/.^/).parse("")).toHaveProperty("success", false);
+        expect(() => parseA(regexGroup(/.^/), "")).toThrow(ParseAError);
     });
 });
 
 describe("regex", () => {
-    test("groupIdを省略", () => {
-        expect(regex(/(.)(.)/).parse("ab")).toMatchObject({
-            success: true,
-            value: "ab",
-        });
+    test("groupId?", () => {
+        expect(parseA(regex(/ミ(O_O )/), "ミO_O ")).toBe("ミO_O ");
     });
-    test('typeof groupId == "number" なら`array[groupId]`', () => {
-        expect(regex(/(.)(.)/, 2).parse("ab")).toMatchObject({
-            success: true,
-            value: "b",
-        });
+    test("groupId: number", () => {
+        expect(parseA(regex(/_(:3ゝ∠)_/, 1), "_:3ゝ∠_")).toBe(":3ゝ∠");
     });
-    test('typeof groupId == "string" なら`array.groups[groupId]`', () => {
-        expect(regex(/(?<a>.)(?<b>.)/, "b").parse("ab")).toMatchObject({
-            success: true,
-            value: "b",
-        });
+    test("groupId: string", () => {
+        expect(parseA(regex(/(?<hoge>.)/, "hoge"), "a")).toBe("a");
     });
     test("defaultValue", () => {
-        expect(regex(/(?:)/, 1, "default").parse("")).toMatchObject({
-            success: true,
-            value: "default",
-        });
+        expect(parseA(regex(/(?:)/, 1, "default"), "")).toBe("default");
+        expect(parseA(regex(/(?:)/, "hoge", "default"), "")).toBe("default");
     });
 });

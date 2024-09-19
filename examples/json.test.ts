@@ -1,4 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
+import { ParseAError, parseA } from "parsea";
 import { jsonParser } from "./json";
 
 describe("JSON", () => {
@@ -13,15 +14,11 @@ describe("JSON", () => {
         ...jsonNumbers,
         ...jsonNumbers.map(jsonNumber => `-${jsonNumber}`),
     ])("%o", json => {
-        expect(jsonParser.parse(json)).toEqual({
-            success: true,
-            index: json.length,
-            value: JSON.parse(json),
-        });
+        expect(parseA(jsonParser, json)).toEqual(JSON.parse(json));
     });
 
     test.each(["00", "- 0", "0.", ".0"])("%o is invalid json.", n => {
-        expect(jsonParser.parse(n)).toHaveProperty("success", false);
+        expect(() => parseA(jsonParser, n)).toThrow(ParseAError);
     });
 
     test.each([
@@ -35,7 +32,6 @@ describe("JSON", () => {
         ["t", "\t"],
         ["u1234", "\u1234"],
     ])("escape %s", (escapeChar, char = escapeChar) => {
-        const json = `"\\${escapeChar}"`;
-        expect(jsonParser.parse(json)).toHaveProperty("value", char);
+        expect(parseA(jsonParser, `"\\${escapeChar}"`)).toBe(char);
     });
 });
