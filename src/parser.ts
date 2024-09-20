@@ -19,6 +19,7 @@ export type ParseRunner<in T, out U, in S> = (
  */
 export class Parser<out T = unknown, in S = never> {
     constructor(readonly run: ParseRunner<unknown, T, S>) {}
+    /** @deprecated Use `parseA` function instead. */
     parse(this: this, source: ArrayLike<S>, config: Config = {}): ParseResult<T> {
         const context = new Context(source, config);
         const finalState = this.run(initState, context);
