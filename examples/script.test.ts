@@ -1,5 +1,5 @@
-import { describe, expect, test } from "@jest/globals";
 import { parseA } from "parsea";
+import { describe, expect, test } from "vitest";
 import { expr, stmt } from "./script";
 
 describe("stmt", () => {

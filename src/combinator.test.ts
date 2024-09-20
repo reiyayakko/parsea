@@ -1,4 +1,4 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, test } from "vitest";
 import { choice, many, sepBy, seq } from "./combinator";
 import { expected } from "./error";
 import { ParseAError, parseA } from "./parsea";

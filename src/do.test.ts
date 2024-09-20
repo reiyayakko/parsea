@@ -1,5 +1,5 @@
-import { describe, expect, test } from "@jest/globals";
 import { isInt32 } from "emnorst";
+import { describe, expect, test } from "vitest";
 import { qo } from "./do";
 import { ParseAError, parseA } from "./parsea";
 import { anyEl, eoi, fail, satisfy } from "./primitive";

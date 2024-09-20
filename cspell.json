@@ -4,12 +4,15 @@
   "ignorePaths": ["package.json", "package-lock.json"],
   "words": [
     "accum",
+    "biomejs",
     "emnorst",
     "fuga",
     "hoge",
     "parsea",
     "parsimmon",
+    "stmts",
     "tsup",
-    "uzmoi"
+    "uzmoi",
+    "vitest"
   ]
 }

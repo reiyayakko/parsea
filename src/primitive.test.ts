@@ -1,4 +1,4 @@
-import { describe, expect, jest, test } from "@jest/globals";
+import { describe, expect, test, vi } from "vitest";
 import { ParseAError, parseA } from "./parsea";
 import { anyEl, el, eoi, literal, pure, satisfy } from "./primitive";
 
@@ -47,7 +47,7 @@ describe("satisfy", () => {
         expect(() => parseA(parser, [1])).toThrow(ParseAError);
     });
     test("empty", () => {
-        const fn = jest.fn<() => boolean>();
+        const fn = vi.fn<() => boolean>();
         expect(() => parseA(satisfy(fn), [])).toThrow(ParseAError);
         expect(fn).toHaveBeenCalledTimes(0);
     });

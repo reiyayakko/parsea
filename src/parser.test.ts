@@ -1,4 +1,4 @@
-import { describe, expect, jest, test } from "@jest/globals";
+import { describe, expect, test, vi } from "vitest";
 import { label } from "./error";
 import { parseA } from "./parsea";
 import type { Parser } from "./parser";
@@ -14,14 +14,14 @@ describe("Parser", () => {
     });
 
     test("map", () => {
-        const fn = jest.fn<() => string>().mockReturnValue("hoge");
+        const fn = vi.fn<() => string>().mockReturnValue("hoge");
 
         expect(parseA(pure("fuga").map(fn), [])).toBe("hoge");
         expect(fn).lastCalledWith("fuga", {});
     });
 
     test("flatMap", () => {
-        const fn = jest.fn<() => Parser<string>>().mockReturnValue(pure("hoge"));
+        const fn = vi.fn<() => Parser<string>>().mockReturnValue(pure("hoge"));
 
         expect(parseA(pure("fuga").flatMap(fn), [])).toBe("hoge");
         expect(fn).lastCalledWith("fuga", {});

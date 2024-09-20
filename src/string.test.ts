@@ -1,4 +1,4 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, test } from "vitest";
 import { ParseAError, parseA } from "./parsea";
 import { anyChar, codePoint, graphemeString, regex, regexGroup, string } from "./string";
 
