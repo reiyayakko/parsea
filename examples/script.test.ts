@@ -1,10 +1,10 @@
 import { parseA } from "parsea";
 import { describe, expect, test } from "vitest";
-import { expr, stmt } from "./script";
+import { expression, statement } from "./script";
 
 describe("stmt", () => {
     test("Let", () => {
-        expect(parseA(stmt, "let hoge = 0;")).toEqual({
+        expect(parseA(statement, "let hoge = 0;")).toEqual({
             type: "Let",
             name: "hoge",
             init: { type: "Number", value: 0 },
@@ -12,39 +12,39 @@ describe("stmt", () => {
     });
 
     test("DefFn", () => {
-        expect(parseA(stmt, "fn main(arg) {};")).toEqual({
+        expect(parseA(statement, "fn main(arg) {};")).toEqual({
             type: "DefFn",
             name: "main",
             params: ["arg"],
-            body: { type: "Block", stmts: [], last: null },
+            body: { type: "Block", statements: [], last: null },
         });
     });
 
     test("Return", () => {
-        expect(parseA(stmt, "return;")).toEqual({
+        expect(parseA(statement, "return;")).toEqual({
             type: "Return",
             body: null,
         });
     });
 
     test("While", () => {
-        expect(parseA(stmt, "while (false) {};")).toEqual({
+        expect(parseA(statement, "while (false) {};")).toEqual({
             type: "While",
             test: { type: "Bool", value: false },
-            body: { type: "Block", stmts: [], last: null },
+            body: { type: "Block", statements: [], last: null },
         });
     });
 
     test("Break", () => {
-        expect(parseA(stmt, "break;")).toEqual({
+        expect(parseA(statement, "break;")).toEqual({
             type: "Break",
         });
     });
 
     test("Expr", () => {
-        expect(parseA(stmt, "0;")).toEqual({
-            type: "Expr",
-            expr: { type: "Number", value: 0 },
+        expect(parseA(statement, "0;")).toEqual({
+            type: "Expression",
+            expression: { type: "Number", value: 0 },
         });
     });
 });
@@ -52,7 +52,7 @@ describe("stmt", () => {
 describe("expr", () => {
     describe("Bool", () => {
         test.each([true, false])("%s", value => {
-            expect(parseA(expr, String(value))).toEqual({
+            expect(parseA(expression, String(value))).toEqual({
                 type: "Bool",
                 value,
             });
@@ -64,7 +64,7 @@ describe("expr", () => {
             ["int", "42", 42],
             ["minus float", "-273.25", -273.25],
         ])("%s (%f)", (_, src, value) => {
-            expect(parseA(expr, src)).toEqual({
+            expect(parseA(expression, src)).toEqual({
                 type: "Number",
                 value,
             });
@@ -72,14 +72,14 @@ describe("expr", () => {
     });
 
     test("String", () => {
-        expect(parseA(expr, `"Hello world!"`)).toEqual({
+        expect(parseA(expression, `"Hello world!"`)).toEqual({
             type: "String",
             value: "Hello world!",
         });
     });
 
     test("Ident", () => {
-        expect(parseA(expr, "hoge")).toEqual({
+        expect(parseA(expression, "hoge")).toEqual({
             type: "Ident",
             name: "hoge",
         });
@@ -87,13 +87,13 @@ describe("expr", () => {
 
     describe("Tuple", () => {
         test("empty", () => {
-            expect(parseA(expr, "()")).toEqual({
+            expect(parseA(expression, "()")).toEqual({
                 type: "Tuple",
                 elements: [],
             });
         });
         test("elements", () => {
-            expect(parseA(expr, `(0, "", hoge)`)).toEqual({
+            expect(parseA(expression, `(0, "", hoge)`)).toEqual({
                 type: "Tuple",
                 elements: [
                     { type: "Number", value: 0 },
@@ -103,7 +103,7 @@ describe("expr", () => {
             });
         });
         test("trailing comma", () => {
-            expect(parseA(expr, "(0, )")).toEqual({
+            expect(parseA(expression, "(0, )")).toEqual({
                 type: "Tuple",
                 elements: [{ type: "Number", value: 0 }],
             });
@@ -112,23 +112,25 @@ describe("expr", () => {
 
     describe("Block", () => {
         test("empty", () => {
-            expect(parseA(expr, "{}")).toEqual({
+            expect(parseA(expression, "{}")).toEqual({
                 type: "Block",
-                stmts: [],
+                statements: [],
                 last: null,
             });
         });
         test("stmts", () => {
-            expect(parseA(expr, "{ 0; }")).toEqual({
+            expect(parseA(expression, "{ 0; }")).toEqual({
                 type: "Block",
-                stmts: [{ type: "Expr", expr: { type: "Number", value: 0 } }],
+                statements: [
+                    { type: "Expression", expression: { type: "Number", value: 0 } },
+                ],
                 last: null,
             });
         });
         test("expr", () => {
-            expect(parseA(expr, "{ 0 }")).toEqual({
+            expect(parseA(expression, "{ 0 }")).toEqual({
                 type: "Block",
-                stmts: [],
+                statements: [],
                 last: { type: "Number", value: 0 },
             });
         });
@@ -136,15 +138,15 @@ describe("expr", () => {
 
     describe("If", () => {
         test("then only", () => {
-            expect(parseA(expr, "if (true) {}")).toEqual({
+            expect(parseA(expression, "if (true) {}")).toEqual({
                 type: "If",
                 test: { type: "Bool", value: true },
-                then: { type: "Block", stmts: [], last: null },
+                then: { type: "Block", statements: [], last: null },
                 else: null,
             });
         });
         test("with else", () => {
-            expect(parseA(expr, "if (true) 1 else 0")).toEqual({
+            expect(parseA(expression, "if (true) 1 else 0")).toEqual({
                 type: "If",
                 test: { type: "Bool", value: true },
                 then: { type: "Number", value: 1 },
@@ -154,7 +156,7 @@ describe("expr", () => {
     });
 
     test("tail", () => {
-        expect(parseA(expr, "f(0)(1)")).toEqual({
+        expect(parseA(expression, "f(0)(1)")).toEqual({
             type: "Call",
             callee: {
                 type: "Call",
@@ -166,7 +168,7 @@ describe("expr", () => {
     });
 
     test("Call", () => {
-        expect(parseA(expr, `print("Hello world!")`)).toEqual({
+        expect(parseA(expression, `print("Hello world!")`)).toEqual({
             type: "Call",
             callee: { type: "Ident", name: "print" },
             arguments: [{ type: "String", value: "Hello world!" }],
@@ -174,7 +176,7 @@ describe("expr", () => {
     });
 
     test("Property", () => {
-        expect(parseA(expr, "().property")).toEqual({
+        expect(parseA(expression, "().property")).toEqual({
             type: "Property",
             target: { type: "Tuple", elements: [] },
             name: "property",
@@ -189,5 +191,5 @@ test("script", () => {
             ()
         };
     }`;
-    expect(parseA(expr, source)).toMatchSnapshot();
+    expect(parseA(expression, source)).toMatchSnapshot();
 });

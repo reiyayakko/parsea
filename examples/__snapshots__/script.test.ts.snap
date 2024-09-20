@@ -3,16 +3,16 @@
 exports[`script 1`] = `
 {
   "last": null,
-  "stmts": [
+  "statements": [
     {
       "body": {
         "last": {
           "elements": [],
           "type": "Tuple",
         },
-        "stmts": [
+        "statements": [
           {
-            "expr": {
+            "expression": {
               "arguments": [
                 {
                   "type": "String",
@@ -25,7 +25,7 @@ exports[`script 1`] = `
               },
               "type": "Call",
             },
-            "type": "Expr",
+            "type": "Expression",
           },
         ],
         "type": "Block",
