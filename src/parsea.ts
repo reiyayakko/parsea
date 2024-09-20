@@ -25,5 +25,9 @@ export const parseA = <T, S>(
         throw new ParseAError(error.index, error.errors);
     }
 
+    if (finalState.i < context.src.length) {
+        throw new ParseAError(finalState.i, []);
+    }
+
     return finalState.v;
 };
