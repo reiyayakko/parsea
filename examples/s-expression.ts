@@ -1,4 +1,4 @@
-import { type Parser, choice, el, lazy, many, regex } from "parsea";
+import { type Parser, choice, el, lazy, many, parseA, regex } from "parsea";
 
 export type SExpression = string | readonly SExpression[];
 
@@ -10,3 +10,18 @@ export const SExpression: Parser<SExpression, string> = choice([
     regex(/"([^"\\]|\\.)*"/),
     regex(/[^\s()"]+/),
 ]).between(regex(/\s*/));
+
+if (import.meta.vitest) {
+    const { test, expect } = import.meta.vitest;
+
+    test("Hello world!", () => {
+        expect(parseA(SExpression, '(print "Hello world!")')).toEqual([
+            "print",
+            '"Hello world!"',
+        ]);
+    });
+
+    test("quote list", () => {
+        expect(parseA(SExpression, "'(1 2 3 4)")).toEqual(["quote", "1", "2", "3", "4"]);
+    });
+}
