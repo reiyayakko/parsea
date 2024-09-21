@@ -3,6 +3,8 @@
 
 ## [Unreleased]
 
+## [0.10.0] - 2024-09-21
+
 - Added `parseA` function.
 - Added `sepBy` parser.
 - Added alias `do_` for `qo`.
