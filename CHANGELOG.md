@@ -2,17 +2,28 @@
 # Change Log
 
 ## [Unreleased]
-### Added
-- Added alias `do_` for `qo`.
-- Added `PerformOptions` type.
 
-### Changed
+## [0.10.0] - 2024-09-21
+
+- Added `parseA` function.
+- Added `sepBy` parser.
+- Added alias `do_` for `qo`.
+- Added `perform.option`, `perform.many` and `perform.while` in `qo`.
 - Moved option to rollback state if `perform.try` fails to `PerformOptions`.
 - Added defaultValue parameter to `perform.try`.
+- Using `many` with a parser that does not consume elements no longer causes an infinite loop.
+- `anyEl` changed to function.
+- Renamed `anyEl`, `eoi`, `codePoint` and `anyChar` to camelCase.
+- Deprecated `Parser.parse`, `Parser.and`, `Parser.andMap` and `Parser.or`.
+- Removed `Parser.many`, `Parser.manyAccum` and `manyAccum`.
 
 ## [0.9.0] - 2024-01-16
+### Added
+- Added helper `Perform` type to specify source type in `qo` function.
+
 ### Changed
 - Add source type parameter to `Parser`.
+- `Source` type changed to helper that returns the input type of the parser.
 
 ## [0.8.0] - 2023-06-24
 ### Added

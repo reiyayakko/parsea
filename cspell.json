@@ -1,0 +1,17 @@
+{
+  "version": "0.2",
+  "useGitignore": true,
+  "ignorePaths": ["package.json", "package-lock.json"],
+  "words": [
+    "accum",
+    "biomejs",
+    "emnorst",
+    "fuga",
+    "hoge",
+    "parsea",
+    "parsimmon",
+    "tsup",
+    "uzmoi",
+    "vitest"
+  ]
+}

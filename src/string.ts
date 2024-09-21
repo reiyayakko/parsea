@@ -60,7 +60,7 @@ export const graphemeString = (string: string): Parser<string, string> => {
     });
 };
 
-export const CODE_POINT = /* @__PURE__ */ new Parser<string, string>((state, context) => {
+export const codePoint = /* @__PURE__ */ new Parser<string, string>((state, context) => {
     if (typeof context.src !== "string") {
         context.addError(state.i);
         return null;
@@ -92,7 +92,7 @@ export const CODE_POINT = /* @__PURE__ */ new Parser<string, string>((state, con
     return updateState(state, context.src[state.i], 1);
 });
 
-export const ANY_CHAR = /* @__PURE__ */ new Parser<string, string>((state, context) => {
+export const anyChar = /* @__PURE__ */ new Parser<string, string>((state, context) => {
     if (typeof context.src !== "string") {
         context.addError(state.i);
         return null;
@@ -114,15 +114,15 @@ export const regexGroup = (re: RegExp): Parser<RegExpExecArray, string> => {
     if (!re.sticky) {
         flags += "y";
     }
-    const fixedRegex = new RegExp(re, flags);
+    const stickyRegex = new RegExp(re, flags);
 
     return new Parser((state, context) => {
         if (typeof context.src !== "string") {
             context.addError(state.i);
             return null;
         }
-        fixedRegex.lastIndex = state.i;
-        const matchResult = fixedRegex.exec(context.src);
+        stickyRegex.lastIndex = state.i;
+        const matchResult = stickyRegex.exec(context.src);
         if (matchResult === null) {
             context.addError(state.i);
             return null;
@@ -134,7 +134,7 @@ export const regexGroup = (re: RegExp): Parser<RegExpExecArray, string> => {
 export const regex: {
     (re: RegExp): Parser<string, string>;
     (re: RegExp, groupId: number | string): Parser<string | undefined, string>;
-    <T>(
+    <const T>(
         re: RegExp,
         groupId: number | string,
         defaultValue: T,

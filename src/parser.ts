@@ -1,4 +1,3 @@
-import { many, manyAccum } from "./combinator";
 import { type Config, Context } from "./context";
 import * as error from "./error";
 import { type ParseResult, createParseResult } from "./result";
@@ -20,6 +19,7 @@ export type ParseRunner<in T, out U, in S> = (
  */
 export class Parser<out T = unknown, in S = never> {
     constructor(readonly run: ParseRunner<unknown, T, S>) {}
+    /** @deprecated Use `parseA` function instead. */
     parse(this: this, source: ArrayLike<S>, config: Config = {}): ParseResult<T> {
         const context = new Context(source, config);
         const finalState = this.run(initState, context);
@@ -76,9 +76,11 @@ export class Parser<out T = unknown, in S = never> {
             return newStateB && updateState(newStateB, newStateA.v);
         });
     }
+    /** @deprecated */
     and<U, S2>(this: this, parser: Parser<U, S2>): Parser<[T, U], S & S2> {
         return this.andMap(parser, (a, b) => [a, b]);
     }
+    /** @deprecated */
     andMap<U, V, S2>(
         this: this,
         parser: Parser<U, S2>,
@@ -98,6 +100,7 @@ export class Parser<out T = unknown, in S = never> {
             return newStateC && updateState(newStateC, newStateB.v);
         });
     }
+    /** @deprecated */
     or<U, S2>(this: this, parser: Parser<U, S2>): Parser<T | U, S & S2> {
         return new Parser<T | U, S & S2>((state, context) => {
             return this.run(state, context) ?? parser.run(state, context);
@@ -109,18 +112,5 @@ export class Parser<out T = unknown, in S = never> {
         return new Parser<T | U, S>((state, context) => {
             return this.run(state, context) ?? updateState(state, value as U);
         });
-    }
-    /** @deprecated Use instead `.apply(manyAccum)` */
-    manyAccum<U>(
-        this: Parser<T>,
-        f: (accum: U, cur: T, config: Config) => U | void,
-        init: (config: Config) => U,
-        options?: { min?: number; max?: number },
-    ): Parser<U> {
-        return manyAccum(this, f, init, options);
-    }
-    /** @deprecated Use instead `.apply(many)` */
-    many(this: Parser<T>, options?: { min?: number; max?: number }): Parser<T[]> {
-        return many(this, options);
     }
 }

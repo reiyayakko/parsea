@@ -1,16 +1,15 @@
-import { describe, expect, test } from "@jest/globals";
 import { isInt32 } from "emnorst";
+import { describe, expect, test } from "vitest";
 import { qo } from "./do";
-import { ANY_EL, fail, satisfy } from "./primitive";
+import { ParseAError, parseA } from "./parsea";
+import { anyEl, eoi, fail, satisfy } from "./primitive";
 
 describe("qo", () => {
     test("error", () => {
         const parser = qo(() => {
             throw null;
         });
-        expect(() => {
-            parser.parse([]);
-        }).toThrow();
+        expect(() => parseA(parser, [])).toThrow();
     });
     test("do", () => {
         const parser = qo(perform => {
@@ -18,37 +17,53 @@ describe("qo", () => {
             const b = perform(satisfy<string>(el => typeof el === "string"));
             return { a, b };
         });
-        expect(parser.parse([5, "*"])).toEqual({
-            success: true,
-            index: 2,
-            value: { a: 5, b: "*" },
-        });
-        expect(parser.parse([20, 5])).toHaveProperty("success", false);
+        expect(parseA(parser, [5, "*"])).toEqual({ a: 5, b: "*" });
+        expect(() => parseA(parser, [20, 5])).toThrow(ParseAError);
     });
-    test("try", () => {
+    test("option", () => {
+        const parser = qo(perform => perform.option(anyEl()));
+        expect(parseA(parser, [])).toBeUndefined();
+        expect(parseA(parser, [0])).toBe(0);
+    });
+    test("try > rollback state", () => {
         const parser = qo(perform => {
-            perform.try(undefined, () => {
-                perform(ANY_EL);
+            perform.try(() => {
+                perform(anyEl());
                 perform(fail());
             });
+            perform(anyEl());
         });
-        expect(parser.parse(["hoge"])).toEqual({
-            success: true,
-            index: 0,
-            value: undefined,
-        });
+        expect(parseA(parser, ["hoge"])).toBeUndefined();
     });
-    test("try + allowPartial", () => {
+    test("try > no rollback if allowPartial", () => {
         const parser = qo(perform => {
-            perform.try(undefined, () => {
-                perform(ANY_EL);
+            perform.try(() => {
+                perform(anyEl());
                 perform(fail(), { allowPartial: true });
             });
+            perform(eoi);
         });
-        expect(parser.parse(["hoge"])).toEqual({
-            success: true,
-            index: 1,
-            value: undefined,
+        expect(parseA(parser, ["hoge"])).toBeUndefined();
+    });
+    test("while", () => {
+        const parser = qo(perform => {
+            const result: unknown[] = [];
+            perform.while(() => {
+                result.push(perform(anyEl()));
+            });
+            return result;
         });
+        expect(parseA(parser, [0, 1, 2, 3])).toEqual([0, 1, 2, 3]);
+    });
+    test("while + allowPartial", () => {
+        const parser = qo(perform => {
+            const result: unknown[] = [];
+            perform.while(() => {
+                result.push(perform(anyEl()));
+                perform(anyEl(), { allowPartial: true });
+            });
+            return result;
+        });
+        expect(parseA(parser, ["hoge"])).toEqual(["hoge"]);
     });
 });

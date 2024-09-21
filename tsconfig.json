@@ -6,11 +6,12 @@
         "verbatimModuleSyntax": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "module": "ES2015",
+        "module": "ES2020",
         "target": "ESNext",
         "lib": ["ESNext"],
         "strict": true,
         "noEmit": true,
         "stripInternal": true,
+        "paths": { "parsea": ["./src"] },
     },
 }

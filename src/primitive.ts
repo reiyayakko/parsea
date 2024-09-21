@@ -19,7 +19,7 @@ export const fail = (): Parser<never, unknown> =>
 /**
  * end of input
  */
-export const EOI = /* #__PURE__ */ new Parser<unknown, unknown>((state, context) => {
+export const eoi = /* #__PURE__ */ new Parser<unknown, unknown>((state, context) => {
     if (state.i < context.src.length) {
         context.addError(state.i);
         return null;
@@ -30,16 +30,17 @@ export const EOI = /* #__PURE__ */ new Parser<unknown, unknown>((state, context)
 /**
  * Matches any element.
  *
- * @example any.parse([someValue]).value === someValue;
- * @example any.parse([]); // parse fail
+ * @example anyEl().parse([someValue]).value === someValue;
+ * @example anyEl().parse([]); // parse fail
  */
-export const ANY_EL = /* #__PURE__ */ new Parser<unknown, unknown>((state, context) => {
-    if (state.i < context.src.length) {
-        return updateState(state, context.src[state.i], 1);
-    }
-    context.addError(state.i);
-    return null;
-});
+export const anyEl = <T>() =>
+    new Parser<T, T>((state, context) => {
+        if (state.i < context.src.length) {
+            return updateState(state, context.src[state.i], 1);
+        }
+        context.addError(state.i);
+        return null;
+    });
 
 export const el = <const T>(value: T): Parser<T, unknown> =>
     satisfy(srcEl => equals(srcEl, value), {
@@ -53,7 +54,7 @@ export const oneOf = <const T>(values: Iterable<T>): Parser<T, unknown> => {
     return satisfy(el => set.has(el));
 };
 
-export const noneOf = (values: Iterable<unknown>): Parser<unknown, unknown> => {
+export const noneOf = <T>(values: Iterable<unknown>): Parser<T, T> => {
     const set = new Set(values);
     return satisfy(el => !set.has(el));
 };

@@ -1,4 +1,4 @@
-import { type Config, type Parser, qo } from "../src";
+import { type Config, type Parser, qo } from "parsea";
 
 // For simplicity, the behavior may differ in a few cases.
 
@@ -36,29 +36,33 @@ const between = <T, S>(parser: Parser<T, S>, pre: Parser<unknown, S>, post = pre
 const or = <T, U, S>(left: Parser<T, S>, right: Parser<U, S>) =>
     qo<T | U, S>(perform => {
         const [success, result] = perform.try(
-            [false] as const,
             () => [true, perform(left)] as const,
+            [false],
         );
         return success ? result : perform(right);
     });
 
 const option = <T, U, S>(parser: Parser<T, S>, defaultValue: U) =>
-    qo<T | U, S>(perform => {
-        return perform.try(defaultValue, () => perform(parser));
-    });
+    qo<T | U, S>(perform => perform.option(parser, defaultValue));
 
 const seq = <T, S>(parsers: readonly Parser<T, S>[]): Parser<T[], S> =>
-    qo(perform => {
-        return parsers.map(parser => perform(parser));
-    });
+    qo(perform => parsers.map(parser => perform(parser)));
 
 const many = <T, S>(parser: Parser<T, S>): Parser<T[], S> =>
     qo(perform => {
         const result: T[] = [];
-        perform.try(undefined, () => {
-            for (;;) {
-                result.push(perform(parser, { allowPartial: true }));
-            }
+        perform.while(() => {
+            result.push(perform(parser));
+        });
+        return result;
+    });
+
+const sepBy = <T, S>(parser: Parser<T, S>, sep: Parser<unknown, S>): Parser<T[], S> =>
+    qo(perform => {
+        const result: T[] = [];
+        perform.while(() => {
+            result.push(perform(parser));
+            perform(sep, { allowPartial: true });
         });
         return result;
     });
