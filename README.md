@@ -1,10 +1,14 @@
 # parsea
 
-[![Test](https://github.com/uzmoi/parsea/actions/workflows/test.yml/badge.svg)](https://github.com/uzmoi/parsea/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/uzmoi/parsea/branch/main/graph/badge.svg)](https://codecov.io/gh/uzmoi/parsea)
-[![license](https://img.shields.io/npm/l/parsea)](https://github.com/uzmoi/parsea/blob/main/LICENSE)
-[![npm version](https://img.shields.io/npm/v/parsea/latest?logo=npm)](https://www.npmjs.com/package/parsea)
-[![package size](https://img.shields.io/bundlephobia/min/parsea)](https://bundlephobia.com/package/parsea)
+[![NPM Version][npm-badge]](https://www.npmjs.com/package/parsea)
+[![License][license-badge]](https://opensource.org/license/MIT)
+[![npm bundle size][bundle-size-badge]](https://bundlephobia.com/package/parsea)
+[![Codecov][codecov-badge]](https://app.codecov.io/gh/uzmoi/parsea)
+
+[npm-badge]: https://img.shields.io/npm/v/parsea?style=flat-square
+[license-badge]: https://img.shields.io/github/license/uzmoi/parsea?style=flat-square
+[bundle-size-badge]: https://img.shields.io/bundlephobia/min/parsea?style=flat-square
+[codecov-badge]: https://img.shields.io/codecov/c/gh/uzmoi/parsea?style=flat-square
 
 parsea is a parser combinator library for parsing ArrayLike with TypeScript.
 
