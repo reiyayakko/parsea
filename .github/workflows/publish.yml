@@ -1,12 +1,12 @@
 
-name: Node.js Package
+name: Publish Package
 
 on:
   push:
     tags: [ v*.*.* ]
 
 jobs:
-  build:
+  publish-npm:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,3 +25,13 @@ jobs:
       - run: npm publish --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-jsr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: npx jsr publish
