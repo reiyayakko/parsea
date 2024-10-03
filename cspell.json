@@ -1,7 +1,7 @@
 {
   "version": "0.2",
   "useGitignore": true,
-  "ignorePaths": ["package.json", "package-lock.json"],
+  "ignorePaths": [".vscode", "package.json", "package-lock.json"],
   "words": [
     "accum",
     "biomejs",
@@ -12,6 +12,6 @@
     "parsimmon",
     "tsup",
     "uzmoi",
-    "vitest"
-  ]
+    "vitest",
+  ],
 }

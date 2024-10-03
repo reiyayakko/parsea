@@ -1,5 +1,5 @@
 import type { Context } from "./context";
-import { type ParseError } from "./error";
+import type { ParseError } from "./error";
 import type { ParseState } from "./state";
 
 type SuccessParseResult<out T> = {
