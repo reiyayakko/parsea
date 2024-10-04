@@ -3,6 +3,8 @@
 
 ## [Unreleased]
 
+- Change exports order in package.json.
+
 ## [0.10.0] - 2024-09-21
 
 - Added `parseA` function.
