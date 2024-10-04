@@ -19,6 +19,9 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
+      - name: Check version
+        run: jq -e '.version as $v | "${{ github.ref }}" | endswith("/v" + $v)' package.json
+  
       - run: npm ci
       - run: npm run build
 
@@ -33,5 +36,8 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check version
+        run: jq -e '.version as $v | "${{ github.ref }}" | endswith("/v" + $v)' jsr.json
 
       - run: npx jsr publish
