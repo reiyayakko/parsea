@@ -1,0 +1,13 @@
+{
+  "$schema": "https://jsr.io/schema/config-file.v1.json",
+  "name": "@uzmoi/parsea",
+  "version": "0.10.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./internal": "./src/internal.ts"
+  },
+  "publish": {
+    "include": ["LICENSE", "README.md", "src"],
+    "exclude": ["**/*.test.ts"]
+  }
+}

@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
   "files": {
-    "ignore": ["package.json"],
+    "ignore": ["package.json", "jsr.json"],
     "ignoreUnknown": true
   },
   "vcs": {
