@@ -36,7 +36,7 @@ export class Context<out T = unknown> {
             (startErrorIndex !== this.errorIndex ? 0 : startErrorLength)
         );
     }
-    makeError() {
+    makeError(): { index: number; errors: ParseError[] } {
         const errors = [];
         for (const error of this.errors) {
             if (error.type === "Label") {

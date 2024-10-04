@@ -5,6 +5,8 @@
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "esModuleInterop": true,
+    "isolatedDeclarations": true,
+    "declaration": true,
     "skipLibCheck": true,
     "module": "ES2020",
     "target": "ESNext",

@@ -2,7 +2,9 @@ import * as error from "./error";
 import { Parser } from "./parser";
 import { updateState } from "./state";
 
-export const string = <const T extends string>(string: T): Parser<T, string> => {
+type StringParser<T = string> = Parser<T, string>;
+
+export const string = <const T extends string>(string: T): StringParser<T> => {
     return new Parser((state, context) => {
         if (typeof context.src !== "string") {
             context.addError(state.i);
@@ -19,7 +21,7 @@ export const string = <const T extends string>(string: T): Parser<T, string> => 
 
 const graphemeSegmenter = /* @__PURE__ */ new Intl.Segmenter();
 
-export const graphemeString = (string: string): Parser<string, string> => {
+export const graphemeString = (string: string): StringParser => {
     const normalizedString = string.normalize();
     return new Parser((state, context) => {
         if (typeof context.src !== "string") {
@@ -60,7 +62,7 @@ export const graphemeString = (string: string): Parser<string, string> => {
     });
 };
 
-export const codePoint = /* @__PURE__ */ new Parser<string, string>((state, context) => {
+export const codePoint: StringParser = /* @__PURE__ */ new Parser((state, context) => {
     if (typeof context.src !== "string") {
         context.addError(state.i);
         return null;
@@ -92,7 +94,7 @@ export const codePoint = /* @__PURE__ */ new Parser<string, string>((state, cont
     return updateState(state, context.src[state.i], 1);
 });
 
-export const anyChar = /* @__PURE__ */ new Parser<string, string>((state, context) => {
+export const anyChar: StringParser = /* @__PURE__ */ new Parser((state, context) => {
     if (typeof context.src !== "string") {
         context.addError(state.i);
         return null;
@@ -109,7 +111,7 @@ export const anyChar = /* @__PURE__ */ new Parser<string, string>((state, contex
     return updateState(state, segmentData.segment, segmentData.segment.length);
 });
 
-export const regexGroup = (re: RegExp): Parser<RegExpExecArray, string> => {
+export const regexGroup = (re: RegExp): StringParser<RegExpExecArray> => {
     let flags = re.flags.replace("g", "");
     if (!re.sticky) {
         flags += "y";
@@ -132,13 +134,13 @@ export const regexGroup = (re: RegExp): Parser<RegExpExecArray, string> => {
 };
 
 export const regex: {
-    (re: RegExp): Parser<string, string>;
-    (re: RegExp, groupId: number | string): Parser<string | undefined, string>;
+    (re: RegExp): StringParser<string>;
+    (re: RegExp, groupId: number | string): StringParser<string | undefined>;
     <const T>(
         re: RegExp,
         groupId: number | string,
         defaultValue: T,
-    ): Parser<string | T, string>;
+    ): StringParser<string | T>;
 } = (re: RegExp, groupId: number | string = 0, defaultValue?: undefined) =>
     regexGroup(re).map(matchResult => {
         const groupValue =
