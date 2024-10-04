@@ -3,6 +3,8 @@
 
 ## [Unreleased]
 
+## [0.10.1] - 2024-10-04
+
 - Change exports order in package.json.
 
 ## [0.10.0] - 2024-09-21
