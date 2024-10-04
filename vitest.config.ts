@@ -1,5 +1,11 @@
 import { defineConfig } from "vitest/config";
 
+declare global {
+    interface ImportMeta {
+        dirname: string;
+    }
+}
+
 export default defineConfig({
     test: {
         include: ["{src,examples}/**/*.test.ts"],
