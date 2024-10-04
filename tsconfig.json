@@ -1,6 +1,5 @@
 {
-  "include": ["**/*", ".*"],
-  "exclude": ["dist/*"],
+  "include": ["src"],
   "compilerOptions": {
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,

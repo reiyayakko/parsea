@@ -92,7 +92,11 @@ export class Parser<out T = unknown, in S = never> {
             return newStateB && updateState(newStateB, zip(newStateA.v, newStateB.v));
         });
     }
-    between<S2>(this: this, pre: Parser<unknown, S2>, post = pre): Parser<T, S & S2> {
+    between<S2>(
+        this: this,
+        pre: Parser<unknown, S2>,
+        post: Parser<unknown, S2> = pre,
+    ): Parser<T, S & S2> {
         return new Parser((state, context) => {
             const newStateA = pre.run(state, context);
             const newStateB = newStateA && this.run(newStateA, context);
