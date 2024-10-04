@@ -7,7 +7,7 @@
 [![Codecov][codecov-badge]](https://app.codecov.io/gh/uzmoi/parsea)
 
 [npm-badge]: https://img.shields.io/npm/v/parsea?style=flat-square
-[jsr-badge]: https://img.shields.io/jsr/v/uzmoi/parsea?style=flat-square
+[jsr-badge]: https://img.shields.io/jsr/v/@uzmoi/parsea?style=flat-square
 [license-badge]: https://img.shields.io/github/license/uzmoi/parsea?style=flat-square
 [bundle-size-badge]: https://img.shields.io/bundlephobia/min/parsea?style=flat-square
 [codecov-badge]: https://img.shields.io/codecov/c/gh/uzmoi/parsea?style=flat-square
