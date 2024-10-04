@@ -15,7 +15,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: 20
           cache: npm
           registry-url: https://registry.npmjs.org
 
@@ -36,8 +35,13 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
 
       - name: Check version
         run: jq -e '.version as $v | "${{ github.ref }}" | endswith("/v" + $v)' jsr.json
+
+      - run: npm ci
 
       - run: npx jsr publish
