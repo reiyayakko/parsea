@@ -1,5 +1,4 @@
 import { MAX_INT32, clamp } from "emnorst";
-import type { Config } from ".";
 import { type Parsed, Parser, type Source } from "./parser";
 import { type ParseState, updateState } from "./state";
 
