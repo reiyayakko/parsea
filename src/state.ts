@@ -1,7 +1,7 @@
-export type ParseState<out T> = {
+export interface ParseState<out T> {
     readonly i: number;
     readonly v: T;
-};
+}
 
 export const initState: ParseState<null> = {
     i: 0,

@@ -12,11 +12,11 @@ const get = (error: unknown) => {
     throw error;
 };
 
-export type PerformOptions = {
+export interface PerformOptions {
     allowPartial?: boolean;
-};
+}
 
-export type Perform<S> = {
+export interface Perform<S> {
     <T>(parser: Parser<T, S>, options?: PerformOptions): T;
     /**
      * @example
@@ -74,7 +74,7 @@ export type Perform<S> = {
      * ```
      */
     while(runner: () => void): void;
-};
+}
 
 /**
  * @example
