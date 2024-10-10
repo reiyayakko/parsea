@@ -1,5 +1,5 @@
 import { MAX_INT32, clamp } from "emnorst";
-import { type Parsed, Parser, type Source } from "./parser";
+import { type Parsed, Parser, type SourceOf } from "./parser";
 import { type ParseState, updateState } from "./state";
 
 /**
@@ -52,11 +52,11 @@ export const seq: {
     <T extends readonly Parser[] | []>(
         parsers: T,
         options?: { allowPartial?: false },
-    ): Parser<Seq<T>, Source<T[number]>>;
+    ): Parser<Seq<T>, SourceOf<T[number]>>;
     <T extends readonly Parser[] | []>(
         parsers: T,
         options: { allowPartial: boolean },
-    ): Parser<Partial<Seq<T>>, Source<T[number]>>;
+    ): Parser<Partial<Seq<T>>, SourceOf<T[number]>>;
 } = (parsers, options) =>
     new Parser((state, context) => {
         const values: unknown[] = [];
@@ -71,7 +71,7 @@ export const seq: {
         return updateState(state, values);
     });
 
-type Choice<T extends readonly Parser[]> = Parser<Parsed<T[number]>, Source<T[number]>>;
+type Choice<T extends readonly Parser[]> = Parser<Parsed<T[number]>, SourceOf<T[number]>>;
 
 /**
  * @example

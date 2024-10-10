@@ -5,7 +5,10 @@ import { type ParseState, initState, updateState } from "./state";
 
 export type Parsed<T> = T extends Parser<infer U> ? U : never;
 
-export type Source<T> = [T] extends [Parser<unknown, infer U>] ? U : never;
+export type SourceOf<T> = [T] extends [Parser<unknown, infer U>] ? U : never;
+
+/** @deprecated Use {@link SourceOf} instead. */
+export type Source<T> = SourceOf<T>;
 
 export type ParseRunner<in T, out U, in S> = (
     this: void,
