@@ -14,6 +14,19 @@
 
 parsea is a parser combinator library for parsing ArrayLike with TypeScript.
 
+```ts
+import * as P from "parsea";
+
+const parser = P.seq([
+    P.regex(/-?\d+(\.\d+)?/).map(Number.parseFloat),
+    P.regex(/[A-Z]+/i),
+]).map(([value, unit]) => ({ value, unit }));
+
+P.parseA(parser, "273.15K"); // => { value: 273.15, unit: "K" }
+```
+
+See also [examples/ directory](https://github.com/uzmoi/parsea/tree/main/examples).
+
 Inspired by
 
 - [loquat](https://github.com/susisu/loquat)

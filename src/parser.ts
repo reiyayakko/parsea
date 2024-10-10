@@ -42,6 +42,9 @@ export class Parser<out T = unknown, in S = never> {
             return newState;
         });
     }
+    /**
+     * Makes this parser return a constant value.
+     */
     return<const U>(this: this, value: U): Parser<U, S> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
@@ -54,6 +57,16 @@ export class Parser<out T = unknown, in S = never> {
             return newState && updateState(newState, f(newState.v, context.cfg));
         });
     }
+    /**
+     * Chains this parser with a function.
+     *
+     * @example
+     * ```ts
+     * const parser = anyEl().flatMap(value => el(value));
+     * parseA(parser, "aa"); // => "a"
+     * parseA(parser, "ab"); // parse error
+     * ```
+     */
     flatMap<U, S2>(
         this: this,
         f: (value: T, config: Config) => Parser<U, S2>,
@@ -63,12 +76,18 @@ export class Parser<out T = unknown, in S = never> {
             return newState && f(newState.v, context.cfg).run(newState, context);
         });
     }
+    /**
+     * Applies this parser followed by another parser, returning the result of the second parser.
+     */
     then<U, S2>(this: this, parser: Parser<U, S2>): Parser<U, S & S2> {
         return new Parser((state, context) => {
             const newState = this.run(state, context);
             return newState && parser.run(newState, context);
         });
     }
+    /**
+     * Applies this parser followed by another parser, returning the result of this parser.
+     */
     skip<S2>(this: this, parser: Parser<unknown, S2>): Parser<T, S & S2> {
         return new Parser((state, context) => {
             const newStateA = this.run(state, context);
@@ -92,6 +111,9 @@ export class Parser<out T = unknown, in S = never> {
             return newStateB && updateState(newStateB, zip(newStateA.v, newStateB.v));
         });
     }
+    /**
+     * Applies this parser between other parsers.
+     */
     between<S2>(
         this: this,
         pre: Parser<unknown, S2>,
@@ -110,11 +132,15 @@ export class Parser<out T = unknown, in S = never> {
             return this.run(state, context) ?? parser.run(state, context);
         });
     }
+    /**
+     * Makes this parser optional, returning undefined on failure.
+     * If a default value is provided, return that value instead.
+     */
     option(this: this): Parser<T | undefined, S>;
-    option<const U>(this: this, value: U): Parser<T | U, S>;
-    option<U>(this: this, value?: U): Parser<T | U, S> {
+    option<const U>(this: this, defaultValue: U): Parser<T | U, S>;
+    option<U>(this: this, defaultValue?: U): Parser<T | U, S> {
         return new Parser<T | U, S>((state, context) => {
-            return this.run(state, context) ?? updateState(state, value as U);
+            return this.run(state, context) ?? updateState(state, defaultValue as U);
         });
     }
 }

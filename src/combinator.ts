@@ -4,7 +4,7 @@ import { type Parsed, Parser, type Source } from "./parser";
 import { type ParseState, updateState } from "./state";
 
 /**
- * Delays variable references until the parser runs.
+ * Defers variable references until the parser runs.
  */
 export const lazy = <T, S>(getParser: () => Parser<T, S>): Parser<T, S> => {
     const lazyParser: Parser<T, S> = new Parser((state, context) => {
@@ -14,6 +14,9 @@ export const lazy = <T, S>(getParser: () => Parser<T, S>): Parser<T, S> => {
     return lazyParser;
 };
 
+/**
+ * Succeeds if the given parser fails, without consuming input.
+ */
 export const notFollowedBy = <S>(parser: Parser<unknown, S>): Parser<unknown, S> =>
     new Parser((state, context) => {
         const newState = parser.run(state, context);
@@ -24,6 +27,9 @@ export const notFollowedBy = <S>(parser: Parser<unknown, S>): Parser<unknown, S>
         return null;
     });
 
+/**
+ * Applies the given parser without consuming input.
+ */
 export const lookAhead = <T, S = unknown>(parser: Parser<T, S>): Parser<T, S> =>
     new Parser((state, context) => {
         const newState = parser.run(state, context);
@@ -34,6 +40,15 @@ type Seq<out T extends readonly Parser[]> = {
     [K in keyof T]: Parsed<T[K]>;
 };
 
+/**
+ * @example
+ * ```ts
+ * const parser = seq([el("a"), anyEl()]);
+ * parseA(parser, "ab"); // => ["a", "b"]
+ * parseA(parser, "a1"); // => ["a", "1"]
+ * parseA(parser, "a"); // parse error
+ * ```
+ */
 export const seq: {
     <T extends readonly Parser[] | []>(
         parsers: T,
@@ -59,6 +74,15 @@ export const seq: {
 
 type Choice<T extends readonly Parser[]> = Parser<Parsed<T[number]>, Source<T[number]>>;
 
+/**
+ * @example
+ * ```ts
+ * const parser = choice([el("a"), el("b")]);
+ * parseA(parser, "a"); // => "a"
+ * parseA(parser, "b"); // => "b"
+ * parseA(parser, "c"); // parse error
+ * ```
+ */
 export const choice = <T extends readonly Parser[] | []>(parsers: T): Choice<T> =>
     new Parser((state, context) => {
         for (const parser of parsers) {
@@ -70,6 +94,19 @@ export const choice = <T extends readonly Parser[] | []>(parsers: T): Choice<T> 
         return null;
     });
 
+/**
+ * @example
+ * ```ts
+ * const parser = many(anyEl());
+ * parseA(parser, "ab"); // => ["a", "b"]
+ * ```
+ * @example
+ * ```ts
+ * const parser = many(anyEl(), { min: 1 });
+ * parseA(parser, ""); // parse error
+ * parseA(parser, "a"); // => ["a"]
+ * ```
+ */
 export const many = <T, S>(
     parser: Parser<T, S>,
     options?: { min?: number; max?: number },
@@ -90,6 +127,21 @@ export const many = <T, S>(
 
 /**
  * To require the trailing {@link separator}, use {@link many} with `parser.skip(separator)`.
+ *
+ * @example
+ * ```ts
+ * const parser = sepBy(anyEl(), el(","), { min: 1 });
+ * parseA(parser, ""); // parse error
+ * parseA(parser, "a"); // => ["a"]
+ * parseA(parser, "a,b"); // => ["a", "b"]
+ * ```
+ * @example
+ * ```ts
+ * const parser = sepBy(anyEl(), el(","), { trailing: "allow" });
+ * parseA(parser, ""); // => []
+ * parseA(parser, "a"); // => ["a"]
+ * parseA(parser, "a,b,"); // => ["a", "b"]
+ * ```
  */
 export const sepBy = <T, S>(
     parser: Parser<T, S>,

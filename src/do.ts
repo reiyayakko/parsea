@@ -18,14 +18,76 @@ export type PerformOptions = {
 
 export type Perform<S> = {
     <T>(parser: Parser<T, S>, options?: PerformOptions): T;
+    /**
+     * @example
+     * ```ts
+     * const parser = qo(perform => {
+     *   return perform.option(el("a"), "default");
+     * });
+     * parseA(parser, "a"); // => "a"
+     * parseA(parser, ""); // => "default"
+     * ```
+     */
     option<T>(parser: Parser<T, S>): T | undefined;
     option<T, const U = T>(parser: Parser<T, S>, defaultValue: U): T | U;
+    /**
+     * @example
+     * ```ts
+     * const parser = qo(perform => {
+     *   const result = perform.try(() => {
+     *     perform(el("a"));
+     *     perform(el("b"));
+     *     return "ab";
+     *   }, "default");
+     *   perform(el("c"));
+     *   return result;
+     * });
+     * parseA(parser, "abc"); // => "ab"
+     * parseA(parser, "c"); // => "default"
+     * ```
+     */
     try<const T>(runner: () => T): T | undefined;
     try<const T, const U = T>(runner: () => T, defaultValue: U): T | U;
+    /**
+     * @example
+     * ```ts
+     * const parser = qo(perform => {
+     *   return perform.many(anyEl());
+     * });
+     * parseA(parser, "abc"); // => ["a", "b", "c"]
+     * ```
+     */
     many<T>(parser: Parser<T, S>): T[];
+    /**
+     * @example
+     * ```ts
+     * const parser = qo(perform => {
+     *   const result = [];
+     *   perform.while(() => {
+     *     result.push(perform(anyEl()));
+     *     perform(el(","), { allowPartial: true });
+     *   });
+     *   return result;
+     * });
+     * parseA(parser, "a,b,c"); // => ["a", "b", "c"]
+     * parseA(parser, "a,"); // => ["a"]
+     * ```
+     */
     while(runner: () => void): void;
 };
 
+/**
+ * @example
+ * ```ts
+ * const parser = qo(perform => {
+ *   const a = perform(anyEl());
+ *   perform(el(","));
+ *   const b = perform(anyEl());
+ *   return { a, b };
+ * });
+ * parseA(parser, "a,b"); // => { a: "a", b: "b" }
+ * ```
+ */
 export const qo = <T, S>(
     runner: (perform: Perform<S>, config: Config) => T,
 ): Parser<T, S> =>

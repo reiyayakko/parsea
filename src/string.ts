@@ -111,6 +111,22 @@ export const anyChar: StringParser = /* @__PURE__ */ new Parser((state, context)
     return updateState(state, segmentData.segment, segmentData.segment.length);
 });
 
+/**
+ * A parser that matches a regular expression and returns the result of `exec`.
+ *
+ * @see {@link regex}
+ *
+ * @example
+ * ```ts
+ * const parser = regexGroup(/(-?\d+\.\d+)([A-Z]+)/i);
+ * parseA(parser, "273.15K"); // => ["273.15K", "273.15", "K", index: 0, input: "273.15K"]
+ * ```
+ * @example
+ * ```ts
+ * const parser = anyEl().then(regexGroup(/(?<=(a))b(?=(c))/)).skip(anyEl());
+ * parseA(parser, "abc"); // => ["b", "a", "c", index: 1, input: "abc"]
+ * ```
+ */
 export const regexGroup = (re: RegExp): StringParser<RegExpExecArray> => {
     let flags = re.flags.replace("g", "");
     if (!re.sticky) {
@@ -133,6 +149,34 @@ export const regexGroup = (re: RegExp): StringParser<RegExpExecArray> => {
     });
 };
 
+/**
+ * A parser that matches a regular expression and returns a string.
+ *
+ * @see {@link regexGroup}
+ *
+ * @example
+ * ```ts
+ * parseA(regex(/./), "a") // => "a"
+ * ```
+ * @example
+ * ```ts
+ * // with capturing group
+ * const parser = regex(/a(.+)/, 1);
+ * parseA(parser, "abc") // => "bc"
+ * ```
+ * @example
+ * ```ts
+ * // with named capturing group
+ * const parser = regex(/a(?<foo>.+)/, "foo");
+ * parseA(parser, "abc") // => "bc"
+ * ```
+ * @example
+ * ```ts
+ * // with default value
+ * const parser = regex(/a(?<foo>.+)?/, "foo", "default");
+ * parseA(parser, "a") // => "default"
+ * ```
+ */
 export const regex: {
     (re: RegExp): StringParser<string>;
     (re: RegExp, groupId: number | string): StringParser<string | undefined>;

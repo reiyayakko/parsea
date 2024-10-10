@@ -5,11 +5,14 @@ import { Parser } from "./parser";
 import { updateState } from "./state";
 
 /**
- * Always succeed with the value of the argument.
+ * Always succeeds with the given value.
  */
 export const pure = <const T>(value: T): Parser<T, unknown> =>
     new Parser(state => updateState(state, value));
 
+/**
+ * Always fails.
+ */
 export const fail = (): Parser<never, unknown> =>
     new Parser((state, context) => {
         context.addError(state.i);
@@ -17,7 +20,7 @@ export const fail = (): Parser<never, unknown> =>
     });
 
 /**
- * end of input
+ * Succeeds only at the end of input.
  */
 export const eoi: Parser<unknown, unknown> = /* #__PURE__ */ new Parser(
     (state, context) => {
@@ -30,10 +33,7 @@ export const eoi: Parser<unknown, unknown> = /* #__PURE__ */ new Parser(
 );
 
 /**
- * Matches any element.
- *
- * @example anyEl().parse([someValue]).value === someValue;
- * @example anyEl().parse([]); // parse fail
+ * Consumes any element.
  */
 export const anyEl = <T>(): Parser<T, T> =>
     new Parser((state, context) => {
@@ -44,6 +44,9 @@ export const anyEl = <T>(): Parser<T, T> =>
         return null;
     });
 
+/**
+ * Consumes an element equal to the given value using SameValueZero comparison.
+ */
 export const el = <const T>(value: T): Parser<T, unknown> =>
     satisfy(srcEl => equals(srcEl, value), {
         error: error.expected(
@@ -51,25 +54,43 @@ export const el = <const T>(value: T): Parser<T, unknown> =>
         ),
     });
 
+/**
+ * Consumes an element if it matches any of the specified values using SameValueZero comparison.
+ */
 export const oneOf = <const T>(values: Iterable<T>): Parser<T, unknown> => {
     const set = new Set<unknown>(values);
     return satisfy(el => set.has(el));
 };
 
+/**
+ * Consumes an element if it does not match any of the specified values using SameValueZero comparison.
+ */
 export const noneOf = <T>(values: Iterable<unknown>): Parser<T, T> => {
     const set = new Set(values);
     return satisfy(el => !set.has(el));
 };
 
+/**
+ * Consumes an element satisfying a predicate.
+ *
+ * @example
+ * ```ts
+ * const parser = satisfy(Number.isInteger);
+ * parseA(parser, [0]); // => 0
+ * parseA(parser, [1.5]); // parse error
+ * ```
+ */
 export const satisfy = <T extends S, S = unknown>(
-    f: ((el: S, config: Config) => boolean) | ((el: S, config: Config) => el is T),
+    predicate:
+        | ((el: S, config: Config) => boolean)
+        | ((el: S, config: Config) => el is T),
     options?: { error?: error.ParseError },
 ): Parser<T, S> =>
     new Parser((state, context) => {
         let srcEl: unknown;
         if (
             state.i < context.src.length &&
-            f((srcEl = context.src[state.i]), context.cfg)
+            predicate((srcEl = context.src[state.i]), context.cfg)
         ) {
             return updateState(state, srcEl as T, 1);
         }
@@ -77,6 +98,9 @@ export const satisfy = <T extends S, S = unknown>(
         return null;
     });
 
+/**
+ * Consumes a literal sequence of elements using SameValueZero comparison.
+ */
 export const literal = <const T extends ArrayLike<unknown>>(
     chunk: T,
 ): Parser<T, unknown> =>
