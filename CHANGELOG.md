@@ -3,6 +3,11 @@
 
 ## [Unreleased]
 
+## [0.10.2] - 2024-10-12
+
+- Added `SourceOf` type.
+- Deprecated `Source` type.
+
 ## [0.10.1] - 2024-10-04
 
 - Change exports order in package.json.
